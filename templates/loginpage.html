@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Log In</title>
+</head>
+<body>
+    <a href="/"><h1>Log In</h1></a>
+    <hr>
+    <form method="post">
+        <table>
+            <tr>
+                <td>Username:</td>
+                <td><input type="text" name="username" value="{{username}}"></td>
+            </tr>
+            <tr>
+                <td>Password:</td>
+                <td><input type="password" name="password"></td>
+            </tr>
+            <tr>
+                <td style="color:red">{{err_login}}</td>
+            </tr>
+            <tr>
+                <td><input type="submit" name="submit"></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

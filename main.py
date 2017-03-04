@@ -17,6 +17,9 @@
 import os
 import webapp2
 import jinja2
+import models
+import logging
+import utils
 
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True) 
@@ -32,8 +35,43 @@ class Handler(webapp2.RequestHandler):
 
 class MainHandler(Handler):
     def get(self):
-        items = self.write("Hello World!")
+        cookie = self.request.cookies.get("user_id")
+        self.render("index.html",loggedIn=utils.verify_secret_hash(cookie))
+
+class LoginHandler(Handler):
+    def get(self):
+        self.render("loginpage.html")
+
+class SignUpHandler(Handler):
+    def render_signup(self,u_user="",u_email="",err_user="",err_pass="",err_verify="",err_email="",err_fname=""):
+        self.render('signuppage.html',u_user=u_user,u_email=u_email,
+                                    err_user=err_user,err_pass=err_pass,
+                                    err_verify=err_verify,err_email=err_email, err_fname=err_fname)
+    def get(self):
+        self.render("signuppage.html")
+    def post(self):
+        u_user = self.request.get("username")
+        u_pass = self.request.get("password")
+        u_verify = self.request.get("verify")
+        u_email = self.request.get("email")
+        u_fname = self.request.get("fullname")
+        new_user = u_user,u_pass,u_verify,u_email,u_fname
+
+        err_user = ""
+        err_pass = ""
+        err_verify = "" 
+        err_email = ""
+        err_fname = ""
+        errors = err_user,err_pass,err_verify,err_email,err_fname
+        
+        errors = models.get_user_error(new_user,errors)
+        models.check_user_error(self,new_user,errors)
+
+
+
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', MainHandler),
+    ('/login',LoginHandler),
+    ('/signup',SignUpHandler)
 ], debug=True)
