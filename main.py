@@ -36,11 +36,23 @@ class Handler(webapp2.RequestHandler):
 class MainHandler(Handler):
     def get(self):
         cookie = self.request.cookies.get("user_id")
-        self.render("index.html",loggedIn=utils.verify_secret_hash(cookie))
+        if cookie:
+            self.render("index.html",loggedIn=utils.verify_secret_hash(cookie))
+        else:
+            self.render("index.html")
 
 class LoginHandler(Handler):
     def get(self):
         self.render("loginpage.html")
+    def post(self):
+        u_user = self.request.get("username")
+        u_pass = self.request.get("password")
+        loginSuccess = models.check_creds(u_user,u_pass)
+        if loginSuccess:
+            self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(u_user)))
+            self.redirect("/")
+        else:
+            self.render("loginpage.html",err_login="Invalid Credentials")
 
 class SignUpHandler(Handler):
     def render_signup(self,u_user="",u_email="",err_user="",err_pass="",err_verify="",err_email="",err_fname=""):
@@ -67,11 +79,15 @@ class SignUpHandler(Handler):
         errors = models.get_user_error(new_user,errors)
         models.check_user_error(self,new_user,errors)
 
-
+class LogOutHandler(Handler):
+    def get(self):
+        self.response.headers.add("Set-Cookie","user_id=%; Path=/")
+        self.redirect('/')
 
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/login',LoginHandler),
-    ('/signup',SignUpHandler)
+    ('/signup',SignUpHandler),
+    ('/logout',LogOutHandler)
 ], debug=True)

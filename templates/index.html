@@ -8,15 +8,20 @@
         <div style="float:left;">
             <label style="text-align: left;"><b>Website!</b></label>
         </div>
-        {%if not loggedIn%}
-        <div style="float: right">  
+        
+        <div style="float: right"> 
+            {%if not loggedIn%} 
             <a href="/">Home</a>
             <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
             <a href="/login">Login</a>
             <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
             <a href="/signup">Sign Up</a>
+            {%else%}
+            <a href="/logout">Log Out</a>
+            {%endif%}
         </div>
-        {%endif%}
+
+        
         <br>
         <hr>
     </div>
