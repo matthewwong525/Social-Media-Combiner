@@ -76,8 +76,8 @@ class SignUpHandler(Handler):
         err_fname = ""
         errors = err_user,err_pass,err_verify,err_email,err_fname
         
-        errors = models.get_user_error(new_user,errors)
-        models.check_user_error(self,new_user,errors)
+        errors = models.get_user_error_signup(new_user,errors)
+        models.signup_user_check(self,new_user,errors)
 
 class LogOutHandler(Handler):
     def get(self):
