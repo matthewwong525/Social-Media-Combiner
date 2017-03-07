@@ -55,8 +55,8 @@ class LoginHandler(Handler):
             self.render("loginpage.html",err_login="Invalid Credentials")
 
 class SignUpHandler(Handler):
-    def render_signup(self,u_user="",u_email="",err_user="",err_pass="",err_verify="",err_email="",err_fname=""):
-        self.render('signuppage.html',u_user=u_user,u_email=u_email,
+    def render_signup(self,u_user="",u_email="",u_fname="",err_user="",err_pass="",err_verify="",err_email="",err_fname=""):
+        self.render('signuppage.html',u_user=u_user,u_email=u_email,u_fname=u_fname,
                                     err_user=err_user,err_pass=err_pass,
                                     err_verify=err_verify,err_email=err_email, err_fname=err_fname)
     def get(self):

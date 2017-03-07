@@ -39,12 +39,13 @@ def get_user_error_signup(new_user,errors):
     u_user,u_pass,u_verify,u_email,u_fname = new_user
     err_user,err_pass,err_verify,err_email,err_fname = errors
 
-    queryUser = check_user_in_cache(u_user)
+    content = user_cache()
+    queryUser = check_user_in_cache(u_user,content)
 
 
-    if not USER_RE.match(u_user) and not queryUser:
+    if not USER_RE.match(u_user):
         err_user = "Incorrect Username"
-    else:
+    elif queryUser:
         err_user = "Username already exists"
     if not PASS_RE.match(u_pass):
         err_pass = "Incorrect Password"
@@ -66,7 +67,7 @@ def signup_user_check(self,new_user,errors):
         update_userdata(new_user)
         self.redirect("/")
     else:
-        self.render_signup(u_user,u_email,err_user,err_pass,err_verify,err_email,err_fname)
+        self.render_signup(u_user,u_email,u_fname,err_user,err_pass,err_verify,err_email,err_fname)
 
 #add transaction
 def update_userdata(new_user):
@@ -78,17 +79,22 @@ def update_userdata(new_user):
     user_cache(update=True,ancestor=parent_key)
 
 def check_creds(u_user,u_pass):
-    queryUser = check_user_in_cache(u_user)
+    content = user_cache()
+    queryUser = check_user_in_cache(u_user,content)
 
-    if queryUser and utils.verify_pw_hash(u_pass,str(content.Users.password)):
+    if not queryUser and utils.verify_pw_hash(u_pass,str(content.Users.password)):
         return True
     else:
         return False
 
-def check_user_in_cache(u_user):
-    content = user_cache()
-    queryUser = True
-    for uesrs in content:
-        if u_user in uesrs.username:
-            queryUser = False
-            break
+#checks if the user is in the cache and if the cache is empty(True if user exists, false if it does not exist)
+def check_user_in_cache(u_user,content):
+    queryUser = False
+    if content:
+        for users in content:
+            if u_user in users.username:
+                queryUser = True
+                break
+    else:
+        queryUser = True
+    return queryUser
