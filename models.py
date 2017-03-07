@@ -81,20 +81,20 @@ def update_userdata(new_user):
 def check_creds(u_user,u_pass):
     content = user_cache()
     queryUser = check_user_in_cache(u_user,content)
-
-    if not queryUser and utils.verify_pw_hash(u_pass,str(content.Users.password)):
+    logging.info(content)
+    if queryUser and utils.verify_pw_hash(u_pass,str(queryUser.password)):
         return True
     else:
         return False
 
 #checks if the user is in the cache and if the cache is empty(True if user exists, false if it does not exist)
 def check_user_in_cache(u_user,content):
-    queryUser = False
+    specific_user = None
     if content:
         for users in content:
             if u_user in users.username:
-                queryUser = True
+                specific_user = users
                 break
     else:
-        queryUser = True
-    return queryUser
+        specific_user = None
+    return specific_user
