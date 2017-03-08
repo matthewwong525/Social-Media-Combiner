@@ -3,6 +3,7 @@
 <head>
     <title>Welcome</title>
 </head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
 <body>
     <div>
         <div style="float:left;">
@@ -20,13 +21,14 @@
             <a href="/logout">Log Out</a>
             {%endif%}
         </div>
-
-        
         <br>
         <hr>
     </div>
-    
-    
-    
+    <div align = "center">
+        <textarea style="margin: 0px; height: 600px; width: 1000px;"></textarea><br>
+        <textarea type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;"></textarea>
+    </div>
 </body>
+<script src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
+<script src="/scripts/app.js"></script>
 </html>

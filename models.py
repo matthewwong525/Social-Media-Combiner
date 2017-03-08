@@ -69,7 +69,9 @@ def signup_user_check(self,new_user,errors):
     else:
         self.render_signup(u_user,u_email,u_fname,err_user,err_pass,err_verify,err_email,err_fname)
 
-#add transaction
+#TODO:add transactions
+#TODO:make it so that it updates the cache directly by appending to it and database
+#after signup this function updates the cache and database
 def update_userdata(new_user):
     u_user,u_pass,u_verify,u_email,u_fname = new_user
     parent_key = ndb.Key('user_parent','parent')
@@ -78,6 +80,7 @@ def update_userdata(new_user):
     user.put()
     user_cache(update=True,ancestor=parent_key)
 
+#check the credentials on login
 def check_creds(u_user,u_pass):
     content = user_cache()
     queryUser = check_user_in_cache(u_user,content)

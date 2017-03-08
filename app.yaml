@@ -1,4 +1,4 @@
-application: mywebapp
+application: mywebapp-123
 version: 1
 runtime: python27
 api_version: 1
@@ -8,6 +8,17 @@ handlers:
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
+
+- url: /firebase-messaging-sw\.js
+  static_files: firebase-messaging-sw.js
+  upload: firebase-messaging-sw\.js
+
+- url: /manifest\.json
+  static_files: manifest.json
+  upload: manifest\.json
+
+- url: /scripts
+  static_dir: scripts
 
 - url: .*
   script: main.app
