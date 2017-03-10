@@ -2,14 +2,15 @@
 <html ng-app="website">
 <head>
     <title>Welcome</title>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
 </head>
 
-<body ng-controller="WebsiteController as web">
+<body ng-controller="WebsiteController as web" ng-init="web.loggedIn({{loggedIn | lower}})">
     <div>
         <div style="float:left;">
             <label style="text-align: left;"><b>Website!</b></label>
         </div>
-        {/web.loggedIn({{loggedIn | lower}})/}
         <div style="float: right" > 
             {%if not loggedIn%} 
             <a href="/">Home</a>
@@ -28,8 +29,8 @@
         <textarea style="margin: 0px; height: 600px; width: 1000px;"></textarea><br>
         <textarea type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;"></textarea>
     </div>
+    
+    <script type="text/javascript" src="/scripts/app.js"></script>
 </body>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
-<script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
-<script type="text/javascript" src="/scripts/app.js"></script>
+
 </html>
