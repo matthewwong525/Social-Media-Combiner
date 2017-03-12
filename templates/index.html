@@ -5,8 +5,7 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
 </head>
-
-<body ng-controller="WebsiteController as web" ng-init="web.loggedIn({{loggedIn | lower}})">
+<body ng-controller="WebsiteController as web" ng-init="web.loggedIn({{loggedIn | lower}},'{{username}}')">
     <div>
         <div style="float:left;">
             <label style="text-align: left;"><b>Website!</b></label>
@@ -19,13 +18,15 @@
             <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
             <a href="/signup">Sign Up</a>
             {%else%}
-            <a href="/logout">Log Out</a>
+            {{username}} - <a href="/logout"> Log Out</a>
             {%endif%}
         </div>
         <br>
         <hr>
     </div>
     <div align = "center">
+        <!-- TODO: REALTIME VALIDATION BEFORE YOU SEND TO THE SERVER-->
+        <textarea type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px;"></textarea><br>
         <textarea style="margin: 0px; height: 600px; width: 1000px;"></textarea><br>
         <textarea type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;"></textarea>
     </div>

@@ -20,6 +20,8 @@ import jinja2
 import models
 import logging
 import utils
+import re
+import json
 
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True) 
@@ -37,7 +39,7 @@ class MainHandler(Handler):
     def get(self):
         cookie = self.request.cookies.get("user_id")
         if cookie:
-            self.render("index.html",loggedIn=utils.verify_secret_hash(cookie))
+            self.render("index.html",loggedIn=utils.verify_secret_hash(cookie),username=cookie.split("|")[0])
         else:
             self.render("index.html")
 
@@ -84,10 +86,41 @@ class LogOutHandler(Handler):
         self.response.headers.add("Set-Cookie","user_id=%; Path=/")
         self.redirect('/')
 
+class TokenHandler(Handler):
+    def post(self):
+        #this posthandler handles the tokens that come in and stores the tokens into the database
+        data = json.loads(self.request.body)
+        token = data['token']
+        username = data['username']
+
+        #checks if the user is in the cache
+        content = models.user_cache()
+        user_data = models.check_user_in_cache(username,content)
+
+        #checks if user exists in database and if token already exists
+        if(user_data and user_data.token != token):
+            logging.info("About to put in database")
+            user_data.token = token
+            user_data.put()
+            models.user_cache(update=True)
+        else:
+            #return 404 page not found
+            if user_data.token == token:
+                self.write("Token already exists in database")
+            else:
+                self.write("404 user not found in database")
+
+
+        #basically it stores the token in the database associating the token with the user
+        #puts the token into the cache
+
+#TODO: Handle errors
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/login',LoginHandler),
     ('/signup',SignUpHandler),
-    ('/logout',LogOutHandler)
+    ('/logout',LogOutHandler),
+    (r'/sendTokenToServer/\w+',TokenHandler)
+    
 ], debug=True)

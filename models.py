@@ -15,11 +15,13 @@ class Users(ndb.Model):
     password = ndb.StringProperty(required = True)
     email = ndb.StringProperty(required = True)
     fullname = ndb.StringProperty(required = True)
+    token = ndb.StringProperty()
     datecreate = ndb.DateTimeProperty(auto_now_add=True)
 
-def user_cache(update=False,ancestor=None):
+def user_cache(update=False):
     key = "users"
     memGet = memcache.get(key)
+    ancestor = ndb.Key('user_parent','parent')
     if update:
         #logging.info(ancestor)
         queryUser = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
@@ -78,7 +80,7 @@ def update_userdata(new_user):
     user = Users(parent=parent_key,username=u_user,password=utils.make_pw_hash(str(u_pass)),email=u_email,fullname=u_fname)
     #user.key = ndb.Key(Users,u_user)
     user.put()
-    user_cache(update=True,ancestor=parent_key)
+    user_cache(update=True)
 
 #check the credentials on login
 def check_creds(u_user,u_pass):
