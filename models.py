@@ -18,19 +18,22 @@ class Users(ndb.Model):
     token = ndb.StringProperty()
     datecreate = ndb.DateTimeProperty(auto_now_add=True)
 
-def user_cache(update=False):
+def user_cache(update=False,updateContent=None):
     key = "users"
     memGet = memcache.get(key)
     ancestor = ndb.Key('user_parent','parent')
     if update:
-        #logging.info(ancestor)
-        queryUser = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
-        queryUser = list(queryUser)
-        if queryUser:
-            content = queryUser
-        else:
-            content = None
-        memcache.set(key,content)
+		if updateContent == None:
+			#logging.info(ancestor)
+			queryUser = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
+			queryUser = list(queryUser)
+			if queryUser:
+				content = queryUser
+			else:
+				content = None
+		else:
+			content = updateContent
+		memcache.set(key,content)
     else:
         content = memGet
     return content
@@ -43,12 +46,15 @@ def get_user_error_signup(new_user,errors):
 
     content = user_cache()
     queryUser = check_user_in_cache(u_user,content)
-
-
+	
     if not USER_RE.match(u_user):
         err_user = "Incorrect Username"
-    elif queryUser:
-        err_user = "Username already exists"
+    else:
+		if queryUser:
+			err_user = "Username already exists"
+		#checks if the user is in the db before sending result
+		elif check_user_in_db(u_user):
+			err_user = "Username already exists"
     if not PASS_RE.match(u_pass):
         err_pass = "Incorrect Password"
     if not u_pass == u_verify:
@@ -87,19 +93,34 @@ def check_creds(u_user,u_pass):
     content = user_cache()
     queryUser = check_user_in_cache(u_user,content)
     logging.info(content)
+	#checks if user is in the cache first
     if queryUser and utils.verify_pw_hash(u_pass,str(queryUser.password)):
         return True
     else:
-        return False
+		#checks if the user is in the db before sending result
+		return check_user_in_db(u_user)
 
 #checks if the user is in the cache and if the cache is empty(True if user exists, false if it does not exist)
 def check_user_in_cache(u_user,content):
     specific_user = None
+	#checks if the user is in the cache
     if content:
         for users in content:
             if u_user in users.username:
                 specific_user = users
                 break
-    else:
-        specific_user = None
-    return specific_user
+	return specific_user
+
+
+def check_user_in_db(u_user):
+	ancestor = ndb.Key('user_parent','parent')
+	content = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
+	queryUser = list(content)
+	logging.info("begin db check")
+	if check_user_in_cache(u_user,queryUser):
+		logging.info("updating cache because user is in db and not cache")
+		user_cache(update=True,updateContent=queryUser)
+		return True
+	else:
+		return False
+

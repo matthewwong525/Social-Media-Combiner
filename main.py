@@ -99,7 +99,7 @@ class TokenHandler(Handler):
 
         #checks if user exists in database and if token already exists
         if(user_data and user_data.token != token):
-            logging.info("About to put in database")
+            logging.info("About to put token in database")
             user_data.token = token
             user_data.put()
             models.user_cache(update=True)

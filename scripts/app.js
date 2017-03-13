@@ -22,9 +22,10 @@ const messaging = firebase.messaging();
 
     app.controller("WebsiteController", function (FirebaseService) {
         console.log("hello world");
-        this.loggedIn = function (isLoggedIn,currentUser) {
-        	if(isLoggedIn){
-        		permission = FirebaseService.requestPermission(currentUser);
+        this.loggedIn = function (currentUser) {
+            if (currentUser != "") {
+                FirebaseService.setCurrentUser(currentUser);
+        		permission = FirebaseService.requestPermission();
         		if(permission){
         			token = FirebaseService.getToken();
         			console.log(token);
@@ -34,7 +35,9 @@ const messaging = firebase.messaging();
         
     });
 
-    app.service('FirebaseService',['$http',function($http) {
+    app.service('FirebaseService', ['$http', function ($http) {
+        var currentUser = "";
+
     	messaging.onMessage(function(payload){
 			console.log("Message recieved: ",payload);
 		});
@@ -45,26 +48,23 @@ const messaging = firebase.messaging();
     				console.log("Token refreshed");
     				setTokenSentToServer(false);
     				sendTokenToServer(refreshedToken);
-
     			})
     			.catch(function(err){
     				console.log('Unable to retrieve refreshed token ',err);
-
     			});
     	})
 
-    	var sendTokenToServer = function(currentToken,username) {
+    	var sendTokenToServer = function(currentToken) {
     		//TODO: use setTokenSentToServer
 	        if (true) {
 	            console.log("Sending token to server...");
 	            //TODO Send the current token to server
 	            console.log(currentToken);
-	            var parameters = JSON.stringify({token : currentToken,username : username})
+	            var parameters = JSON.stringify({ token: currentToken, username: currentUser })
 	            
-	            $http.post("/sendTokenToServer/"+username,parameters)
+	            $http.post("/sendTokenToServer/"+currentUser,parameters)
 		            .then(function(response){
 		            	console.log(response);
-
 		            })
 		            .catch(function(response){
 		            	console.log(response);
@@ -77,15 +77,14 @@ const messaging = firebase.messaging();
 	        }
 	    }
 
-        this.requestPermission = function (username) {
+        this.requestPermission = function () {
             messaging.requestPermission().then(function () {
                 console.log('Notification permission granted.!!!');
                 //Get Token from the server
                 messaging.getToken().then(function (currentToken) {
 	                if (currentToken) {
 	                    //Have a send token to server functionality
-	                    sendTokenToServer(currentToken,username);
-
+	                    sendTokenToServer(currentToken);
 	                } else {
 	                    console.log("No Instance ID token avialable");
 	                }
@@ -95,6 +94,9 @@ const messaging = firebase.messaging();
             }).catch(function (err) {
                 console.log('Unable to get permission to notify', err);
             });
+        }
+        this.setCurrentUser = function (username) {
+            currentUser = username;
         }
         
     }]);
