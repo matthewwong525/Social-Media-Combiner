@@ -27,11 +27,11 @@
         <br>
         <hr>
     </div>
-    <div align = "center">
+    <div align = "center" ng-controller="MessageController as message">
         <!-- TODO: REALTIME VALIDATION BEFORE YOU SEND TO THE SERVER-->
-        <textarea type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px;"></textarea><br>
-        <textarea readonly style="margin: 0px; height: 600px; width: 1000px;" id="incomingText"></textarea><br>
-        <textarea type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;" id="outgoingText"></textarea>
+        <textarea type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px;" id="userToSend"></textarea><br>
+        <textarea readonly style="margin: 0px; height: 600px; width: 1000px;" id="incomingText" ></textarea><br>
+        <textarea type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;" id="outgoingText" ng-keypress="message.sendMessage($event)"></textarea>
     </div>
     
     <script type="text/javascript" src="/scripts/app.js"></script>

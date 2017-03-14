@@ -20,28 +20,45 @@ const messaging = firebase.messaging();
       $interpolateProvider.endSymbol('/}');
     }]);
 
-    app.controller("WebsiteController", function (FirebaseService) {
+    app.controller("WebsiteController", function (TokenService) {
         console.log("hello world");
         this.loggedIn = function (isLoggedIn,currentUser) {
             if (isLoggedIn) {
-                FirebaseService.setCurrentUser(currentUser);
-        		permission = FirebaseService.requestPermission();
+                TokenService.setCurrentUser(currentUser);
+                permission = TokenService.requestPermission();
         		if(permission){
-        			token = FirebaseService.getToken();
+        		    token = TokenService.getToken();
         			console.log(token);
         		}
         	}
         };
-        
     });
 
-    app.service('FirebaseService', ['$http', function ($http) {
-        var currentUser = "";
-
-        messaging.onMessage(function(payload){
+    app.controller("MessageController", function (MessageService) {
+        this.sendMessage = function ($event) {
+            if ($event.which === 13) {
+                //TODO validation for send
+                $event.preventDefault();
+                var textToSend = $("#outgoingText")
+                var messageToSend = textToSend.val();
+                var userToSend = $("#userToSend").val();
+                textToSend.val('');
+                //textToSend.val(textToSend.val().replace("\n", ""));
+                //MessageService.setSelectionRange(textToSend[0],0,2);
+                //TODO: MAKE ALLOW FOR MESSAGE TO SEND
+            }
+        };
+    });
+    app.service('MessageService', ['$http', function ($http) {
+        messaging.onMessage(function (payload) {
             console.log("Message recieved: ", JSON.stringify(payload.data.message));
-            angular.element("#incomingText").val(payload.data.message);
-		});
+            var message = payload.data.message.replace("\n", "&#xA;");
+            $("#incomingText").append("*" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
+        });
+    }]);
+
+    app.service('TokenService', ['$http', function ($http) {
+        var currentUser = "";
     	//On the token refresh I want to re asign the token
     	messaging.onTokenRefresh(function(){
     		messaging.getToken()
