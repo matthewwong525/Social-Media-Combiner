@@ -95,13 +95,19 @@ class TokenHandler(Handler):
 
         #checks if the user is in the cache
         content = models.user_cache()
-        user_data = models.check_user_in_cache(username,content)
+        user_data = models.check_item_in_cache(username,content)
+        token_data = models.check_item_in_cache(item=token,content=content,isTokenCheck=True)
+        logging.info(token_data)
 
         #checks if user exists in database and if token already exists
         if(user_data and user_data.token != token):
             logging.info("About to put token in database")
             user_data.token = token
+            #checks if another user has the same token then deletes it
+            if token_data:
+                token_data.token = ""
             user_data.put()
+            token_data.put()
             models.user_cache(update=True)
         else:
             #return 404 page not found

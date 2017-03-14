@@ -45,7 +45,7 @@ def get_user_error_signup(new_user,errors):
     err_user,err_pass,err_verify,err_email,err_fname = errors
 
     content = user_cache()
-    queryUser = check_user_in_cache(u_user,content)
+    queryUser = check_item_in_cache(u_user,content)
 	
     if not USER_RE.match(u_user):
         err_user = "Incorrect Username"
@@ -53,8 +53,6 @@ def get_user_error_signup(new_user,errors):
 		if queryUser:
 			err_user = "Username already exists"
 		#checks if the user is in the db before sending result
-		elif check_user_in_db(u_user):
-			err_user = "Username already exists"
     if not PASS_RE.match(u_pass):
         err_pass = "Incorrect Password"
     if not u_pass == u_verify:
@@ -91,36 +89,47 @@ def update_userdata(new_user):
 #check the credentials on login
 def check_creds(u_user,u_pass):
     content = user_cache()
-    queryUser = check_user_in_cache(u_user,content)
-    logging.info(content)
+    queryUser = check_item_in_cache(u_user,content,dbCheck=True)
 	#checks if user is in the cache first
     if queryUser and utils.verify_pw_hash(u_pass,str(queryUser.password)):
         return True
     else:
-		#checks if the user is in the db before sending result
-		return check_user_in_db(u_user)
+		return False
 
 #checks if the user is in the cache and if the cache is empty(True if user exists, false if it does not exist)
-def check_user_in_cache(u_user,content):
+def check_item_in_cache(item,content,dbCheck=True,isTokenCheck=False):
     specific_user = None
 	#checks if the user is in the cache
     if content:
         for users in content:
-            if u_user in users.username:
-                specific_user = users
-                break
-	return specific_user
+            if not isTokenCheck:
+                if item in users.username:
+                    specific_user = users
+                    break
+            else:
+                if item in users.token:
+                    specific_user = users
+                    break
+    if dbCheck:
+        #checks if user is in database and updates cache if the user is there
+        dbCache = check_item_in_db(item,isTokenCheck)
+        if dbCache:
+            #logging.info(dbCache)
+            specific_user=check_item_in_cache(item,dbCache,False,isTokenCheck)
+    return specific_user
+
+def check_item_in_db(item,isTokenCheck):
+    ancestor = ndb.Key('user_parent','parent')
+    content = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
+    queryUser = list(content)
+    logging.info("begin db check")
+    if check_item_in_cache(item,queryUser,False,isTokenCheck):
+        logging.info("updating cache because user is in db and not cache")
+        user_cache(update=True,updateContent=queryUser)
+        return queryUser
+    else:
+        return False
 
 
-def check_user_in_db(u_user):
-	ancestor = ndb.Key('user_parent','parent')
-	content = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
-	queryUser = list(content)
-	logging.info("begin db check")
-	if check_user_in_cache(u_user,queryUser):
-		logging.info("updating cache because user is in db and not cache")
-		user_cache(update=True,updateContent=queryUser)
-		return True
-	else:
-		return False
+
 

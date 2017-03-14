@@ -2,10 +2,13 @@
 <html ng-app="website">
 <head>
     <title>Welcome</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
 </head>
-<body ng-controller="WebsiteController as web" ng-init="web.loggedIn('{{username}}')">
+<body ng-controller="WebsiteController as web" ng-init="web.loggedIn({{loggedIn | lower}},'{{username}}')">
     <div>
         <div style="float:left;">
             <label style="text-align: left;"><b>Website!</b></label>
@@ -27,8 +30,8 @@
     <div align = "center">
         <!-- TODO: REALTIME VALIDATION BEFORE YOU SEND TO THE SERVER-->
         <textarea type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px;"></textarea><br>
-        <textarea style="margin: 0px; height: 600px; width: 1000px;"></textarea><br>
-        <textarea type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;"></textarea>
+        <textarea readonly style="margin: 0px; height: 600px; width: 1000px;" id="incomingText"></textarea><br>
+        <textarea type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;" id="outgoingText"></textarea>
     </div>
     
     <script type="text/javascript" src="/scripts/app.js"></script>

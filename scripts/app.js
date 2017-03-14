@@ -22,8 +22,8 @@ const messaging = firebase.messaging();
 
     app.controller("WebsiteController", function (FirebaseService) {
         console.log("hello world");
-        this.loggedIn = function (currentUser) {
-            if (currentUser != "") {
+        this.loggedIn = function (isLoggedIn,currentUser) {
+            if (isLoggedIn) {
                 FirebaseService.setCurrentUser(currentUser);
         		permission = FirebaseService.requestPermission();
         		if(permission){
@@ -38,8 +38,9 @@ const messaging = firebase.messaging();
     app.service('FirebaseService', ['$http', function ($http) {
         var currentUser = "";
 
-    	messaging.onMessage(function(payload){
-			console.log("Message recieved: ",payload);
+        messaging.onMessage(function(payload){
+            console.log("Message recieved: ", JSON.stringify(payload.data.message));
+            angular.element("#incomingText").val(payload.data.message);
 		});
     	//On the token refresh I want to re asign the token
     	messaging.onTokenRefresh(function(){
