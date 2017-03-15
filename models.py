@@ -23,17 +23,17 @@ def user_cache(update=False,updateContent=None):
     memGet = memcache.get(key)
     ancestor = ndb.Key('user_parent','parent')
     if update:
-		if updateContent == None:
-			#logging.info(ancestor)
-			queryUser = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
-			queryUser = list(queryUser)
-			if queryUser:
-				content = queryUser
-			else:
-				content = None
-		else:
-			content = updateContent
-		memcache.set(key,content)
+        if updateContent == None:
+            logging.info("beginning db check")
+            queryUser = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
+            queryUser = list(queryUser)
+            if queryUser:
+                content = queryUser
+            else:
+                content = None
+        else:
+            content = updateContent
+        memcache.set(key,content)
     else:
         content = memGet
     return content
@@ -103,29 +103,30 @@ def check_item_in_cache(item,content,dbCheck=True,isTokenCheck=False):
     if content:
         for users in content:
             if not isTokenCheck:
-                if item in users.username:
+                if users.username and (item in users.username):
                     specific_user = users
                     break
             else:
-                if item in users.token:
+                if users.token and (item in users.token):
                     specific_user = users
                     break
-    if dbCheck:
+
+    if dbCheck and specific_user==None:
         #checks if user is in database and updates cache if the user is there
-        dbCache = check_item_in_db(item,isTokenCheck)
-        if dbCache:
+        dbCacheUser = check_item_in_db(item,isTokenCheck)
+        if dbCacheUser:
             #logging.info(dbCache)
-            specific_user=check_item_in_cache(item,dbCache,False,isTokenCheck)
+            specific_user=dbCacheUser
     return specific_user
 
 def check_item_in_db(item,isTokenCheck):
     ancestor = ndb.Key('user_parent','parent')
+    logging.info("beginning db check")
     content = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
-    queryUser = list(content)
-    logging.info("begin db check")
-    if check_item_in_cache(item,queryUser,False,isTokenCheck):
-        logging.info("updating cache because user is in db and not cache")
-        user_cache(update=True,updateContent=queryUser)
+    content = list(content)
+    queryUser = check_item_in_cache(item,content,False,isTokenCheck)
+    if queryUser:
+        user_cache(update=True,updateContent=content)
         return queryUser
     else:
         return False

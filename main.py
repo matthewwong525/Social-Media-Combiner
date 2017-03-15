@@ -22,6 +22,8 @@ import logging
 import utils
 import re
 import json
+import urllib
+from google.appengine.api import urlfetch
 
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True) 
@@ -97,7 +99,6 @@ class TokenHandler(Handler):
         content = models.user_cache()
         user_data = models.check_item_in_cache(username,content)
         token_data = models.check_item_in_cache(item=token,content=content,isTokenCheck=True)
-        logging.info(token_data)
 
         #checks if user exists in database and if token already exists
         if(user_data and user_data.token != token):
@@ -106,8 +107,8 @@ class TokenHandler(Handler):
             #checks if another user has the same token then deletes it
             if token_data:
                 token_data.token = ""
+                token_data.put()
             user_data.put()
-            token_data.put()
             models.user_cache(update=True)
         else:
             #return 404 page not found
@@ -122,11 +123,47 @@ class TokenHandler(Handler):
 
 #TODO: Handle errors
 
+class MessageHandler(Handler):
+    def populateJSON(self,username="",message="",token=""):
+        return self.render_str("sendMessageTemplate.json",username=username,message=message,token=token)
+    def post(self):
+        data = json.loads(self.request.body)
+        username = data['username']
+        message = data['message']
+
+        content = models.user_cache()
+        user_data = models.check_item_in_cache(item=username,content=content)
+
+        #IF user exists
+        if user_data:
+            #Checks if the user has a token
+            if user_data.token:
+                payloadData = self.populateJSON(username,message,user_data.token)
+                try:
+                    headers = {'Content-Type': 'application/json','Authorization':'key=AAAAvEKDjyg:APA91bEy5boHue-y4ax-6l0lgvmR1XznmFfAFKADquu3IR_0ipA4z9VIgM2mdhTOIaWG77TrMCgg8vsXiE_dXixnnlEbevBfavA6J7L2jPDVa_zOqSt2y99m76XlSp16jQCOi8BQxAs7'}
+                    result = urlfetch.fetch(
+                        url='https://fcm.googleapis.com/fcm/send',
+                        payload=payloadData,
+                        method=urlfetch.POST,
+                        headers=headers)
+                    logging.info(result.content)
+                except urlfetch.Error:
+                    logging.exception('Caught exception fetching url')
+            else:
+                #TODO: ADD A MESSAGE TABLE THAT STORES ALL MESSAGES AND PLACE IT IN HERE
+                print "lol"
+        else:
+            print "haha"
+            #TODO: SEND BACK TO SERVER THAT THE USERNAME DOES NOT EXIST
+
+
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
-    ('/login',LoginHandler),
-    ('/signup',SignUpHandler),
-    ('/logout',LogOutHandler),
-    (r'/sendTokenToServer/\w+',TokenHandler)
+    (r'/login/?',LoginHandler),
+    (r'/signup/?',SignUpHandler),
+    (r'/logout/?',LogOutHandler),
+    (r'/sendTokenToServer/?',TokenHandler),
+    (r'/sendMessageToUser/?',MessageHandler)
+
     
 ], debug=True)

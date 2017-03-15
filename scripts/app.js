@@ -43,9 +43,7 @@ const messaging = firebase.messaging();
                 var messageToSend = textToSend.val();
                 var userToSend = $("#userToSend").val();
                 textToSend.val('');
-                //textToSend.val(textToSend.val().replace("\n", ""));
-                //MessageService.setSelectionRange(textToSend[0],0,2);
-                //TODO: MAKE ALLOW FOR MESSAGE TO SEND
+                MessageService.sendToServer(userToSend,messageToSend);
             }
         };
     });
@@ -55,6 +53,17 @@ const messaging = firebase.messaging();
             var message = payload.data.message.replace("\n", "&#xA;");
             $("#incomingText").append("*" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
         });
+        this.sendToServer = function(username,message){
+            var parameters = JSON.stringify({username:username,message:message})
+            $http.post("/sendMessageToUser/",parameters)
+                .then(function(response){
+                    console.log(response);
+                })
+                .catch(function(response){
+                    console.log(response);
+                    //TODO: ERROR MESSAGES
+                });
+        };
     }]);
 
     app.service('TokenService', ['$http', function ($http) {
@@ -78,9 +87,9 @@ const messaging = firebase.messaging();
 	            console.log("Sending token to server...");
 	            //TODO Send the current token to server
 	            console.log(currentToken);
-	            var parameters = JSON.stringify({ token: currentToken, username: currentUser })
+	            var parameters = JSON.stringify({ token: currentToken, username: currentUser });
 	            
-	            $http.post("/sendTokenToServer/"+currentUser,parameters)
+	            $http.post("/sendTokenToServer/",parameters)
 		            .then(function(response){
 		            	console.log(response);
 		            })

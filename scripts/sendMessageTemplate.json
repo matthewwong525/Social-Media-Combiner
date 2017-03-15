@@ -1,0 +1,12 @@
+{ 
+  "data":{
+    "username":"{{username}}",
+    "message":"{{message}}"
+  },
+  "notification": {
+    "title": "Background Message Title",
+    "body": "Background message body",
+    "click_action" : "https://dummypage.com"
+  },
+  "to" : "{{token}}"
+}
