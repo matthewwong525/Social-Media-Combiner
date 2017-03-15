@@ -30,6 +30,7 @@ const messaging = firebase.messaging();
         		    token = TokenService.getToken();
         			console.log(token);
         		}
+        		TokenService.enableChat();
         	}
         };
     });
@@ -47,14 +48,15 @@ const messaging = firebase.messaging();
             }
         };
     });
-    app.service('MessageService', ['$http', function ($http) {
+    app.service('MessageService', ['$http', 'TokenService', function ($http) {
         messaging.onMessage(function (payload) {
             console.log("Message recieved: ", JSON.stringify(payload.data.message));
             var message = payload.data.message.replace("\n", "&#xA;");
-            $("#incomingText").append("*" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
+            $("#incomingText").append("Received --> *" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
         });
         this.sendToServer = function(username,message){
-            var parameters = JSON.stringify({username:username,message:message})
+            var parameters = JSON.stringify({ username: username, message: message })
+            $("#incomingText").append("You --> *" + username + "* :" + "&#xA;" + message + "&#xA;");
             $http.post("/sendMessageToUser/",parameters)
                 .then(function(response){
                     console.log(response);
@@ -103,7 +105,9 @@ const messaging = firebase.messaging();
 	            console.log("Token already sent to server");
 	        }
 	    }
-
+    	this.enableChat = function () {
+    	    $("textarea").removeAttr("disabled");
+    	}
         this.requestPermission = function () {
             messaging.requestPermission().then(function () {
                 console.log('Notification permission granted.!!!');
