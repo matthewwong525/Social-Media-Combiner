@@ -36,19 +36,19 @@ const messaging = firebase.messaging();
     });
 
     app.controller("MessageController", function (MessageService) {
+        this.messageToSend = "";
         this.sendMessage = function ($event) {
             if ($event.which === 13) {
-                //TODO validation for send
                 $event.preventDefault();
-                var textToSend = $("#outgoingText")
-                var messageToSend = textToSend.val();
-                var userToSend = $("#userToSend").val();
-                textToSend.val('');
-                MessageService.sendToServer(userToSend,messageToSend);
+                if (this.messageToSend != "") {
+                    var userToSend = $("#userToSend").val();
+                    MessageService.sendToServer(userToSend, this.messageToSend);
+                    this.messageToSend = "";
+                }
             }
         };
     });
-    app.service('MessageService', ['$http', 'TokenService', function ($http) {
+    app.service('MessageService', ['$http', function ($http) {
         messaging.onMessage(function (payload) {
             console.log("Message recieved: ", JSON.stringify(payload.data.message));
             var message = payload.data.message.replace("\n", "&#xA;");

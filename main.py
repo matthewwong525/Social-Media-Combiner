@@ -139,6 +139,7 @@ class MessageHandler(Handler):
             #Checks if the user has a token
             if user_data.token:
                 payloadData = self.populateJSON(username,message,user_data.token)
+                logging.info(payloadData)
                 try:
                     headers = {'Content-Type': 'application/json','Authorization':'key=AAAAvEKDjyg:APA91bEy5boHue-y4ax-6l0lgvmR1XznmFfAFKADquu3IR_0ipA4z9VIgM2mdhTOIaWG77TrMCgg8vsXiE_dXixnnlEbevBfavA6J7L2jPDVa_zOqSt2y99m76XlSp16jQCOi8BQxAs7'}
                     result = urlfetch.fetch(
@@ -146,9 +147,9 @@ class MessageHandler(Handler):
                         payload=payloadData,
                         method=urlfetch.POST,
                         headers=headers)
-                    logging.info(result.content)
+                    self.write("sent:"+result.content)
                 except urlfetch.Error:
-                    logging.exception('Caught exception fetching url')
+                    self.write('Caught exception fetching url')
             else:
                 #TODO: ADD A MESSAGE TABLE THAT STORES ALL MESSAGES AND PLACE IT IN HERE
                 print "lol"
