@@ -23,6 +23,7 @@ import utils
 import re
 import json
 import urllib
+import Messages
 from google.appengine.api import urlfetch
 
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
@@ -132,17 +133,20 @@ class MessageHandler(Handler):
         return self.render_str("sendMessageTemplate.json",username=username,message=message,token=token)
     def post(self):
         data = json.loads(self.request.body)
-        username = data['username']
+        sendUser = data['sendUser']
+        receiveUser = data['receiveUser']
         message = data['message']
 
         content = models.user_cache()
-        user_data = models.check_item_in_cache(item=username,content=content)
+        user_data = models.check_item_in_cache(item=receiveUser,content=content)
 
+        logging.info(user_data)
         #IF user exists
         if user_data:
             #Checks if the user has a token
+            logging.info(user_data.token)
             if user_data.token:
-                payloadData = self.populateJSON(username,message,user_data.token)
+                payloadData = self.populateJSON(receiveUser,message,user_data.token)
                 logging.info(payloadData)
                 try:
                     headers = {'Content-Type': 'application/json','Authorization':'key=AAAAvEKDjyg:APA91bEy5boHue-y4ax-6l0lgvmR1XznmFfAFKADquu3IR_0ipA4z9VIgM2mdhTOIaWG77TrMCgg8vsXiE_dXixnnlEbevBfavA6J7L2jPDVa_zOqSt2y99m76XlSp16jQCOi8BQxAs7'}
@@ -151,14 +155,16 @@ class MessageHandler(Handler):
                         payload=payloadData,
                         method=urlfetch.POST,
                         headers=headers)
+                    logging.info("about to store user message")
+                    Messages.store_user_message(sendUser,receiveUser,message)
                     self.write("sent:"+result.content)
                 except urlfetch.Error:
                     self.write('Caught exception fetching url')
             else:
                 #TODO: ADD A MESSAGE TABLE THAT STORES ALL MESSAGES AND PLACE IT IN HERE
-                print "lol"
+                self.write("Token does not exist")
         else:
-            print "haha"
+            self.write("User does not exist")
             #TODO: SEND BACK TO SERVER THAT THE USERNAME DOES NOT EXIST
 
 
