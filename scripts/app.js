@@ -51,6 +51,7 @@ const messaging = firebase.messaging();
             console.log($event.target.id);
             $event.preventDefault();
             this.userToSend = $event.target.id;
+            MessageService.getMessages(this.userToSend);
         };
     });
     app.service('MessageService', ['$http', 'TokenService', function ($http,TokenService) {
@@ -60,7 +61,7 @@ const messaging = firebase.messaging();
             $("#incomingText").append("Received --> *" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
         });
         this.sendToServer = function(username,message){
-            var parameters = JSON.stringify({ sendUser: TokenService.getCurrentUser(), receiveUser:username, message: message })
+            var parameters = JSON.stringify({ sendUser: TokenService.getCurrentUser(), receiveUser:username, message: message });
             $("#incomingText").append("You --> *" + TokenService.getCurrentUser() + "* :" + "&#xA;" + message + "&#xA;");
             $http.post("/sendMessageToUser/",parameters)
                 .then(function(response){
@@ -72,6 +73,16 @@ const messaging = firebase.messaging();
                 });
         };
         //TODO: MAKE AJAX CALL TO SERVER AND GET MESSAGES
+        this.getMessages = function(userToSend){
+            parameters  = JSON.stringify({sendUser:TokenService.getCurrentUser(),receiveUser:userToSend});
+            $http.get("/sendMessageToUser/",{params:parameters})
+                .then(function(response){
+                    console.log(response);
+                })
+                .catch(function(response){
+                    console.log(response);
+                });
+        };
     }]);
 
     app.service('TokenService', ['$http', function ($http) {

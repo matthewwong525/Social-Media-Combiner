@@ -129,6 +129,13 @@ class TokenHandler(Handler):
 #TODO: Handle errors
 
 class MessageHandler(Handler):
+    def get(self):
+        sendUser = self.request.get("sendUser")
+        receiveUser = self.request.get("receiveUser")
+        conv_id = Messages.rearrangeUsers(sendUser,receiveUser)
+        messageList = Messages.getMessages(conv_id)
+        self.write(json.dumps(messageList))
+
     def populateJSON(self,username="",message="",token=""):
         return self.render_str("sendMessageTemplate.json",username=username,message=message,token=token)
     def post(self):
@@ -156,6 +163,7 @@ class MessageHandler(Handler):
                         method=urlfetch.POST,
                         headers=headers)
                     logging.info("about to store user message")
+                    #Store messages into the database
                     Messages.store_user_message(sendUser,receiveUser,message)
                     self.write("sent:"+result.content)
                 except urlfetch.Error:
