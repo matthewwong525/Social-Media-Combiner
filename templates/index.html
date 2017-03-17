@@ -13,7 +13,7 @@
         <div style="float:left;">
             <label style="text-align: left;"><b>Website!</b></label>
         </div>
-        <div style="float: right" > 
+        <div style="float: right;" > 
             {%if not loggedIn%} 
             <a href="/">Home</a>
             <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
@@ -27,11 +27,21 @@
         <br>
         <hr>
     </div>
-    <div align = "center" ng-controller="MessageController as message">
-        <!-- TODO: REALTIME VALIDATION BEFORE YOU SEND TO THE SERVER FOR LOGIN/SIGNUP-->
-        <textarea disabled type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px; resize:none" id="userToSend"></textarea><br>
-        <textarea disabled readonly style="margin: 0px; height: 600px; width: 1000px;resize:none" id="incomingText" ></textarea><br>
-        <textarea disabled type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;resize:none" id="outgoingText" ng-model="message.messageToSend" ng-keypress="message.sendMessage($event)"></textarea>
+    <div ng-cloak ng-controller="MessageController as message">
+        <div style="float:right;padding-right: 2%;" >
+            <!-- TODO: REALTIME VALIDATION BEFORE YOU SEND TO THE SERVER FOR LOGIN/SIGNUP-->
+            <textarea disabled readonly type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px; resize:none" id="userToSend">{/message.userToSend/}</textarea><br>
+            <textarea disabled readonly style="margin: 0px; height: 600px; width: 1000px;resize:none" id="incomingText" ></textarea><br>
+            <textarea disabled type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;resize:none" id="outgoingText" ng-model="message.messageToSend" ng-keypress="message.sendMessage($event)"></textarea>
+        </div>
+        <div style="float:left;">
+            <span>Hello Friends!</span>
+            {%for user in userList%}
+                {%if user.username != username %}
+                    <br><a href="" ng-click="message.currUserToSend($event)" id="{{user.username}}">{{user.username}}</a>
+                {%endif%}
+            {%endfor%}
+        </div>
     </div>
     
     <script type="text/javascript" src="/scripts/app.js"></script>

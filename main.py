@@ -40,8 +40,12 @@ class Handler(webapp2.RequestHandler):
 class MainHandler(Handler):
     def get(self):
         cookie = self.request.cookies.get("user_id")
+        content = models.user_cache()
+        userList = {}
+        if content:
+            userList = content
         if cookie:
-            self.render("index.html",loggedIn=utils.verify_secret_hash(cookie),username=cookie.split("|")[0])
+            self.render("index.html",loggedIn=utils.verify_secret_hash(cookie),username=cookie.split("|")[0],userList=userList)
         else:
             self.render("index.html")
 

@@ -37,15 +37,24 @@ const messaging = firebase.messaging();
 
     app.controller("MessageController", function (MessageService) {
         this.messageToSend = "";
+        this.userToSend = ""; 
+        this.userList = "";
         this.sendMessage = function ($event) {
             if ($event.which === 13) {
                 $event.preventDefault();
-                if (this.messageToSend != "") {
+                if (this.messageToSend != "" || this.userToSend != "" ) {
                     var userToSend = $("#userToSend").val();
                     MessageService.sendToServer(userToSend, this.messageToSend);
                     this.messageToSend = "";
                 }
             }
+        };
+        this.currUserToSend = function($event){
+            console.log($event.target.id);
+            this.userToSend = $event.target.id;
+        };
+        this.myUserList = function(list){
+            console.log(list);
         };
     });
     app.service('MessageService', ['$http', function ($http) {
