@@ -26,7 +26,10 @@ def getMessages(conv_id):
     messages = list(messages)
     messageList = []
     if messages:
-        messageList = messages
+        for message in messages:
+            messageList.append({"usersent":message.usersent,
+                                "message":message.message,
+                                "datesent":message.datesent.strftime('%c')})
     return messageList
 
 

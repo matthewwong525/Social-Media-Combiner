@@ -103,11 +103,11 @@ def check_item_in_cache(item,content,dbCheck=True,isTokenCheck=False):
     if content:
         for users in content:
             if not isTokenCheck:
-                if users.username and (item in users.username):
+                if users.username and (item == users.username):
                     specific_user = users
                     break
             else:
-                if users.token and (item in users.token):
+                if users.token and (item == users.token):
                     specific_user = users
                     break
 

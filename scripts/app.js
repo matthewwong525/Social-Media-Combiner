@@ -52,17 +52,22 @@ const messaging = firebase.messaging();
             $event.preventDefault();
             this.userToSend = $event.target.id;
             MessageService.getMessages(this.userToSend);
+
         };
     });
-    app.service('MessageService', ['$http', 'TokenService', function ($http,TokenService) {
+    app.service('MessageService', ['$http', 'TokenService','$q', function ($http,TokenService,$q) {
         messaging.onMessage(function (payload) {
             console.log("Message recieved: ", JSON.stringify(payload.data.message));
             var message = payload.data.message.replace("\n", "&#xA;");
-            $("#incomingText").append("Received --> *" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
+            var d = new Date();
+            var date= d.getMonth()+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
+            $("#incomingText").append(date+" *" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
         });
         this.sendToServer = function(username,message){
             var parameters = JSON.stringify({ sendUser: TokenService.getCurrentUser(), receiveUser:username, message: message });
-            $("#incomingText").append("You --> *" + TokenService.getCurrentUser() + "* :" + "&#xA;" + message + "&#xA;");
+            var d = new Date();
+            var date= d.getMonth()+1+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
+            $("#incomingText").append(date+" *" + TokenService.getCurrentUser() + "* :" + "&#xA;" + message + "&#xA;");
             $http.post("/sendMessageToUser/",parameters)
                 .then(function(response){
                     console.log(response);
@@ -74,10 +79,21 @@ const messaging = firebase.messaging();
         };
         //TODO: MAKE AJAX CALL TO SERVER AND GET MESSAGES
         this.getMessages = function(userToSend){
-            parameters  = JSON.stringify({sendUser:TokenService.getCurrentUser(),receiveUser:userToSend});
-            $http.get("/sendMessageToUser/",{params:parameters})
+
+            $http.get("/sendMessageToUser/",
+            {
+                params:{
+                    "sendUser": TokenService.getCurrentUser(),
+                    "receiveUser":userToSend}
+            })
                 .then(function(response){
                     console.log(response);
+                    $("#incomingText").text("");
+                    for (i = 0;i<response.data.length;i++){
+                        //Updates the UI with message data
+                        $("#incomingText").append(response.data[i].datesent+" *" + response.data[i].usersent + "* :" + "&#xA;" + response.data[i].message + "&#xA;");
+                    }
+
                 })
                 .catch(function(response){
                     console.log(response);
@@ -105,7 +121,6 @@ const messaging = firebase.messaging();
             if (true) {
                 console.log("Sending token to server...");
                 //TODO Send the current token to server
-                console.log(currentToken);
                 var parameters = JSON.stringify({ token: currentToken, username: currentUser });
 
                 $http.post("/sendTokenToServer/", parameters)

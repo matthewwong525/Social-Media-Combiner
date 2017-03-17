@@ -48,7 +48,7 @@ class MainHandler(Handler):
         if cookie:
             self.render("index.html",loggedIn=utils.verify_secret_hash(cookie),username=cookie.split("|")[0],userList=userList)
         else:
-            self.render("index.html")
+            self.render("index.html",loggedIn=False)
 
 class LoginHandler(Handler):
     def get(self):
@@ -99,12 +99,14 @@ class TokenHandler(Handler):
         data = json.loads(self.request.body)
         token = data['token']
         username = data['username']
-
+        logging.info(username)
         #checks if the user is in the cache
         content = models.user_cache()
         user_data = models.check_item_in_cache(username,content)
         token_data = models.check_item_in_cache(item=token,content=content,isTokenCheck=True)
 
+        logging.info(user_data.token)
+        logging.info(user_data.username)
         #checks if user exists in database and if token already exists
         if(user_data and user_data.token != token):
             logging.info("About to put token in database")
@@ -133,7 +135,9 @@ class MessageHandler(Handler):
         sendUser = self.request.get("sendUser")
         receiveUser = self.request.get("receiveUser")
         conv_id = Messages.rearrangeUsers(sendUser,receiveUser)
+        logging.info(conv_id)
         messageList = Messages.getMessages(conv_id)
+        logging.info(messageList)
         self.write(json.dumps(messageList))
 
     def populateJSON(self,username="",message="",token=""):
@@ -148,10 +152,14 @@ class MessageHandler(Handler):
         user_data = models.check_item_in_cache(item=receiveUser,content=content)
 
         logging.info(user_data)
+        logging.info(sendUser)
+        logging.info(receiveUser)
         #IF user exists
         if user_data:
             #Checks if the user has a token
             logging.info(user_data.token)
+            #Store messages into the database
+            Messages.store_user_message(sendUser,receiveUser,message)
             if user_data.token:
                 payloadData = self.populateJSON(receiveUser,message,user_data.token)
                 logging.info(payloadData)
@@ -163,8 +171,7 @@ class MessageHandler(Handler):
                         method=urlfetch.POST,
                         headers=headers)
                     logging.info("about to store user message")
-                    #Store messages into the database
-                    Messages.store_user_message(sendUser,receiveUser,message)
+                    
                     self.write("sent:"+result.content)
                 except urlfetch.Error:
                     self.write('Caught exception fetching url')
