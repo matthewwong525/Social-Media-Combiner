@@ -135,9 +135,7 @@ class MessageHandler(Handler):
         sendUser = self.request.get("sendUser")
         receiveUser = self.request.get("receiveUser")
         conv_id = Messages.rearrangeUsers(sendUser,receiveUser)
-        logging.info(conv_id)
         messageList = Messages.getMessages(conv_id)
-        logging.info(messageList)
         self.write(json.dumps(messageList))
 
     def populateJSON(self,username="",message="",token=""):
@@ -151,9 +149,6 @@ class MessageHandler(Handler):
         content = models.user_cache()
         user_data = models.check_item_in_cache(item=receiveUser,content=content)
 
-        logging.info(user_data)
-        logging.info(sendUser)
-        logging.info(receiveUser)
         #IF user exists
         if user_data:
             #Checks if the user has a token
@@ -170,7 +165,6 @@ class MessageHandler(Handler):
                         payload=payloadData,
                         method=urlfetch.POST,
                         headers=headers)
-                    logging.info("about to store user message")
                     
                     self.write("sent:"+result.content)
                 except urlfetch.Error:

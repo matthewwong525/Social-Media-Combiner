@@ -7,6 +7,7 @@
             crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 </head>
 <body ng-controller="WebsiteController as web" ng-init="web.loggedIn({{loggedIn | lower}},'{{username}}')">
     <div>
@@ -34,13 +35,15 @@
             <textarea disabled readonly style="margin: 0px; height: 600px; width: 1000px;resize:none" id="incomingText" ></textarea><br>
             <textarea disabled type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;resize:none" id="outgoingText" ng-model="message.messageToSend" ng-keypress="message.sendMessage($event)"></textarea>
         </div>
-        <div style="float:left;" ng-show="{{loggedIn | lower}}">
+        <div id="listOfFriends" style="float:left;" ng-show="{{loggedIn | lower}}">
             <span>Hello Friends!</span>
             {%for user in userList%}
                 {#if user.username != username #}
                     <br><a href="" ng-click="message.currUserToSend($event)" id="{{user.username}}">{{user.username}}</a>
+                    <label id="notification-{{user.username}}"></label>
                 {#endif#}
             {%endfor%}
+            
         </div>
     </div>
     
