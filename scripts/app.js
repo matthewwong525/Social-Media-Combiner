@@ -20,25 +20,27 @@ const messaging = firebase.messaging();
       $interpolateProvider.endSymbol('/}');
     }]);
 
-    app.controller("WebsiteController", function (TokenService) {
+    app.controller("WebsiteController", function (TokenService,UpdateService) {
         console.log("hello world");
         this.loggedIn = function (isLoggedIn,currentUser) {
             if (isLoggedIn) {
                 TokenService.setCurrentUser(currentUser);
                 permission = TokenService.requestPermission();
-                TokenService.initializeNotification();
+                UpdateService.initializeUI();
         		TokenService.enableChat();
         	}
         };
     });
 
-    app.controller("MessageController",  function (MessageService) {
+    app.controller("MessageController",  function (MessageService,UpdateService) {
         this.messageToSend = "";
         this.userToSend = ""; 
         this.sendMessage = function ($event) {
             if ($event.which === 13) {
                 $event.preventDefault();
-                if (this.messageToSend != "" || this.userToSend != "" ) {
+                console.log(this.userToSen==undefined);
+                //prevents send if the message is empty or no user is selected
+                if (!(this.messageToSend == "" || this.userToSend == "" || this.userToSend == undefined)) {
                     MessageService.sendToServer(this.userToSend, this.messageToSend);
                     this.messageToSend = "";
                 }
@@ -48,15 +50,17 @@ const messaging = firebase.messaging();
             console.log($event.target.id);
             $event.preventDefault();
             this.userToSend = $event.target.id;
-            MessageService.getMessages(this.userToSend);
+            UpdateService.setUserToSend(this.userToSend);
+            UpdateService.initializeUI();
 
         };
     });
-    app.service('MessageService', ['$http', 'TokenService','$q', function ($http,TokenService,$q) {
-        var userToSend = "";
 
-        var setNotification = function(username){
-            var notificationRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(username);
+    app.service('UpdateService',function(TokenService,$http){
+        var userToSend = "";
+        //sets the notification in the db
+        this.setNotification = function(currUser,sendUser){
+            var notificationRef = firebase.database().ref().child('notifications').child(currUser).child(sendUser);
             notificationRef.once('value').then(function(snapshot){
                 //if the notification value does not exist
                 if(snapshot.val() === null){
@@ -72,49 +76,21 @@ const messaging = firebase.messaging();
                 }
             });
             return notificationRef;
-        }
-
-        messaging.onMessage(function (payload) {
-            console.log("Message recieved: ", JSON.stringify(payload.data.message));
-            //If currentUser is not on the user chat
-            if(payload.data.username == $("#userToSend").val()){
-                var message = payload.data.message.replace("\n", "&#xA;");
-                var d = new Date();
-                var date= d.getMonth()+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
-                $("#incomingText").append(date+" *" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
-
-            }else{ //send the notification to the user
-                //TODO: ALSO MAKE NOTIFICATIONS FROM BACKGROUND MESSAGES
-                var notificationRef = setNotification(payload.data.username);
-                //Updates the UI when the firebase database is updated
-                notificationRef.on('value',function(snapshot){
-                    if(snapshot.val()){
-                        $("#notification-"+payload.data.username).text(" (" + snapshot.val().notification+")");
+        };
+        //Initializes all the notifications on the friends list
+        var initializeNotification = function(){
+            $("#listOfFriends a").each(function(){
+                var selector = this;
+                var notificationRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(selector.text);
+                notificationRef.once('value').then(function(snapshot){
+                    if(snapshot.val() != null){
+                        $("#notification-"+selector.text).text(" (" + snapshot.val().notification+")");
                     }
                 });
-                    
-                
-            }
-            
-        });
-        this.sendToServer = function(username,message){
-            this.userToSend = username;
-            var parameters = JSON.stringify({ sendUser: TokenService.getCurrentUser(), receiveUser:username, message: message });
-            var d = new Date();
-            var date= d.getMonth()+1+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
-            $("#incomingText").append(date+" *" + TokenService.getCurrentUser() + "* :" + "&#xA;" + message + "&#xA;");
-            $http.post("/sendMessageToUser/",parameters)
-                .then(function(response){
-                    console.log(response);
-                })
-                .catch(function(response){
-                    console.log(response);
-                    //TODO: ERROR MESSAGES
-                });
+            });
         };
-        //TODO: MAKE AJAX CALL TO SERVER AND GET MESSAGES
-        this.getMessages = function(username){
-            this.userToSend = username;
+        //gets the messages from the database based on the username
+        var getMessages = function(username){
             $http.get("/sendMessageToUser/",
             {
                 params:{
@@ -135,6 +111,70 @@ const messaging = firebase.messaging();
                 })
                 .catch(function(response){
                     console.log(response);
+                });
+        };
+
+
+        var updateUI = function(){
+            //Updates notifications and messages on focus when unfocused
+            initializeNotification();
+            console.log(userToSend);
+            if(!(userToSend == "" || userToSend == undefined)){
+                getMessages(userToSend);
+            }
+        };
+        $(window).focus(function(){
+            //Updates notifications and messages on focus when unfocused
+            updateUI();
+        });
+
+        this.initializeUI = function(){
+            //Updates notifications and messages when everything is refreshed
+            updateUI();
+        };
+
+        this.setUserToSend = function(username){
+            userToSend = username;
+        };
+        
+    });
+
+    app.service('MessageService', ['$http', 'TokenService','UpdateService', function ($http,TokenService,UpdateService) {
+        var userToSend = "";
+        messaging.onMessage(function (payload) {
+            console.log("Message recieved: ", JSON.stringify(payload.data.message));
+            //If currentUser is not on the user chat
+            if(payload.data.username == $("#userToSend").val()){
+                var message = payload.data.message.replace("\n", "&#xA;");
+                var d = new Date();
+                var date= d.getMonth()+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
+                $("#incomingText").append(date+" *" + payload.data.username + "* :" + "&#xA;" + message + "&#xA;");
+
+            }else{ //send the notification to the user
+                //TODO: ALSO MAKE NOTIFICATIONS FROM BACKGROUND MESSAGES
+                var notificationRef = UpdateService.setNotification(TokenService.getCurrentUser(),payload.data.username);
+                //Updates the UI when the firebase database is updated
+                notificationRef.on('value',function(snapshot){
+                    if(snapshot.val()){
+                        $("#notification-"+payload.data.username).text(" (" + snapshot.val().notification+")");
+                    }
+                });
+            }
+        });
+        this.sendToServer = function(username,message){
+            this.userToSend = username;
+            var parameters = JSON.stringify({ sendUser: TokenService.getCurrentUser(), receiveUser:username, message: message });
+            var d = new Date();
+            var date= d.getMonth()+1+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
+            $("#incomingText").append(date+" *" + TokenService.getCurrentUser() + "* :" + "&#xA;" + message + "&#xA;");
+            $http.post("/sendMessageToUser/",parameters)
+                .then(function(response){
+                    //sets the notifications for the person who is being sent the message
+                    UpdateService.setNotification(username,TokenService.getCurrentUser());
+                })
+                .catch(function(response){
+                    console.log(response);
+                    //TODO: ERROR MESSAGES
                 });
         };
     }]);
@@ -186,6 +226,7 @@ const messaging = firebase.messaging();
                     if (currentToken) {
                         //Have a send token to server functionality
                         sendTokenToServer(currentToken);
+                        console.log(currentToken);
                     } else {
                         console.log("No Instance ID token avialable");
                     }
@@ -196,25 +237,11 @@ const messaging = firebase.messaging();
                 console.log('Unable to get permission to notify', err);
             });
         };
-        //Initializes all the notifications on the friends list
-        this.initializeNotification = function(){
-            console.log("this.text())");
-            $("#listOfFriends a").each(function(){
-                var selector = this;
-                var notificationRef = firebase.database().ref().child('notifications').child(currentUser).child(selector.text);
-                notificationRef.once('value').then(function(snapshot){
-                    if(snapshot.val() != null){
-                        $("#notification-"+selector.text).text(" (" + snapshot.val().notification+")");
-                    }
-                });
-            });
-        };
+        
         this.setCurrentUser = function (username) {
             currentUser = username;
-            console.log("set user: " + currentUser);
         };
         this.getCurrentUser = function () {
-            console.log("gettinguser");
             return currentUser;
         };
         
