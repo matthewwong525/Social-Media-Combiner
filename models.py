@@ -11,10 +11,10 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 #TODO: Make a cache for everything
 
 class Users(ndb.Model):
-    username = ndb.StringProperty(required = True)
+    username = ndb.StringProperty()
     password = ndb.StringProperty(required = True)
     email = ndb.StringProperty(required = True)
-    fullname = ndb.StringProperty(required = True)
+    fullname = ndb.StringProperty()
     token = ndb.StringProperty()
     datecreate = ndb.DateTimeProperty(auto_now_add=True)
 
@@ -41,65 +41,88 @@ def user_cache(update=False,updateContent=None):
 
 def get_user_error_signup(new_user,errors):
     #TODO: check same email and same user in database
-    u_user,u_pass,u_verify,u_email,u_fname = new_user
-    err_user,err_pass,err_verify,err_email,err_fname = errors
+    u_pass,u_verify,u_email = new_user
+    err_pass,err_verify,err_email = errors
 
-    content = user_cache()
-    queryUser = check_item_in_cache(u_user,content)
-	
-    if not USER_RE.match(u_user):
+    #TODO: CHANGE QUERY FOR USER
+    
+    queryEmail = check_email_in_db(u_email)
+    #checks if the user is in the db before sending result
+    """
+    if not USER_RE.match(u_user) or u_user == "":
         err_user = "Incorrect Username"
     else:
-		if queryUser:
-			err_user = "Username already exists"
-		#checks if the user is in the db before sending result
+        if queryUser:
+            err_user = "Username already exists"
+    if u_fname == "":
+        err_fname = "A name is required"
+    """
+    if queryEmail:
+        err_email = "Email Exists..."
+    else:
+        if not (EMAIL_RE.match(u_email)):
+            err_email = "Incorrect Email Address"
     if not PASS_RE.match(u_pass):
         err_pass = "Incorrect Password"
     if not u_pass == u_verify:
         err_verify = "Passwords do not match"
-    if not (EMAIL_RE.match(u_email) or u_email == ""):
-        err_email = "Incorrect Email Address"
-    if u_fname == "":
-        err_fname = "A name is required"
+    
 
-    return err_user,err_pass,err_verify,err_email,err_fname
+    return err_pass,err_verify,err_email
 
 def signup_user_check(self,new_user,errors):
-    u_user,u_pass,u_verify,u_email,u_fname = new_user
-    err_user,err_pass,err_verify,err_email,err_fname = errors
+    u_pass,u_verify,u_email = new_user
+    err_pass,err_verify,err_email = errors
 
-    if err_user == "" and err_pass == "" and err_email=="" and err_verify == "" and err_fname == "":
-        self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(u_user)))
-        update_userdata(new_user)
+    if err_pass == "" and err_email=="" and err_verify == "":
+        #TODO: delete cookie creation because going to use firebase authentication
+        self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(u_email)))
+        create_new_userdata(new_user)
         self.redirect("/")
     else:
-        self.render_signup(u_user,u_email,u_fname,err_user,err_pass,err_verify,err_email,err_fname)
+        self.render_signup(u_email,err_pass,err_verify,err_email)
 
 #TODO:add transactions
 #TODO:make it so that it updates the cache directly by appending to it and database
 #after signup this function updates the cache and database
-def update_userdata(new_user):
-    u_user,u_pass,u_verify,u_email,u_fname = new_user
+def create_new_userdata(new_user):
+    u_pass,u_verify,u_email = new_user
     parent_key = ndb.Key('user_parent','parent')
-    user = Users(parent=parent_key,username=u_user,password=utils.make_pw_hash(str(u_pass)),email=u_email,fullname=u_fname)
+    user = Users(username="iAmUser",id=u_email,parent=parent_key,password=utils.make_pw_hash(str(u_pass)),email=u_email)
     #user.key = ndb.Key(Users,u_user)
     user.put()
     user_cache(update=True)
 
 #check the credentials on login
-def check_creds(u_user,u_pass):
+def check_creds(u_email,u_pass):
     content = user_cache()
-    queryUser = check_item_in_cache(u_user,content,dbCheck=True)
-	#checks if user is in the cache first
-    if queryUser and utils.verify_pw_hash(u_pass,str(queryUser.password)):
+    queryEmail = check_email_in_db(u_email)
+    #checks if user is in the cache first
+    if queryEmail and utils.verify_pw_hash(u_pass,str(queryEmail.password)):
         return True
     else:
-		return False
+        return False
+
+def check_email_in_db(email):
+    if email:
+        content = Users.get_by_id(email,ndb.Key('user_parent','parent'))
+        logging.info(content)
+        if content:
+            return content
+    return False
+
+def check_token_in_db(token):
+    if token:
+        content = Users.query(ancestor=ndb.Key('user_parent','parent')).filter(Users.token == token).get()
+        if content:
+            return content
+    return False
+
 
 #checks if the user is in the cache and if the cache is empty(True if user exists, false if it does not exist)
 def check_item_in_cache(item,content,dbCheck=True,isTokenCheck=False):
     specific_user = None
-	#checks if the user is in the cache
+    #checks if the user is in the cache
     if content:
         for users in content:
             if not isTokenCheck:

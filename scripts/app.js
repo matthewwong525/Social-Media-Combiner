@@ -53,13 +53,5 @@ const messaging = firebase.messaging();
             UpdateService.setUserToSend(this.userToSend);
             UpdateService.initializeUI();
         };
-    }]);
-
-    
-
-    
-
-    
-
-    
+    }]); 
 })();

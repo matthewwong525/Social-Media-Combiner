@@ -40,6 +40,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainHandler(Handler):
     def get(self):
+        #FIREBASE AUTHENTICATION NO NEED FOR COOKIES
         cookie = self.request.cookies.get("user_id")
         content = models.user_cache()
         userList = {}
@@ -54,36 +55,32 @@ class LoginHandler(Handler):
     def get(self):
         self.render("loginpage.html")
     def post(self):
-        u_user = self.request.get("username")
+        u_email = self.request.get("email")
         u_pass = self.request.get("password")
-        loginSuccess = models.check_creds(u_user,u_pass)
+        loginSuccess = models.check_creds(u_email,u_pass)
         if loginSuccess:
-            self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(u_user)))
+            #FIREBASE WILL AUTHENTICATE NO NEED FOR COOKIES
+            #self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(u_email)))
             self.redirect("/")
         else:
             self.render("loginpage.html",err_login="Invalid Credentials")
 
 class SignUpHandler(Handler):
-    def render_signup(self,u_user="",u_email="",u_fname="",err_user="",err_pass="",err_verify="",err_email="",err_fname=""):
-        self.render('signuppage.html',u_user=u_user,u_email=u_email,u_fname=u_fname,
-                                    err_user=err_user,err_pass=err_pass,
-                                    err_verify=err_verify,err_email=err_email, err_fname=err_fname)
+    def render_signup(self,u_email="",err_pass="",err_verify="",err_email=""):
+        self.render('signuppage.html',u_email=u_email,err_pass=err_pass,
+                                    err_verify=err_verify,err_email=err_email)
     def get(self):
         self.render("signuppage.html")
     def post(self):
-        u_user = self.request.get("username")
         u_pass = self.request.get("password")
         u_verify = self.request.get("verify")
         u_email = self.request.get("email")
-        u_fname = self.request.get("fullname")
-        new_user = u_user,u_pass,u_verify,u_email,u_fname
+        new_user = u_pass,u_verify,u_email
 
-        err_user = ""
         err_pass = ""
         err_verify = "" 
         err_email = ""
-        err_fname = ""
-        errors = err_user,err_pass,err_verify,err_email,err_fname
+        errors = err_pass,err_verify,err_email
         
         errors = models.get_user_error_signup(new_user,errors)
         models.signup_user_check(self,new_user,errors)
@@ -101,7 +98,6 @@ class TokenHandler(Handler):
         username = data['username']
         logging.info(username)
         #checks if the user is in the cache
-        content = models.user_cache()
         user_data = models.check_item_in_cache(username,content)
         token_data = models.check_item_in_cache(item=token,content=content,isTokenCheck=True)
 
