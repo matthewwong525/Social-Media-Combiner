@@ -59,8 +59,9 @@ class LoginHandler(Handler):
         u_pass = self.request.get("password")
         loginSuccess = models.check_creds(u_email,u_pass)
         if loginSuccess:
+            u_user = models.get_username(u_email)
             #FIREBASE WILL AUTHENTICATE NO NEED FOR COOKIES
-            #self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(u_email)))
+            self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(u_user)))
             self.redirect("/")
         else:
             self.render("loginpage.html",err_login="Invalid Credentials")
@@ -72,9 +73,11 @@ class SignUpHandler(Handler):
     def get(self):
         self.render("signuppage.html")
     def post(self):
-        u_pass = self.request.get("password")
-        u_verify = self.request.get("verify")
-        u_email = self.request.get("email")
+        logging.info("SignUp/Post")
+        data = json.loads(self.request.body)
+        u_pass = data['password']
+        u_verify = data['verify']
+        u_email = data['email']
         new_user = u_pass,u_verify,u_email
 
         err_pass = ""
@@ -98,8 +101,8 @@ class TokenHandler(Handler):
         username = data['username']
         logging.info(username)
         #checks if the user is in the cache
-        user_data = models.check_item_in_cache(username,content)
-        token_data = models.check_item_in_cache(item=token,content=content,isTokenCheck=True)
+        user_data = models.check_user(username)
+        token_data = models.check_token(token)
 
         logging.info(user_data.token)
         logging.info(user_data.username)
@@ -142,8 +145,7 @@ class MessageHandler(Handler):
         receiveUser = data['receiveUser']
         message = data['message']
 
-        content = models.user_cache()
-        user_data = models.check_item_in_cache(item=receiveUser,content=content)
+        user_data = models.check_user(receiveUser)
 
         #IF user exists
         if user_data:

@@ -1,24 +1,34 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="authentication">
 <head>
     <title>Log In</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
 </head>
 <body>
     <a href="/"><h1>Log In</h1></a>
     <hr>
-    <form method="post">
-        <table>
-            <tr>
-                <td>Email:</td>
-                <td><input type="text" name="email" value="{{email}}"></td>
-            </tr>
-            <tr>
-                <td>Password:</td>
-                <td><input type="password" name="password"></td>
-            </tr>
-        </table>
-        <label style="color:red">{{err_login}}</label><br>
-        <input type="submit" name="submit">
-    </form>
+    <div ng-controller="AuthController as auth">
+        <form method="post">
+            <table>
+                <tr>
+                    <td>Email:</td>
+                    <td><input type="text" name="email" value="{{email}}"></td>
+                </tr>
+                <tr>
+                    <td>Password:</td>
+                    <td><input type="password" name="password"></td>
+                </tr>
+            </table>
+            <label style="color:red">{{err_login}}</label><br>
+            <input type="submit" name="submit">
+        </form>
+    </div>
+    
+    <script type="text/javascript" src="/scripts/authentication.js"></script>
 </body>
 </html>
