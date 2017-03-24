@@ -23,15 +23,18 @@
         };
         //Initializes all the notifications on the friends list
         var initializeNotification = function(){
-            $("#listOfFriends a").each(function(){
-                var selector = this;
-                var notificationRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(selector.text);
-                notificationRef.once('value').then(function(snapshot){
-                    if(snapshot.val() != null){
-                        $("#notification-"+selector.text).text(" (" + snapshot.val().notification+")");
-                    }
+            if(TokenService.getCurrentUser() != "" && TokenService.getCurrentUser() != undefined){
+                $("#listOfFriends a").each(function(){
+                    var selector = this;
+                    var notificationRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(selector.text);
+                    notificationRef.once('value').then(function(snapshot){
+                        if(snapshot.val() != null){
+                            $("#notification-"+selector.text).text(" (" + snapshot.val().notification+")");
+                        }
+                    });
                 });
-            });
+            }
+            
         };
         //gets the messages from the database based on the username
         var getMessages = function(username){

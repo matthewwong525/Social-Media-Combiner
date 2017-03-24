@@ -4,6 +4,7 @@
         var currentUser = "";
         //On the token refresh I want to re asign the token
         messaging.onTokenRefresh(function () {
+            //check if logged in
             messaging.getToken()
                 .then(function (refreshedToken) {
                     console.log("Token refreshed");

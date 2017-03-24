@@ -114,9 +114,10 @@ def get_username(email):
 def check_email(email):
     if email:
         cache = user_cache()
-        for users in cache:
-            if email in users.email:
-                return users
+        if cache:
+            for users in cache:
+                if email in users.email:
+                    return users
         content = Users.get_by_id(email,ndb.Key('user_parent','parent'))
         if content:
             return content
@@ -125,9 +126,10 @@ def check_email(email):
 def check_token(token):
     if token:
         cache = user_cache()
-        for users in cache:
-            if token in users.token:
-                return users
+        if cache:
+            for users in cache:
+                if users.token and (token in users.token):
+                    return users
         content = Users.query(ancestor=ndb.Key('user_parent','parent')).filter(Users.token == token).get()
         if content:
             return content
@@ -136,9 +138,10 @@ def check_token(token):
 def check_user(username):
     if username:
         cache = user_cache()
-        for users in cache:
-            if username in users.username:
-                return users
+        if cache:
+            for users in cache:
+                if username in users.username:
+                    return users
         content = Users.query(ancestor=ndb.Key('user_parent','parent')).filter(Users.username == username).get()
         if content:
             return content

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="authentication">
+<html ng-app="website">
 <head>
     <title>Log In</title>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"
@@ -13,22 +13,26 @@
     <a href="/"><h1>Log In</h1></a>
     <hr>
     <div ng-controller="AuthController as auth">
-        <form method="post">
+        <form ng-submit="auth.signInUser()">
             <table>
                 <tr>
                     <td>Email:</td>
-                    <td><input type="text" name="email" value="{{email}}"></td>
+                    <td><input type="text" name="email" ng-model="auth.email"></td>
                 </tr>
                 <tr>
                     <td>Password:</td>
-                    <td><input type="password" name="password"></td>
+                    <td><input type="password" ng-model="auth.password"></td>
                 </tr>
             </table>
-            <label style="color:red">{{err_login}}</label><br>
+            <label style="color:red" ng-cloak>{/auth.invalidCred/}</label><br>
             <input type="submit" name="submit">
         </form>
     </div>
     
-    <script type="text/javascript" src="/scripts/authentication.js"></script>
+    <script type="text/javascript" src="/scripts/authentication-service.js"></script>
+    <script type="text/javascript" src="/scripts/tokenservice.js"></script>
+    <script type="text/javascript" src="/scripts/updateservice.js"></script>
+    <script type="text/javascript" src="/scripts/messageservice.js"></script>
+    <script type="text/javascript" src="/scripts/app.js"></script>
 </body>
 </html>

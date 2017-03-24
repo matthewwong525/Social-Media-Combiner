@@ -1,12 +1,3 @@
-// Initialize Firebase
-var config = {
-    apiKey: "AIzaSyDi1uj0-1YBfxpNF6L-NFOaFyfzEQo323w",
-    authDomain: "mywebapp-123.firebaseapp.com",
-    databaseURL: "https://mywebapp-123.firebaseio.com",
-    storageBucket: "mywebapp-123.appspot.com",
-    messagingSenderId: "808569769768"
-};
-firebase.initializeApp(config);
 
 (function(){
 
@@ -14,9 +5,9 @@ firebase.initializeApp(config);
 
     app.service("AuthService",["$firebaseAuth","$http","$window", function($firebaseAuth,$http,$window){
         var Auth = $firebaseAuth();
-
+        var currentFbUser;
         //TODO: FRONT END VALIDATION!!!!
-        this.createUser = function(theScope,email,password){
+        this.createUser = function(theScope,email,password,verify){
             parameters = JSON.stringify({ email: email, password: password, verify: verify });
             $http.post("/signup/",parameters)
                 .then(function(response){
@@ -28,6 +19,7 @@ firebase.initializeApp(config);
                                 firebaseUser.updateProfile({
                                     displayName : response.data.username
                                 });
+                                currentFbUser = firebaseUser;
                                 console.log("User created with uid: " +firebaseUser.uid);
                                 $window.location.href="/";
                             })
@@ -56,13 +48,28 @@ firebase.initializeApp(config);
             Auth.$signInWithEmailAndPassword(email,password)
                 .then(function(firebaseUser){
                     console.log("User logged in with uid: " +firebaseUser.uid);
+                    currentFbUser=firebaseUser;
+                    $window.location.href="/";
                 })
                 .catch(function(error){
                     console.log(error);
                     theScope.invalidCred = "Invalid Email or Pass"
                 });
-            //$window.location.href="/";
+            
         };
+
+        this.checkLoggedIn= function(){
+            console.log(currentFbUser);
+            if(currentFbUser == undefined){
+                return true;
+            }else{
+                return false;
+            }
+        };
+
+        Auth.$onAuthStateChanged(function(firebaseUser){
+            currentFbUser=firebaseUser;
+        });
         
 
     }]);
