@@ -85,13 +85,13 @@ def signup_user_check(self,new_user,errors):
 #TODO:make it so that it updates the cache directly by appending to it and database
 #after signup this function updates the cache and database
 def create_new_userdata(new_user):
-    u_pass,u_verify,u_email = new_user
+    u_user,u_pass,u_verify,u_email = new_user
     parent_key = ndb.Key('user_parent','parent')
-    ID = Users.get_or_insert('newUserID',username='0',email="RandomEmail@RandomEmail.RandomEmail",password="RandomPassword")
-    user = Users(username="iAmUser"+ID.username,id=u_email,parent=parent_key,password=utils.make_pw_hash(str(u_pass)),email=u_email)
-    ID.username = str(int(ID.username)+1)
+    #ID = Users.get_or_insert('newUserID',username='0',email="RandomEmail@RandomEmail.RandomEmail",password="RandomPassword")
+    user = Users(username=u_user,id=u_email,parent=parent_key,password=utils.make_pw_hash(str(u_pass)),email=u_email)
+    #ID.username = str(int(ID.username)+1)
     user.put()
-    ID.put()
+    #ID.put()
     user_cache(update=True)
 
 #check the credentials on login

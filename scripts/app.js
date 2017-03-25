@@ -37,12 +37,16 @@ const messaging = firebase.messaging();
     app.controller("WebsiteController",['TokenService','UpdateService','AuthService', function (TokenService,UpdateService,AuthService) {
         console.log("hello world");
         this.loggedIn = function (isLoggedIn,currentUser) {
-            if (AuthService.checkLoggedIn()) {
-                TokenService.setCurrentUser(currentUser);
+            console.log(AuthService.checkLoggedIn());
+            AuthService.checkLoggedIn().then(function(){
+                var somevalue = AuthService.getFirebaseUser();
+                console.log(somevalue);
+                TokenService.setCurrentUser(AuthService.getFirebaseUser());
                 permission = TokenService.requestPermission();
                 UpdateService.initializeUI();
-        		TokenService.enableChat();
-        	}
+                TokenService.enableChat();
+            });
+                
         };
         
     }]);
@@ -55,7 +59,7 @@ const messaging = firebase.messaging();
         this.sendMessage = function ($event) {
             if ($event.which === 13) {
                 $event.preventDefault();
-                console.log(this.userToSens==undefined);
+                console.log(this.userToSend==undefined);
                 //prevents send if the message is empty or no user is selected
                 if (!(this.messageToSend == "" || this.userToSend == "" || this.userToSend == undefined) && AuthService.checkLoggedIn()) {
                     MessageService.sendToServer(this.userToSend, this.messageToSend);

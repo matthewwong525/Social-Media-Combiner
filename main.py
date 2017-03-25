@@ -75,18 +75,15 @@ class SignUpHandler(Handler):
     def post(self):
         logging.info("SignUp/Post")
         data = json.loads(self.request.body)
+        u_user = data['username']
         u_pass = data['password']
         u_verify = data['verify']
         u_email = data['email']
-        new_user = u_pass,u_verify,u_email
-
-        err_pass = ""
-        err_verify = "" 
-        err_email = ""
-        errors = err_pass,err_verify,err_email
+        new_user = u_user,u_pass,u_verify,u_email
         
-        errors = models.get_user_error_signup(new_user,errors)
-        models.signup_user_check(self,new_user,errors)
+        errors = models.create_new_userdata(new_user)
+        self.write("success")
+        #models.signup_user_check(self,new_user,errors)
 
 class LogOutHandler(Handler):
     def get(self):
@@ -104,7 +101,7 @@ class TokenHandler(Handler):
         user_data = models.check_user(username)
         token_data = models.check_token(token)
 
-        logging.info(user_data.token)
+        #logging.info(user_data.token)
         logging.info(user_data.username)
         #checks if user exists in database and if token already exists
         if(user_data and user_data.token != token):
