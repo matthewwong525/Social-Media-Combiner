@@ -26,7 +26,7 @@ import urllib
 import Messages
 from google.appengine.api import urlfetch
 
-template_dir = os.path.join(os.path.dirname(__file__),'templates')
+template_dir = os.path.join(os.path.dirname(__file__),'templates/layouts')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True) 
 
 class Handler(webapp2.RequestHandler):
@@ -42,18 +42,21 @@ class MainHandler(Handler):
     def get(self):
         #FIREBASE AUTHENTICATION NO NEED FOR COOKIES
         cookie = self.request.cookies.get("user_id")
+        if cookie:
+            self.render("layout.html",loggedIn=utils.verify_secret_hash(cookie),username=cookie.split("|")[0],userList={})
+        else:
+            self.render("layout.html",loggedIn=False,userList={})
+    def post(self):
+        #initializes the data
         content = models.user_cache()
         userList = {}
         if content:
-            userList = content
-        if cookie:
-            self.render("index.html",loggedIn=utils.verify_secret_hash(cookie),username=cookie.split("|")[0],userList=userList)
-        else:
-            self.render("index.html",loggedIn=False)
+            userList = models.filter_temp_cache(content)
+        self.write(json.dumps(userList))
 
 class LoginHandler(Handler):
-    def get(self):
-        self.render("loginpage.html")
+    #def get(self):
+        #self.render("layout.html")
     def post(self):
         u_email = self.request.get("email")
         u_pass = self.request.get("password")
@@ -70,8 +73,8 @@ class SignUpHandler(Handler):
     def render_signup(self,u_email="",err_pass="",err_verify="",err_email=""):
         self.render('signuppage.html',u_email=u_email,err_pass=err_pass,
                                     err_verify=err_verify,err_email=err_email)
-    def get(self):
-        self.render("signuppage.html")
+    #def get(self):
+        #self.render("signuppage.html")
     def post(self):
         logging.info("SignUp/Post")
         data = json.loads(self.request.body)

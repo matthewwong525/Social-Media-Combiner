@@ -1,0 +1,22 @@
+
+<div>
+    <a href="/"><h1>Log In</h1></a>
+    <hr>
+    <div>
+        <form ng-submit="auth.signInUser()">
+            <table>
+                <tr>
+                    <td>Email:</td>
+                    <td><input type="text" name="email" ng-model="auth.email"></td>
+                </tr>
+                <tr>
+                    <td>Password:</td>
+                    <td><input type="password" ng-model="auth.password"></td>
+                </tr>
+            </table>
+            <label style="color:red" ng-cloak>{/auth.invalidCred/}</label><br>
+            <input type="submit" name="submit">
+        </form>
+    </div>
+    
+</div>

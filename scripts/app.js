@@ -9,17 +9,42 @@ var config = {
 };
 firebase.initializeApp(config);
 //Retrieve Firebase Messaging object
-const messaging = firebase.messaging();
+var messaging = firebase.messaging();
 
 (function(){
     
-    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service']);
-    app.config(['$interpolateProvider', function($interpolateProvider) {
+    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router']);
+    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider) {
       $interpolateProvider.startSymbol('{/');
       $interpolateProvider.endSymbol('/}');
+      $locationProvider.html5Mode(true);
+      $urlRouterProvider.otherwise('/');
+
+      $stateProvider.state('home',{
+        url: '/',
+        templateUrl: './views/index.html',
+        controller: 'MessageController',
+        controllerAs: 'message'
+      });
+      $stateProvider.state('login',{
+        url: '/login',
+        templateUrl: './views/loginpage.html',
+        controller: 'AuthController',
+        controllerAs: 'auth'
+
+      });
+      $stateProvider.state('signup',{
+        url: '/signup',
+        templateUrl: './views/signuppage.html',
+        controller: 'AuthController',
+        controllerAs: 'auth'
+
+      });
+      
     }]);
 
     app.controller("AuthController",["AuthService", function(AuthService){
+        
         this.email = "";
         this.username = "";
         this.password = "";
@@ -32,28 +57,35 @@ const messaging = firebase.messaging();
         this.createUser = function(){AuthService.createUser(this,this.email,this.password,this.verify)};
         this.signInUser = function(){AuthService.signInUser(this,this.email,this.password)};
 
-    }]);
-
-    app.controller("WebsiteController",['TokenService','UpdateService','AuthService', function (TokenService,UpdateService,AuthService) {
-        console.log("hello world");
-        this.loggedIn = function (isLoggedIn,currentUser) {
-            console.log(AuthService.checkLoggedIn());
-            AuthService.checkLoggedIn().then(function(){
-                var somevalue = AuthService.getFirebaseUser();
-                console.log(somevalue);
-                TokenService.setCurrentUser(AuthService.getFirebaseUser());
-                permission = TokenService.requestPermission();
-                UpdateService.initializeUI();
-                TokenService.enableChat();
-            });
-                
-        };
         
     }]);
 
+    app.controller("WebsiteController",['TokenService','UpdateService','AuthService', function (TokenService,UpdateService,AuthService) {
+        this.loggedIn = function (isLoggedIn,currentUser) {
+            if(isLoggedIn){
+                TokenService.setCurrentUser(TokenService.getCurrentUser());
+                permission = TokenService.requestPermission();
+                UpdateService.initializeUI();
+                TokenService.enableChat();
+            }
+        };
+    }]);
 
+    app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope',  function (MessageService,UpdateService,AuthService,$scope) {
+        var promise = UpdateService.initializeData($scope);
+        theScope = this;
+        this.friendList = "";
+        promise.then(function(jsonFriendList){
+            theScope.friendList = jsonFriendList;
+            console.log(theScope.friendList);
+        });
+        $scope.$watch('friendList',function(){
+            console.log(theScope.friendList)
+            $scope.$evalAsync(function(){
 
-    app.controller("MessageController",['MessageService','UpdateService','AuthService',  function (MessageService,UpdateService,AuthService) {
+            });
+        });
+        
         this.messageToSend = "";
         this.userToSend = ""; 
         this.sendMessage = function ($event) {

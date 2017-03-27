@@ -1,6 +1,6 @@
 (function(){
     var app = angular.module('update-service',['token-service'])
-    app.service('UpdateService',['TokenService','$http',function(TokenService,$http){
+    app.service('UpdateService',['TokenService','$http', '$q',function(TokenService,$http,$q){
         var userToSend = "";
         //sets the notification in the db
         this.setNotification = function(currUser,sendUser){
@@ -82,6 +82,20 @@
 
         this.setUserToSend = function(username){
             userToSend = username;
+        };
+
+        this.initializeData = function(){
+            var data = "";
+            var deferred = $q.defer();
+            $http.post("/")
+                .then(function(response){
+                    return deferred.resolve(response.data);
+                })
+                .catch(function(response){
+                    console.log(response);
+                    defer.reject(response);
+                });
+            return deferred.promise;
         };
         
     }]);

@@ -20,6 +20,13 @@ handlers:
 - url: /scripts
   static_dir: scripts
 
+- url: /views/
+  static_dir: templates/views
+
+- url: /loginpage\.html
+  static_files: loginpage.html
+  upload: loginpage\.html
+
 - url: .*
   script: main.app
 

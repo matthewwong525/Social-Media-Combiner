@@ -41,46 +41,6 @@ def user_cache(update=False,updateContent=None):
     return content
 
 
-def get_user_error_signup(new_user,errors):
-    #TODO: check same email and same user in database
-    u_pass,u_verify,u_email = new_user
-    err_pass,err_verify,err_email = errors
-
-    #TODO: CHANGE QUERY FOR USER
-    
-    queryEmail = check_email(u_email)
-    if queryEmail:
-        err_email = "Email Exists..."
-    else:
-        if not (EMAIL_RE.match(u_email)):
-            err_email = "Incorrect Email Address"
-    if not PASS_RE.match(u_pass):
-        err_pass = "Incorrect Password"
-    if not u_pass == u_verify:
-        err_verify = "Passwords do not match"
-    
-
-    return err_pass,err_verify,err_email
-
-def signup_user_check(self,new_user,errors):
-    jsonDic = {}
-    u_pass,u_verify,u_email = new_user
-    err_pass,err_verify,err_email = errors
-    jsonDic["email"] = u_email
-    jsonDic["password"] = u_pass
-    jsonDic["err_pass"] = err_pass
-    jsonDic["err_verify"] = err_verify
-    jsonDic["err_email"] = err_email
-    if err_pass == "" and err_email=="" and err_verify == "":
-        jsonDic["success"] = True
-        #TODO: delete cookie creation because going to use firebase authentication
-        create_new_userdata(new_user)
-        self.response.headers.add("Set-Cookie","user_id=%s; Path=/" % utils.make_secret_hash(str(get_username(u_email))))
-        self.write(json.dumps(jsonDic))
-    else:
-        jsonDic["success"] = False
-        self.write(json.dumps(jsonDic))
-
 #TODO:add transactions
 #TODO:make it so that it updates the cache directly by appending to it and database
 #after signup this function updates the cache and database
@@ -147,7 +107,16 @@ def check_user(username):
             return content
     return None
 
-
-
+def filter_temp_cache(cache):
+    tempList = []
+    for users in cache:
+        tempDic = {}
+        if users.fullname == None or users.fullname == "":
+            tempDic['displayname'] = "TheUnnamed"
+        else:
+            tempDic['displayname'] = users.fullname
+        tempDic['userid'] = users.username
+        tempList.append(tempDic)
+    return tempList 
 
 
