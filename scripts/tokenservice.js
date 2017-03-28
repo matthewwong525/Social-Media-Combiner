@@ -1,6 +1,6 @@
 (function(){
     var app = angular.module('token-service',[]);
-    app.service('TokenService', ['$http', function ($http) {
+    app.service('TokenService', ['$http','$firebaseAuth', function ($http,$firebaseAuth) {
         var currentUser = "";
         //On the token refresh I want to re asign the token
         messaging.onTokenRefresh(function () {
@@ -21,7 +21,7 @@
             if (true) {
                 console.log("Sending token to server...");
                 //TODO Send the current token to server
-                var parameters = JSON.stringify({ token: currentToken, username: currentUser });
+                var parameters = JSON.stringify({ token: currentToken, username: $firebaseAuth.currentUser() });
 
                 $http.post("/sendTokenToServer/", parameters)
                     .then(function (response) {

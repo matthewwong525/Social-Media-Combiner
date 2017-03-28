@@ -1,6 +1,6 @@
 (function(){
     var app = angular.module('update-service',['token-service'])
-    app.service('UpdateService',['TokenService','$http', '$q',function(TokenService,$http,$q){
+    app.service('UpdateService',['TokenService','$http', '$q', '$firebaseAuth', function(TokenService,$http,$q,$firebaseAuth){
         var userToSend = "";
         //sets the notification in the db
         this.setNotification = function(currUser,sendUser){

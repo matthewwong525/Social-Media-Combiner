@@ -14,17 +14,47 @@ var messaging = firebase.messaging();
 (function(){
     
     var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router']);
+    app.factory("Auth", ["$firebaseAuth",
+      function($firebaseAuth) {
+        return $firebaseAuth();
+      }
+    ]);
+
+
+    app.run(["$rootScope", "$state", function($rootScope, $state) {
+      $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
+        // We can catch the error thrown when the $requireSignIn promise is rejected
+        // and redirect the user back to the home page
+        console.log(error);
+        if (error === "AUTH_REQUIRED") {
+          $state.go("login");
+        }
+      });
+    }]);
+
+
     app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider) {
       $interpolateProvider.startSymbol('{/');
       $interpolateProvider.endSymbol('/}');
       $locationProvider.html5Mode(true);
       $urlRouterProvider.otherwise('/');
 
+      
+
       $stateProvider.state('home',{
         url: '/',
         templateUrl: './views/index.html',
         controller: 'MessageController',
-        controllerAs: 'message'
+        controllerAs: 'message',
+        resolve: {
+            // controller will not be loaded until $waitForSignIn resolves
+            // Auth refers to our $firebaseAuth wrapper in the factory below
+            "currentAuth": ["Auth", function(Auth) {
+                console.log(Auth.$requireSignIn());
+              return Auth.$requireSignIn();
+              
+            }]
+          }
       });
       $stateProvider.state('login',{
         url: '/login',
@@ -61,48 +91,52 @@ var messaging = firebase.messaging();
     }]);
 
     app.controller("WebsiteController",['TokenService','UpdateService','AuthService', function (TokenService,UpdateService,AuthService) {
-        this.loggedIn = function (isLoggedIn,currentUser) {
-            if(isLoggedIn){
-                TokenService.setCurrentUser(TokenService.getCurrentUser());
-                permission = TokenService.requestPermission();
-                UpdateService.initializeUI();
-                TokenService.enableChat();
-            }
-        };
+        //TODO: MAKE A HOME SCREEN
     }]);
 
-    app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope',  function (MessageService,UpdateService,AuthService,$scope) {
-        var promise = UpdateService.initializeData(this);
-        var theScope = this;
-        this.friendList = {};
-        promise.then(function(response){
-            $scope.$evalAsync(function(){
-                theScope.friendList = response;
-                console.log(theScope.friendList);
+    app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope','currentAuth','TokenService',  function (MessageService,UpdateService,AuthService,$scope,currentAuth,TokenService) {
+        console.log(currentAuth);
+        if(currentAuth != null){
+            
+            TokenService.setCurrentUser(currentAuth.uid);
+            permission = TokenService.requestPermission();
+            UpdateService.initializeUI();
+            TokenService.enableChat();
+
+            var promise = UpdateService.initializeData(this);
+            var theScope = this;
+            this.friendList = {};
+            promise.then(function(response){
+                $scope.$evalAsync(function(){
+                    theScope.friendList = response;
+                    console.log(theScope.friendList);
+                });
             });
-        });
-        
-        this.messageToSend = "";
-        this.userToSend = ""; 
-        this.sendMessage = function ($event) {
-            if ($event.which === 13) {
-                $event.preventDefault();
-                console.log(this.userToSend==undefined);
-                //prevents send if the message is empty or no user is selected
-                if (!(this.messageToSend == "" || this.userToSend == "" || this.userToSend == undefined) && AuthService.checkLoggedIn()) {
-                    MessageService.sendToServer(this.userToSend, this.messageToSend);
-                    this.messageToSend = "";
+            
+            this.messageToSend = "";
+            this.userToSend = ""; 
+            this.sendMessage = function ($event) {
+                if ($event.which === 13) {
+                    $event.preventDefault();
+                    console.log(this.userToSend==undefined);
+                    //prevents send if the message is empty or no user is selected
+                    if (!(this.messageToSend == "" || this.userToSend == "" || this.userToSend == undefined) && AuthService.checkLoggedIn()) {
+                        MessageService.sendToServer(this.userToSend, this.messageToSend);
+                        this.messageToSend = "";
+                    }
                 }
-            }
-        };
-        this.currUserToSend = function($event){
-            if(AuthService.checkLoggedIn()){
-                console.log($event.target.id);
-                $event.preventDefault();
-                this.userToSend = this.friendList[$event.target.id].displayname;
-                UpdateService.setUserToSend(this.userToSend);
-                UpdateService.initializeUI();
-            }
-        };
+            };
+            this.currUserToSend = function($event){
+                if(AuthService.checkLoggedIn()){
+                    console.log($event.target.id);
+                    $event.preventDefault();
+                    //TODO: ADD .displayname at the back*****
+                    this.userToSend = this.friendList[$event.target.id.displayname];
+                    UpdateService.setUserToSend($event.target.id);
+                    UpdateService.initializeUI();
+                }
+            };
+        }
+        
     }]); 
 })();

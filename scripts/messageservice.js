@@ -1,6 +1,6 @@
 (function(){
     var app = angular.module('message-service',['token-service','update-service'])
-    app.service('MessageService', ['$http', 'TokenService','UpdateService', function ($http,TokenService,UpdateService) {
+    app.service('MessageService', ['$http', 'TokenService','UpdateService','$firebaseAuth', function ($http,TokenService,UpdateService,$firebaseAuth) {
         var userToSend = "";
         messaging.onMessage(function (payload) {
             console.log("Message recieved: ", JSON.stringify(payload.data.message));
