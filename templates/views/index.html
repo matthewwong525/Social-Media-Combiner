@@ -10,7 +10,7 @@
         <span>Hello Friends!</span>
         <div ng-repeat="users in message.friendList">
             <br><a href="" ng-click="message.currUserToSend($event)" id="{/users.userid/}">{/users.displayname/}</a>
-            <label id="notification-{/users.displayname/}"></label>
+            <label id="notification-{/users.userid/}"></label>
         </div>
             
     

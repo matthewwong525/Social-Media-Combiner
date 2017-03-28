@@ -2,6 +2,7 @@
     var app = angular.module('update-service',['token-service'])
     app.service('UpdateService',['TokenService','$http', '$q', '$firebaseAuth', function(TokenService,$http,$q,$firebaseAuth){
         var userToSend = "";
+        var friendList = {};
         //sets the notification in the db
         this.setNotification = function(currUser,sendUser){
             var notificationRef = firebase.database().ref().child('notifications').child(currUser).child(sendUser);
@@ -18,25 +19,30 @@
                         notification: newNotificationVal
                     });
                 }
+            })
+            .catch(function(response){
+                console.log(response)
             });
             return notificationRef;
         };
         //Initializes all the notifications on the friends list
         var initializeNotification = function(){
             if(TokenService.getCurrentUser() != "" && TokenService.getCurrentUser() != undefined){
-                $("#listOfFriends a").each(function(){
-                    var selector = this;
-                    var notificationRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(selector.text);
+                //TODO: LOOP THROUGH NG REPEAT
+                for(var key in friendList){
+                    if(!friendList.hasOwnProperty(key)) continue;
+                    var notificationRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(key);
                     notificationRef.once('value').then(function(snapshot){
                         if(snapshot.val() != null){
-                            $("#notification-"+selector.text).text(" (" + snapshot.val().notification+")");
+                            $("#notification-"+key).text(" (" + snapshot.val().notification+")");
                         }
                     });
-                });
+                }
             }
             
         };
         //gets the messages from the database based on the username
+        //change so it stores the messages everytime you initialize or refresh
         var getMessages = function(username){
             $http.get("/sendMessageToUser/",
             {
@@ -83,6 +89,9 @@
         this.setUserToSend = function(username){
             userToSend = username;
         };
+        this.setFriendList = function(listOfFriends){
+            friendList = listOfFriends;
+        }
 
         this.initializeData = function(){
             var data = "";

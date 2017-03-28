@@ -118,7 +118,6 @@ var messaging = firebase.messaging();
             
             TokenService.setCurrentUser(currentAuth.uid);
             permission = TokenService.requestPermission();
-            UpdateService.initializeUI();
             TokenService.enableChat();
 
             var promise = UpdateService.initializeData(this);
@@ -128,18 +127,21 @@ var messaging = firebase.messaging();
                 $scope.$evalAsync(function(){
                     theScope.friendList = response;
                     console.log(theScope.friendList);
+
+                    UpdateService.setFriendList(theScope.friendList);
+                    UpdateService.initializeUI();
                 });
             });
             
             this.messageToSend = "";
             this.userToSend = ""; 
+            this.userIDToSend = "";
             this.sendMessage = function ($event) {
                 if ($event.which === 13) {
                     $event.preventDefault();
-                    console.log(this.userToSend==undefined);
                     //prevents send if the message is empty or no user is selected
-                    if (!(this.messageToSend == "" || this.userToSend == "" || this.userToSend == undefined) && AuthService.checkLoggedIn()) {
-                        MessageService.sendToServer(this.userToSend, this.messageToSend);
+                    if (!(this.messageToSend == "" || this.userIDToSend == "" || this.userIDToSend == undefined) && AuthService.checkLoggedIn()) {
+                        MessageService.sendToServer(this.userIDToSend, this.messageToSend);
                         this.messageToSend = "";
                     }
                 }
@@ -147,6 +149,7 @@ var messaging = firebase.messaging();
             this.currUserToSend = function($event){
                 if(AuthService.checkLoggedIn()){
                     console.log($event.target.id);
+                    this.userIDToSend = $event.target.id;
                     $event.preventDefault();
                     //TODO: ADD .displayname at the back*****
                     this.userToSend = this.friendList[$event.target.id];

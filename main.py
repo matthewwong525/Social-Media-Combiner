@@ -105,9 +105,10 @@ class TokenHandler(Handler):
         token_data = models.check_token(token)
 
         #logging.info(user_data.token)
-        logging.info(user_data.username)
+        
         #checks if user exists in database and if token already exists
         if(user_data and user_data.token != token):
+            logging.info(user_data.username)
             logging.info("About to put token in database")
             user_data.token = token
             #checks if another user has the same token then deletes it
@@ -118,7 +119,7 @@ class TokenHandler(Handler):
             models.user_cache(update=True)
         else:
             #return 404 page not found
-            if user_data.token == token:
+            if user_data and user_data.token == token:
                 self.write("Token already exists in database")
             else:
                 self.write("404 user not found in database")
@@ -144,6 +145,8 @@ class MessageHandler(Handler):
         sendUser = data['sendUser']
         receiveUser = data['receiveUser']
         message = data['message']
+
+        logging.info(receiveUser)
 
         user_data = models.check_user(receiveUser)
 
