@@ -21,7 +21,7 @@
             if (true) {
                 console.log("Sending token to server...");
                 //TODO Send the current token to server
-                var parameters = JSON.stringify({ token: currentToken, username: $firebaseAuth.currentUser() });
+                var parameters = JSON.stringify({ token: currentToken, username: currentUser  });
 
                 $http.post("/sendTokenToServer/", parameters)
                     .then(function (response) {

@@ -20,8 +20,11 @@ handlers:
 - url: /scripts
   static_dir: scripts
 
-- url: /views/
+- url: /views
   static_dir: templates/views
+
+- url: /styles
+  static_dir: templates/styles
 
 - url: /loginpage\.html
   static_files: loginpage.html

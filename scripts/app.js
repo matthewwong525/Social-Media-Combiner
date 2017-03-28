@@ -27,7 +27,7 @@ var messaging = firebase.messaging();
         // and redirect the user back to the home page
         console.log(error);
         if (error === "AUTH_REQUIRED") {
-          $state.go("login");
+          $state.go("home");
         }
       });
     }]);
@@ -50,11 +50,20 @@ var messaging = firebase.messaging();
             // controller will not be loaded until $waitForSignIn resolves
             // Auth refers to our $firebaseAuth wrapper in the factory below
             "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$requireSignIn());
-              return Auth.$requireSignIn();
+                console.log(Auth.$waitForSignIn());
+              return Auth.$waitForSignIn();
               
             }]
           }
+      });
+      $stateProvider.state('logout',{
+        url: '/logout',
+        resolve: {
+            "signOut" : ["Auth", function(Auth) {
+                Auth.$signOut();
+                window.location.replace("/");
+            }]
+        }
       });
       $stateProvider.state('login',{
         url: '/login',
@@ -90,13 +99,22 @@ var messaging = firebase.messaging();
         
     }]);
 
-    app.controller("WebsiteController",['TokenService','UpdateService','AuthService', function (TokenService,UpdateService,AuthService) {
+    app.controller("WebsiteController",['TokenService','UpdateService','AuthService','$rootScope', function (TokenService,UpdateService,AuthService,$rootScope) {
         //TODO: MAKE A HOME SCREEN
+        $rootScope.username = "";
+        $rootScope.isLoaded = false;
     }]);
 
-    app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope','currentAuth','TokenService',  function (MessageService,UpdateService,AuthService,$scope,currentAuth,TokenService) {
+    app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope','currentAuth','TokenService','$rootScope',  function (MessageService,UpdateService,AuthService,$scope,currentAuth,TokenService,$rootScope) {
         console.log(currentAuth);
+        $rootScope.isLoaded = true;
         if(currentAuth != null){
+            $rootScope.isLoggedIn = true;
+            if(currentAuth.displayName == null || currentAuth.displayName == ""){
+                $rootScope.username = "TheUnnamed"
+            }else{
+                $rootScope.username = currentAuth.displayName;
+            }
             
             TokenService.setCurrentUser(currentAuth.uid);
             permission = TokenService.requestPermission();
@@ -131,11 +149,13 @@ var messaging = firebase.messaging();
                     console.log($event.target.id);
                     $event.preventDefault();
                     //TODO: ADD .displayname at the back*****
-                    this.userToSend = this.friendList[$event.target.id.displayname];
+                    this.userToSend = this.friendList[$event.target.id];
                     UpdateService.setUserToSend($event.target.id);
                     UpdateService.initializeUI();
                 }
             };
+        }else{
+            $rootScope.isLoggedIn = false;
         }
         
     }]); 

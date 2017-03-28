@@ -2,38 +2,35 @@
 <html ng-app="website">
 <head>
     <title>Welcome</title>
-    <meta charset="utf-8" name="friendlist" content="{{userList}}">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"
             integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
             crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular.min.js"></script>
     <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
-    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+    <script type="text/javascript" src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
     <script src="//unpkg.com/angular-ui-router/release/angular-ui-router.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/styles/main.css">
     <base href="/">
-    <script type="text/javascript" src="/scripts/app.js"></script>
-    <script type="text/javascript" src="/scripts/authentication-service.js"></script>
-    <script type="text/javascript" src="/scripts/tokenservice.js"></script>
-    <script type="text/javascript" src="/scripts/updateservice.js"></script>
-    <script type="text/javascript" src="/scripts/messageservice.js"></script>
 </head>
 
 <body>
-
-    <div>
+    <div ng-controller="WebsiteController as web">
         <div style="float:left;">
             <label style="text-align: left;"><b>Website!</b></label>
         </div>
-        <div style="float: right;" > 
-            {%if not loggedIn%} 
-            <a href="/">Home</a>
-            <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-            <a ui-sref="login">Login</a>
-            <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-            <a ui-sref="signup">Sign Up</a>
-            {%else%}
-            {{username}} - <a href="/logout"> Log Out</a>
-            {%endif%}
+        <div ng-cloak style="float: right;" ng-show="$root.isLoaded"> 
+            <div ng-hide="$root.isLoggedIn">
+                <a ui-sref="home">Home</a>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                <a ui-sref="login">Login</a>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                <a ui-sref="signup">Sign Up</a>
+            </div>
+            <div ng-show="$root.isLoggedIn">
+                <label>{/$root.username/} - </label>
+                <a ui-sref="logout"> Log Out</a>
+            </div>
         </div>
         <br>
         <hr>
@@ -41,7 +38,11 @@
     <div ui-view>
         
     </div>
-    
+    <script type="text/javascript" src="/scripts/app.js"></script>
+    <script type="text/javascript" src="/scripts/authentication-service.js"></script>
+    <script type="text/javascript" src="/scripts/tokenservice.js"></script>
+    <script type="text/javascript" src="/scripts/updateservice.js"></script>
+    <script type="text/javascript" src="/scripts/messageservice.js"></script>
     
 </body>
 
