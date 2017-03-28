@@ -108,7 +108,7 @@ def check_user(username):
     return None
 
 def filter_temp_cache(cache):
-    tempList = []
+    sendDic = {}
     for users in cache:
         tempDic = {}
         if users.fullname == None or users.fullname == "":
@@ -116,7 +116,7 @@ def filter_temp_cache(cache):
         else:
             tempDic['displayname'] = users.fullname
         tempDic['userid'] = users.username
-        tempList.append(tempDic)
-    return tempList 
+        sendDic[users.username] = tempDic
+    return sendDic 
 
 

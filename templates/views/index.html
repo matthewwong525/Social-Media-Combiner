@@ -8,9 +8,9 @@
     </div>
     <div id="listOfFriends" style="float:left;" ng-show="true">
         <span>Hello Friends!</span>
-        <div ng-repeat="user in friendList">
-            <br><a href="" ng-click="message.currUserToSend($event)" id="{/user.userid/}">{/user.displayname/}</a>
-            <label id="notification-{{user.userid}}"></label>
+        <div ng-repeat="users in message.friendList">
+            <br><a href="" ng-click="message.currUserToSend($event)" id="{/users.userid/}">{/users.displayname/}</a>
+            <label id="notification-{/users.displayname/}"></label>
         </div>
             
     

@@ -89,6 +89,7 @@
             var deferred = $q.defer();
             $http.post("/")
                 .then(function(response){
+                    console.log(response);
                     return deferred.resolve(response.data);
                 })
                 .catch(function(response){

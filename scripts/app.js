@@ -72,17 +72,13 @@ var messaging = firebase.messaging();
     }]);
 
     app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope',  function (MessageService,UpdateService,AuthService,$scope) {
-        var promise = UpdateService.initializeData($scope);
-        theScope = this;
-        this.friendList = "";
-        promise.then(function(jsonFriendList){
-            theScope.friendList = jsonFriendList;
-            console.log(theScope.friendList);
-        });
-        $scope.$watch('friendList',function(){
-            console.log(theScope.friendList)
+        var promise = UpdateService.initializeData(this);
+        var theScope = this;
+        this.friendList = {};
+        promise.then(function(response){
             $scope.$evalAsync(function(){
-
+                theScope.friendList = response;
+                console.log(theScope.friendList);
             });
         });
         
@@ -103,7 +99,7 @@ var messaging = firebase.messaging();
             if(AuthService.checkLoggedIn()){
                 console.log($event.target.id);
                 $event.preventDefault();
-                this.userToSend = $event.target.id;
+                this.userToSend = this.friendList[$event.target.id].displayname;
                 UpdateService.setUserToSend(this.userToSend);
                 UpdateService.initializeUI();
             }
