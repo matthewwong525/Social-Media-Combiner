@@ -22,6 +22,7 @@ import logging
 import utils
 import re
 import json
+import cgi
 import urllib
 import Messages
 from google.appengine.api import urlfetch
@@ -144,7 +145,7 @@ class MessageHandler(Handler):
         data = json.loads(self.request.body)
         sendUser = data['sendUser']
         receiveUser = data['receiveUser']
-        message = data['message']
+        message = cgi.escape(data['message'])
 
         logging.info(receiveUser)
 
