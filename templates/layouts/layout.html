@@ -29,6 +29,8 @@
             </div>
             <div ng-show="$root.isLoggedIn">
                 <label>{/$root.username/} - </label>
+                <a ui-sref="account">Edit</a>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <a ui-sref="logout"> Log Out</a>
             </div>
         </div>

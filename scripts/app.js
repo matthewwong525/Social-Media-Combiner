@@ -56,6 +56,21 @@ var messaging = firebase.messaging();
             }]
           }
       });
+      $stateProvider.state('account',{
+        url: '/account',
+        templateUrl: './views/accountpage.html',
+        controller: 'AccountController',
+        controllerAs: 'account',
+        resolve: {
+            // controller will not be loaded until $waitForSignIn resolves
+            // Auth refers to our $firebaseAuth wrapper in the factory below
+            "currentAuth": ["Auth", function(Auth) {
+                console.log(Auth.$requireSignIn());
+              return Auth.$requireSignIn();
+              
+            }]
+          }
+      });
       $stateProvider.state('logout',{
         url: '/logout',
         resolve: {
@@ -82,8 +97,17 @@ var messaging = firebase.messaging();
       
     }]);
 
+    app.controller("AccountController",["AuthService",'currentAuth', function(AuthService,currentAuth){
+        this.newDisplayName = "";
+        this.editProfile = function(){
+            if (!(this.newDisplayName == "" || this.newDisplayName == undefined || this.newDisplayName == null)){
+                AuthService.editProfile(currentAuth,this.newDisplayName)
+            }
+        }
+    }]);
+
     app.controller("AuthController",["AuthService", function(AuthService){
-        
+        //used to authenticate users on sign in
         this.email = "";
         this.username = "";
         this.password = "";
@@ -106,8 +130,8 @@ var messaging = firebase.messaging();
     }]);
 
     app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope','currentAuth','TokenService','$rootScope',  function (MessageService,UpdateService,AuthService,$scope,currentAuth,TokenService,$rootScope) {
-        console.log(currentAuth);
         $rootScope.isLoaded = true;
+        //if the user is logged in
         if(currentAuth != null){
             $rootScope.isLoggedIn = true;
             if(currentAuth.displayName == null || currentAuth.displayName == ""){
@@ -141,23 +165,28 @@ var messaging = firebase.messaging();
                 if ($event.which === 13) {
                     $event.preventDefault();
                     //prevents send if the message is empty or no user is selected
-                    if (!(this.messageToSend == "" || this.userIDToSend == "" || this.userIDToSend == undefined) && AuthService.checkLoggedIn()) {
+                    if (!(this.messageToSend == "" || this.userIDToSend == "" || this.userIDToSend == undefined)) {
                         MessageService.sendToServer(this.userIDToSend, this.messageToSend);
                         this.messageToSend = "";
                     }
                 }
             };
+            //when the user clicks on a user to send to
             this.currUserToSend = function($event){
-                if(AuthService.checkLoggedIn()){
-                    console.log($event.target.id);
-                    this.userIDToSend = $event.target.id;
-                    $event.preventDefault();
-                    //TODO: ADD .displayname at the back*****
-                    this.userToSend = this.friendList[$event.target.id];
-                    UpdateService.setUserToSend($event.target.id);
-                    UpdateService.initializeUI();
-                }
+                console.log($event.target.id);
+                this.userIDToSend = $event.target.id;
+                $event.preventDefault();
+                this.userToSend = this.friendList[$event.target.id].email;
+                UpdateService.setUserToSend($event.target.id);
+                UpdateService.initializeUI();
             };
+
+            this.hasDisplayName = function(displayName){
+                if(displayName == "" || displayName == null || displayName == undefined){
+                    return false;
+                }
+                return true;
+            }
         }else{
             $rootScope.isLoggedIn = false;
         }

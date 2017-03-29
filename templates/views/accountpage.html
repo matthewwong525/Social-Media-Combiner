@@ -1,0 +1,17 @@
+<div>
+    <a ui-sref="home"><h1>Edit Profile</h1></a>
+    <hr>
+    <div>
+        <form ng-submit="account.editProfile()">
+            <table>
+                <tr>
+                    <td>Display Name:</td>
+                    <td><input type="text" name="email" ng-model="account.newDisplayName"></td>
+                </tr>
+            </table>
+            <br>
+            <input type="submit" name="submit">
+        </form>
+    </div>
+    
+</div>

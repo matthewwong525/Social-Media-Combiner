@@ -29,8 +29,19 @@
                     //TODO: delete user from database on server
                     console.log(error);
                 });
+        };
 
+        this.editProfile = function(currentAuth,newDisplayName){
+            currentAuth.updateProfile({
+                displayName : newDisplayName
+            }).then(function(response){
+                console.log(response);
+                //TODO: update database displayname
 
+                $window.location.href="/";
+            }).catch(function(response){
+                console.log(response);
+            });
         };
 
         this.signInUser = function(theScope,email,password){

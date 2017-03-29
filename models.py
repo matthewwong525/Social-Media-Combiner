@@ -112,7 +112,7 @@ def filter_temp_cache(cache):
     for users in cache:
         tempDic = {}
         if users.fullname == None or users.fullname == "":
-            tempDic['displayname'] = users.email
+            tempDic['displayname'] = ""
         else:
             tempDic['displayname'] = users.fullname
         tempDic['userid'] = users.username
