@@ -111,7 +111,7 @@ var messaging = firebase.messaging();
         if(currentAuth != null){
             $rootScope.isLoggedIn = true;
             if(currentAuth.displayName == null || currentAuth.displayName == ""){
-                $rootScope.username = "TheUnnamed"
+                $rootScope.username = currentAuth.email;
             }else{
                 $rootScope.username = currentAuth.displayName;
             }
@@ -128,6 +128,7 @@ var messaging = firebase.messaging();
                     theScope.friendList = response;
                     console.log(theScope.friendList);
 
+                    //Sets the userlist and initializes the UI with notifications
                     UpdateService.setFriendList(theScope.friendList);
                     UpdateService.initializeUI();
                 });

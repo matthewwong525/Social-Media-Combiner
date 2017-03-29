@@ -10,13 +10,15 @@
                 //if the notification value does not exist
                 if(snapshot.val() === null){
                     notificationRef.set({
-                        notification: 1
+                        notification: 1,
+                        sentFrom: sendUser
                     });
                 //if the notification exists add to the notification
                 }else{
                     var newNotificationVal = snapshot.val().notification+1;
                     notificationRef.set({
-                        notification: newNotificationVal
+                        notification: newNotificationVal,
+                        sentFrom: sendUser
                     });
                 }
             })
@@ -31,11 +33,14 @@
                 //TODO: LOOP THROUGH NG REPEAT
                 for(var key in friendList){
                     if(!friendList.hasOwnProperty(key)) continue;
-                    var notificationRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(key);
+                    var notificationRef = firebase.database().ref("/notifications/" + TokenService.getCurrentUser()+ "/" + key);
                     notificationRef.once('value').then(function(snapshot){
                         if(snapshot.val() != null){
-                            $("#notification-"+key).text(" (" + snapshot.val().notification+")");
+                            var haha = snapshot.val();
+                            $("#notification-"+snapshot.val().sentFrom).text(" (" + snapshot.val().notification+")");
                         }
+                    }).catch(function(response){
+                        console.log(response);
                     });
                 }
             }

@@ -2,7 +2,7 @@
 <div ng-cloak>
     <div style="float:right;padding-right: 2%;" >
         <!-- TODO: REALTIME VALIDATION BEFORE YOU SEND TO THE SERVER FOR LOGIN/SIGNUP-->
-        <textarea disabled readonly type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px; resize:none" id="userToSend">{/message.userToSend/}</textarea><br>
+        <textarea disabled readonly type="text" name="sendTo" style="margin: 0px; height: 20px; width: 1000px; resize:none" id="userToSend">{/message.userToSend.email/}</textarea><br>
         <textarea disabled readonly style="margin: 0px; height: 600px; width: 1000px;resize:none" id="incomingText" ></textarea><br>
         <textarea disabled type="text" name="input" style="margin: 0px; height: 50px; width: 1000px;resize:none" id="outgoingText" ng-model="message.messageToSend" ng-keypress="message.sendMessage($event)"></textarea>
     </div>
