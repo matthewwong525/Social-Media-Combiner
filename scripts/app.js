@@ -13,13 +13,7 @@ var messaging = firebase.messaging();
 
 (function(){
     
-    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router']);
-    //TODO: MOVE TO AUTH SERVICE
-    app.factory("Auth", ["$firebaseAuth",
-      function($firebaseAuth) {
-        return $firebaseAuth();
-      }
-    ]);
+    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service']);
 
 
     app.run(["$rootScope", "$state", function($rootScope, $state) {
@@ -63,36 +57,13 @@ var messaging = firebase.messaging();
         controller: 'FacebookController',
         controllerAs: 'fb',
         resolve:{
-            "fbInit": function($q){
-                if(window.FB == undefined){
-                    var deferred = $q.defer();
-                
-                    window.fbAsyncInit = function() {
-                        deferred.resolve(
-                            FB.init({
-                              appId      : '1333544743350684',
-                              xfbml      : true,
-                              version    : 'v2.8'
-                            })
-                        );
-                        FB.AppEvents.logPageView();
-                        console.log("fb init done");
-                    };
-                    (function(d, s, id){
-                     var js, fjs = d.getElementsByTagName(s)[0];
-                     if (d.getElementById(id)) {return;}
-                     js = d.createElement(s); js.id = id;
-                     js.src = "//connect.facebook.net/en_US/sdk.js";
-                     fjs.parentNode.insertBefore(js, fjs);
-                   }(document, 'script', 'facebook-jssdk'))
-                    return deferred.promise;
-                }
-                
-                
-                
-            }
-        }
+            "fbInit": function(FBService){
+                //TODO: ABSTRACT THIS TO THE SERVICE
+                return FBService.fbInit();
+            },
         
+        }
+           
       });
       $stateProvider.state('account',{
         url: '/account',
@@ -114,9 +85,17 @@ var messaging = firebase.messaging();
         resolve: {
             "signOut" : ["Auth", function(Auth) {
                 Auth.$signOut();
-                window.location.replace("/");
-            }]
-        }
+            }],
+            "initFB": function(FBService){
+                return FBService.fbInit();
+            }
+        },
+        onEnter: function(){
+            FB.logout(function(response){
+                console.log(response);
+            });
+            window.location.replace("/");
+        } 
       });
       $stateProvider.state('login',{
         url: '/login',
@@ -135,19 +114,37 @@ var messaging = firebase.messaging();
       
     }]);
 
-    app.controller("FacebookController",['fbInit',function(fbInit){
-       FB.ui({
-                method: 'share',
-                mobile_iframe: true,
-                href: 'https://developers.facebook.com/docs/',
-              }, function(response){});
-        $("#meh").on('click', function(){
-            
-            FB.Event.subscribe('auth.statusChange', function(response){
-                    console.log(response);
+    app.controller("FacebookController",['FBService','$scope','$state',function(FBService,$scope,$state){
+        theScope = this;
+        theScope.isLoginButton = false;  
+        var fbLoggedInPromise = FBService.fbLoggedIn();
+        //Successfully logged in
+        fbLoggedInPromise.then(function(response){
+            console.log(response);
+            if(response.status == "connected"){
+                FB.ui({
+                    method: 'share',
+                    mobile_iframe: true,
+                    href: 'https://developers.facebook.com/docs/',
+                }, function(response){});
+            }else{
+                //TODO: ERROR MESSAGES FOR LOGIN AND UNKNOWN
+                $scope.$evalAsync(function(){
+                    theScope.isLoginButton = true;
                 });
-                
-        }); 
+            }
+            
+        });
+        this.loginButton = function(){
+            if(this.isLoginButton){
+                FBService.fbTryLogIn($state).then(function(response){
+                });
+            }
+        }
+        FB.Event.subscribe('auth.login',function(response){
+            console.log(response);
+            $state.reload();
+        });
     }]);
 
     app.controller("AccountController",["AuthService",'currentAuth', function(AuthService,currentAuth){

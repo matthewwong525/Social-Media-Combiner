@@ -70,6 +70,7 @@
         this.checkLoggedIn= function(){
             return Auth.$requireSignIn();
         };
+        //TODO: make so it changes the current user
         Auth.$onAuthStateChanged(function(firebaseUser){
             this.currentFbUser = firebaseUser;
             console.log(this.currentFbUser);
@@ -79,5 +80,10 @@
         
 
     }]);
+    app.factory("Auth", ["$firebaseAuth",
+      function($firebaseAuth) {
+        return $firebaseAuth();
+      }
+    ]);
 
 })();
