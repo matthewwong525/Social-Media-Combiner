@@ -14,6 +14,7 @@ var messaging = firebase.messaging();
 (function(){
     
     var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router']);
+    //TODO: MOVE TO AUTH SERVICE
     app.factory("Auth", ["$firebaseAuth",
       function($firebaseAuth) {
         return $firebaseAuth();
@@ -56,6 +57,43 @@ var messaging = firebase.messaging();
             }]
           }
       });
+      $stateProvider.state('facebook',{
+        url: '/facebook',
+        templateUrl: './views/facebookpage.html',
+        controller: 'FacebookController',
+        controllerAs: 'fb',
+        resolve:{
+            "fbInit": function($q){
+                if(window.FB == undefined){
+                    var deferred = $q.defer();
+                
+                    window.fbAsyncInit = function() {
+                        deferred.resolve(
+                            FB.init({
+                              appId      : '1333544743350684',
+                              xfbml      : true,
+                              version    : 'v2.8'
+                            })
+                        );
+                        FB.AppEvents.logPageView();
+                        console.log("fb init done");
+                    };
+                    (function(d, s, id){
+                     var js, fjs = d.getElementsByTagName(s)[0];
+                     if (d.getElementById(id)) {return;}
+                     js = d.createElement(s); js.id = id;
+                     js.src = "//connect.facebook.net/en_US/sdk.js";
+                     fjs.parentNode.insertBefore(js, fjs);
+                   }(document, 'script', 'facebook-jssdk'))
+                    return deferred.promise;
+                }
+                
+                
+                
+            }
+        }
+        
+      });
       $stateProvider.state('account',{
         url: '/account',
         templateUrl: './views/accountpage.html',
@@ -95,6 +133,21 @@ var messaging = firebase.messaging();
 
       });
       
+    }]);
+
+    app.controller("FacebookController",['fbInit',function(fbInit){
+       FB.ui({
+                method: 'share',
+                mobile_iframe: true,
+                href: 'https://developers.facebook.com/docs/',
+              }, function(response){});
+        $("#meh").on('click', function(){
+            
+            FB.Event.subscribe('auth.statusChange', function(response){
+                    console.log(response);
+                });
+                
+        }); 
     }]);
 
     app.controller("AccountController",["AuthService",'currentAuth', function(AuthService,currentAuth){

@@ -28,7 +28,12 @@
                 <a ui-sref="signup">Sign Up</a>
             </div>
             <div ng-show="$root.isLoggedIn">
-                <label>{/$root.username/} - </label>
+                <label>{/$root.username/}</label>
+                <span>&nbsp;&nbsp;-&nbsp;&nbsp;</span>
+                <a ui-sref="home">Home</a>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                <a ui-sref="facebook">Facebook</a>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <a ui-sref="account">Edit</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <a ui-sref="logout"> Log Out</a>
