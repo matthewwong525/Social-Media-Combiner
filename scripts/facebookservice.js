@@ -50,7 +50,7 @@
         this.fbGetFeed = function(){
             var deferred = $q.defer();
             FB.api(
-                "/me/home",
+                "/me/feed",
                 function(response){
                     if(response && !response.error){
                         deferred.resolve(response);
