@@ -117,18 +117,22 @@ var messaging = firebase.messaging();
     app.controller("FacebookController",['FBService','$scope','$state',function(FBService,$scope,$state){
         theScope = this;
         theScope.isLoginButton = false;  
-        var fbLoggedInPromise = FBService.fbLoggedIn();
+        var fbLoggedInPromise = FBService.fbIsLoggedIn();
         //Successfully logged in
         fbLoggedInPromise.then(function(response){
             console.log(response);
             if(response.status == "connected"){
-                FB.ui({
+                /*FB.ui({
                     method: 'share',
                     mobile_iframe: true,
                     href: 'https://developers.facebook.com/docs/',
-                }, function(response){});
+                }, function(response){});*/
+                FBService.fbGetFeed().then(function(response){
+                    console.log(response);
+                });
             }else{
                 //TODO: ERROR MESSAGES FOR LOGIN AND UNKNOWN
+                //Activates the login button
                 $scope.$evalAsync(function(){
                     theScope.isLoginButton = true;
                 });
@@ -137,10 +141,10 @@ var messaging = firebase.messaging();
         });
         this.loginButton = function(){
             if(this.isLoginButton){
-                FBService.fbTryLogIn($state).then(function(response){
-                });
+                FBService.fbTryLogIn($state).then(function(response){});
             }
         }
+        //EVENT fires every time the authentication status changes
         FB.Event.subscribe('auth.login',function(response){
             console.log(response);
             $state.reload();

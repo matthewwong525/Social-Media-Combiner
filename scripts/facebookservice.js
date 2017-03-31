@@ -30,7 +30,7 @@
                 return deferred.promise;
             }
         }
-        this.fbLoggedIn = function(){
+        this.fbIsLoggedIn = function(){
             var deferred = $q.defer();
             FB.getLoginStatus(function(response){
                 if(response.status == "connected")
@@ -42,14 +42,23 @@
         }
         this.fbTryLogIn = function($state){
             var deferred = $q.defer();
-            try{
-                FB.login(function(response){
-                    deferred.resolve(response);
-                });
-            }catch(response){
+            FB.login(function(response){
                 deferred.resolve(response);
-            }
-            
+            },{scope:'publish_actions,user_posts'});
+            return deferred.promise;
+        }
+        this.fbGetFeed = function(){
+            var deferred = $q.defer();
+            FB.api(
+                "/me/home",
+                function(response){
+                    if(response && !response.error){
+                        deferred.resolve(response);
+                    }else{
+                        deferred.reject(response)
+                    }
+                }
+            )
             return deferred.promise;
         }
 
