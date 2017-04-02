@@ -128,7 +128,14 @@ var messaging = firebase.messaging();
                     href: 'https://developers.facebook.com/docs/',
                 }, function(response){});*/
                 FBService.fbGetFeed().then(function(response){
-                    console.log(response);
+                    var feedList = [];
+                    for(var i = 0; i < response.data.length; i++){
+                        var postObj = { "method":"GET","relative_url": "/"+response.data[i].id};
+                        feedList.push(postObj);
+                    }
+                    FBService.fbBatchRequest(JSON.stringify(feedList)).then(function(response){
+                        console.log(response);
+                    });
                 });
             }else{
                 //TODO: ERROR MESSAGES FOR LOGIN AND UNKNOWN
@@ -147,6 +154,8 @@ var messaging = firebase.messaging();
         //EVENT fires every time the authentication status changes
         FB.Event.subscribe('auth.login',function(response){
             console.log(response);
+            //store access token in realtime firebase
+            FBService.storeAccessToken(response.authResponse);
             $state.reload();
         });
     }]);

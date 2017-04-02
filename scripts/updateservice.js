@@ -36,7 +36,6 @@
                     var notificationRef = firebase.database().ref("/notifications/" + TokenService.getCurrentUser()+ "/" + key);
                     notificationRef.once('value').then(function(snapshot){
                         if(snapshot.val() != null){
-                            var haha = snapshot.val();
                             $("#notification-"+snapshot.val().sentFrom).text(" (" + snapshot.val().notification+")");
                         }
                     }).catch(function(response){
