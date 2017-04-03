@@ -128,17 +128,17 @@ var messaging = firebase.messaging();
                     href: 'https://developers.facebook.com/docs/',
                 }, function(response){});*/
                 FBService.fbGetFeed().then(function(response){
-                    var feedList = [];
+                    var postList = [],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
                     //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
                     for(var i = 0; i < response.data.length; i++){
-                        var postObj = { "method":"GET","relative_url": "/"+response.data[i].id};
-                        var likeObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/likes"};
-                        var reactionObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/comments"};
-                        var sharedPostObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/sharedposts"};
-                        var attachmentObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/attachments"};
-                        feedList.push([postObj,likeObj,reactionObj,sharedPostObj,attachmentObj]);
+                        postList.push({ "method":"GET","relative_url": "/"+response.data[i].id});
+                        likeList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/likes"});
+                        commentList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/comments"});
+                        reactionList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/reactions"});
+                        sharedPostList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/sharedposts"});
+                        attachmentList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/attachments"});
                     }
-                    FBService.fbBatchRequest(feedList,true).then(function(response){
+                    FBService.fbBatchRequest(postList,likeList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
                         console.log(response);
                     });
                 });

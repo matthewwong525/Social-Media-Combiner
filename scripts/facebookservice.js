@@ -85,45 +85,29 @@
             return httpPromise;
         };
 
-        //TODO: USE AN INTERCEPTOR TO RETRIEVE THE RESLTS BEFORE THEY GET EXECUTED, THEN USE A CLOSURE http://plnkr.co/edit/xjJH1rdJyB6vvpDACJOT?p=preview; http://stackoverflow.com/questions/23021416/how-to-use-angularjs-interceptor-to-only-intercept-specific-http-requests
-        this.fbBatchRequest = function(body,isMultiBatchReq=false){
+        //Always wrap 
+        this.fbBatchRequest = function(){
             var currUser = TokenService.getCurrentUser();
             var deferred = $q.defer();
             var accessTokenRef = firebase.database().ref().child('user_data').child(currUser);
+            var body = [].slice.call(arguments); //takes arguments and converts it to an array
             accessTokenRef.once('value').then(function(snapshot){
-                if(!isMultiBatchReq){
-                    if(snapshot.val().fbAccessToken){
-                        var accessToken = snapshot.val().fbAccessToken;
-                        var batchRequest = {};
-                        batchRequest["batch"] = JSON.stringify(body);
-                        batchRequest["access_token"] = accessToken;
-                        console.log(batchRequest);
-                        $http({
-                          url: 'https://graph.facebook.com',
-                          method: 'POST',
-                          params: batchRequest, // Make sure to inject the service you choose to the controller
-                          paramSerializer : '$httpParamSerializerJQLike',
-                        }).then(function(response) { deferred.resolve(response); });
-                    }else{
-                        deferred.reject("fbAccessToken does not exist");
-                    }
-                }else{
+                //if an access token exists, use the access token and call the API with the arguments
+               if(snapshot.val().fbAccessToken){
                     var accessToken = snapshot.val().fbAccessToken;
-                    var batchRequest = {};
                     var requestArr = [];
-                    var bodyArr = [];
-                    batchRequest["access_token"] = accessToken;
-                    for(var i = 0; i < body.length;i++){
+                    for(let i = 0; i < body.length;i++){
+                        let batchRequest = {};
+                        batchRequest["access_token"] = accessToken;
                         batchRequest["batch"] = JSON.stringify(body[i]);
-                        bodyArr.push(batchRequest);
-                        console.log(bodyArr[i]);
-                        requestArr.push(httpBatchReq(bodyArr[i]));
+                        requestArr.push(httpBatchReq(batchRequest));
                     }
                     $q.all(requestArr).then(function(response){
                         deferred.resolve(response);
                     });
+                }else{
+                    deferred.reject("fbAccessToken does not exist");
                 }
-                
             }).catch(function(response){
                 deferred.reject(response);
                 
