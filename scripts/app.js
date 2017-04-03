@@ -129,11 +129,16 @@ var messaging = firebase.messaging();
                 }, function(response){});*/
                 FBService.fbGetFeed().then(function(response){
                     var feedList = [];
+                    //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
                     for(var i = 0; i < response.data.length; i++){
                         var postObj = { "method":"GET","relative_url": "/"+response.data[i].id};
-                        feedList.push(postObj);
+                        var likeObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/likes"};
+                        var reactionObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/comments"};
+                        var sharedPostObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/sharedposts"};
+                        var attachmentObj = { "method":"GET","relative_url": "/"+response.data[i].id+"/attachments"};
+                        feedList.push([postObj,likeObj,reactionObj,sharedPostObj,attachmentObj]);
                     }
-                    FBService.fbBatchRequest(JSON.stringify(feedList)).then(function(response){
+                    FBService.fbBatchRequest(feedList,true).then(function(response){
                         console.log(response);
                     });
                 });

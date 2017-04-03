@@ -75,26 +75,55 @@
             );
             return deferred.promise;
         }
-        this.fbBatchRequest = function(body){
+        var httpBatchReq = function(batchRequest){
+            var httpPromise = $http({
+              url: 'https://graph.facebook.com',
+              method: 'POST',
+              params: batchRequest, // Make sure to inject the service you choose to the controller
+              paramSerializer : '$httpParamSerializerJQLike',
+            })
+            return httpPromise;
+        };
+
+        //TODO: USE AN INTERCEPTOR TO RETRIEVE THE RESLTS BEFORE THEY GET EXECUTED, THEN USE A CLOSURE http://plnkr.co/edit/xjJH1rdJyB6vvpDACJOT?p=preview; http://stackoverflow.com/questions/23021416/how-to-use-angularjs-interceptor-to-only-intercept-specific-http-requests
+        this.fbBatchRequest = function(body,isMultiBatchReq=false){
             var currUser = TokenService.getCurrentUser();
             var deferred = $q.defer();
             var accessTokenRef = firebase.database().ref().child('user_data').child(currUser);
             accessTokenRef.once('value').then(function(snapshot){
-                if(snapshot.val().fbAccessToken){
-                    var accessToken = snapshot.val().fbAccessToken;
-                    var batchRequest = {}
-                    batchRequest["batch"] = body;
-                    batchRequest["access_token"] = accessToken;
-                    console.log(batchRequest);
-                    $http({
-                      url: 'https://graph.facebook.com',
-                      method: 'POST',
-                      params: batchRequest, // Make sure to inject the service you choose to the controller
-                      paramSerializer : '$httpParamSerializerJQLike',
-                    }).then(function(response) { deferred.resolve(response); });
+                if(!isMultiBatchReq){
+                    if(snapshot.val().fbAccessToken){
+                        var accessToken = snapshot.val().fbAccessToken;
+                        var batchRequest = {};
+                        batchRequest["batch"] = JSON.stringify(body);
+                        batchRequest["access_token"] = accessToken;
+                        console.log(batchRequest);
+                        $http({
+                          url: 'https://graph.facebook.com',
+                          method: 'POST',
+                          params: batchRequest, // Make sure to inject the service you choose to the controller
+                          paramSerializer : '$httpParamSerializerJQLike',
+                        }).then(function(response) { deferred.resolve(response); });
+                    }else{
+                        deferred.reject("fbAccessToken does not exist");
+                    }
                 }else{
-                    deferred.reject("fbAccessToken does not exist");
+                    var accessToken = snapshot.val().fbAccessToken;
+                    var batchRequest = {};
+                    var requestArr = [];
+                    var bodyArr = [];
+                    batchRequest["access_token"] = accessToken;
+                    for(var i = 0; i < body.length;i++){
+                        batchRequest["batch"] = JSON.stringify(body[i]);
+                        bodyArr.push(batchRequest);
+                        console.log(bodyArr[i]);
+                        requestArr.push(httpBatchReq(bodyArr[i]));
+                    }
+                    $q.all(requestArr).then(function(response){
+                        deferred.resolve(response);
+                    });
                 }
+                
             }).catch(function(response){
                 deferred.reject(response);
                 
