@@ -47,10 +47,10 @@
             },{scope:'publish_actions,user_posts'});
             return deferred.promise;
         };
-        this.fbGetFeed = function(){
+        this.fbApiRequest = function(url){
             var deferred = $q.defer();
             FB.api(
-                "/me/feed",
+                url,
                 function(response){
                     if(response && !response.error){
                         deferred.resolve(response);
@@ -61,20 +61,21 @@
             )
             return deferred.promise;
         };
-        this.fbGetPost = function(post_id){
-            var deferred = $q.defer();
-            FB.api(
-                "/"+post_id,
-                function(response){
-                    if(response && !response.error){
-                        deferred.resolve(response);
-                    }else{
-                        deferred.reject(response);
+        //Groups the lists togther based on the current index.
+        this.groupByIndex = function(returnBody){
+            var newReturnBody = [];
+            for (var i = 0; i < returnBody[0].data.length;i++){
+                var tempList = [];
+                for(var j = 0 ; j < returnBody.length;j++){
+                    if(returnBody[j].data[i] != undefined){
+                        returnBody[j].data[i].body = JSON.parse(returnBody[j].data[i].body);
+                        tempList.push(returnBody[j].data[i]);
                     }
                 }
-            );
-            return deferred.promise;
-        }
+                newReturnBody.push(tempList);
+            }
+            return newReturnBody;
+        };
         var httpBatchReq = function(batchRequest){
             var httpPromise = $http({
               url: 'https://graph.facebook.com',
@@ -103,6 +104,7 @@
                         requestArr.push(httpBatchReq(batchRequest));
                     }
                     $q.all(requestArr).then(function(response){
+                        //TODO: CHECK IF IT IS SUCCESSFUL by checking if the "SUCCESS: TRUE" for all objects returned
                         deferred.resolve(response);
                     });
                 }else{

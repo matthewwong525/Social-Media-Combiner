@@ -1,3 +1,29 @@
 <div id="fb-root">
     <button ng-click="fb.loginButton()" ng-if="fb.isLoginButton">Connect From Facebook</button>
+    <div ng-if="!fb.isLoginButton" ng-repeat="post in fb.userFeed">
+        <div id="{/post[1].body.id/}" style="border:1px solid black;">
+            <label class="title"><u>{/post[0].body.name/}</u><span ng-if="post[1].body.story"> : {/post[1].body.story/}</span></label>
+            <div class = "body">
+                <label class="message">{/post[1].body.message/}</label>
+                <div class="attachments" ng-repeat="attachment in post[5].body.data">
+                    <div class="attachment" id="{/attachment.target.id/}">
+                        <img src="{/attachment.media.image.src/}" id="{/attachment.target.url/}">
+                        <label>{/attachment.description/}</label>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <span class="likes" ng-repeat="like in post[3].body.data">
+                <span id="{/like.id/}">{/like.type/} : {/like.name/}</span>
+            </span> 
+            <br><br>
+            <div class="comments" ng-repeat="comment in post[2].body.data">
+                <div id="{/comment.id/}">
+                    <span>{/comment.from.name/} : {/comment.message/}</span>
+                    <!--TODO: Attachments from the comments go here-->
+                </div>
+            </div>
+
+        </div> <br>
+    </div>
 </div>

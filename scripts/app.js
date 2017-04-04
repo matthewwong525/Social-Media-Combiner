@@ -116,30 +116,30 @@ var messaging = firebase.messaging();
 
     app.controller("FacebookController",['FBService','$scope','$state',function(FBService,$scope,$state){
         theScope = this;
-        theScope.isLoginButton = false;  
+        theScope.isLoginButton = false;
+        theScope.userFeed = {};  
         var fbLoggedInPromise = FBService.fbIsLoggedIn();
         //Successfully logged in
         fbLoggedInPromise.then(function(response){
             console.log(response);
             if(response.status == "connected"){
-                /*FB.ui({
-                    method: 'share',
-                    mobile_iframe: true,
-                    href: 'https://developers.facebook.com/docs/',
-                }, function(response){});*/
-                FBService.fbGetFeed().then(function(response){
-                    var postList = [],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
+                //TODO: abstract to another service
+                FBService.fbApiRequest("/me/feed").then(function(response){
+                    var userList = [],postList=[],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
                     //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
+                    var posts = response;
                     for(var i = 0; i < response.data.length; i++){
-                        postList.push({ "method":"GET","relative_url": "/"+response.data[i].id});
-                        likeList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/likes"});
-                        commentList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/comments"});
-                        reactionList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/reactions"});
-                        sharedPostList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/sharedposts"});
-                        attachmentList.push({ "method":"GET","relative_url": "/"+response.data[i].id+"/attachments"});
+                        userList.push({ "method":"GET","relative_url": "/"+posts.data[i].id.split("_")[0]});
+                        postList.push({ "method":"GET","relative_url": "/"+posts.data[i].id});
+                        commentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/comments"});
+                        reactionList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/reactions"});
+                        sharedPostList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/sharedposts"});
+                        attachmentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/attachments"});
                     }
-                    FBService.fbBatchRequest(postList,likeList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
-                        console.log(response);
+                    FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
+                        var feedList = FBService.groupByIndex(response)
+                        console.log(feedList);
+                        theScope.userFeed = feedList;
                     });
                 });
             }else{
