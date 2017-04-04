@@ -1,6 +1,6 @@
 <div id="fb-root">
-    <button ng-click="fb.loginButton()" ng-if="fb.isLoginButton">Connect From Facebook</button>
-    <div ng-if="!fb.isLoginButton" ng-repeat="post in fb.userFeed">
+    <button ng-click="mainfeed.loginButton()" ng-if="mainfeed.isLoginButton">Connect From Facebook</button>
+    <div ng-if="!mainfeed.isLoginButton" ng-repeat="post in mainfeed.userFeed">
         <div id="{/post[1].body.id/}" style="border:1px solid black;">
             <label class="title"><u>{/post[1].body.created_time/} - {/post[0].body.name/}</u><span ng-if="post[1].body.story"> : {/post[1].body.story/}</span></label>
             <div class = "body">

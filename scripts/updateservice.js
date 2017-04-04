@@ -82,6 +82,7 @@
         };
         $(window).focus(function(){
             //Updates notifications and messages on focus when unfocused
+            //TODO: MAKE IT SO IT IS ONLY FOR THE STATE IN THE MESSAGING
             updateUI();
         });
 

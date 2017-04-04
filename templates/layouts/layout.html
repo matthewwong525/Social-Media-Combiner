@@ -9,7 +9,6 @@
     <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
     <script type="text/javascript" src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
     <script src="//unpkg.com/angular-ui-router/release/angular-ui-router.min.js"></script>
-
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
     <base href="/">
 </head>
@@ -32,7 +31,9 @@
                 <span>&nbsp;&nbsp;-&nbsp;&nbsp;</span>
                 <a ui-sref="home">Home</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="facebook">Facebook</a>
+                <a ui-sref="mainfeed">Main Feed</a>
+                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                <a ui-sref="socialpage({socialpage:'facebook'})">Facebook</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <a ui-sref="account">Edit</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>

@@ -28,7 +28,8 @@ var messaging = firebase.messaging();
     }]);
 
 
-    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider) {
+    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider','$httpProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider,$httpProvider) {
+      $httpProvider.defaults.withCredentials = true;
       $interpolateProvider.startSymbol('{/');
       $interpolateProvider.endSymbol('/}');
       $locationProvider.html5Mode(true);
@@ -51,19 +52,38 @@ var messaging = firebase.messaging();
             }]
           }
       });
-      $stateProvider.state('facebook',{
-        url: '/facebook',
-        templateUrl: './views/facebookpage.html',
-        controller: 'FacebookController',
-        controllerAs: 'fb',
+      $stateProvider.state('mainfeed',{
+        url: '/mainfeed',
+        templateUrl: './views/mainfeed.html',
+        controller: 'MainFeedController',
+        controllerAs: 'mainfeed',
         resolve:{
+            // controller will not be loaded until $waitForSignIn resolves
+            // Auth refers to our $firebaseAuth wrapper in the factory below
+            "currentAuth": ["Auth", function(Auth) {
+                console.log(Auth.$waitForSignIn());
+              return Auth.$waitForSignIn();
+              
+            }],
             "fbInit": function(FBService){
-                //TODO: ABSTRACT THIS TO THE SERVICE
                 return FBService.fbInit();
-            },
-        
+            }
         }
-           
+      });
+
+      $stateProvider.state('socialpage',{
+        url: "/{socialpage:(?:facebook)}",
+        templateUrl: "/views/socialpage.html",
+        controller: "SocialPageController",
+        controllerAs: "sp",
+        resolve: {
+            // controller will not be loaded until $waitForSignIn resolves
+            // Auth refers to our $firebaseAuth wrapper in the factory below
+            "currentAuth": ["Auth", function(Auth) {
+                console.log(Auth.$requireSignIn());
+              return Auth.$requireSignIn();
+            }]
+        }
       });
       $stateProvider.state('account',{
         url: '/account',
@@ -113,8 +133,20 @@ var messaging = firebase.messaging();
       });
       
     }]);
+    app.controller("SocialPageController",['$stateParams','$http','$scope','$sce',function($stateParams,$http,$scope,$sce){
+        var socialpage = $stateParams.socialpage;
+        console.log(socialpage);
+        if(socialpage == "facebook"){
+            document.write("<base href='http://www.facebook.com/" + "' />");
 
-    app.controller("FacebookController",['FBService','$scope','$state',function(FBService,$scope,$state){
+            $http.jsonp("https://www.facebook.com/").then(function(response){
+                console.log(response);
+            });
+            return $sce.trustAsResourceUrl("https://www.facebook.com/");
+        }
+        
+    }]);
+    app.controller("MainFeedController",['FBService','$scope','$state',function(FBService,$scope,$state){
         theScope = this;
         theScope.isLoginButton = false;
         theScope.userFeed = {};  
@@ -137,7 +169,7 @@ var messaging = firebase.messaging();
                         attachmentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/attachments"});
                     }
                     FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
-                        var feedList = FBService.groupByIndex(response)
+                        var feedList = FBService.groupByIndex(response);
                         console.log(feedList);
                         theScope.userFeed = feedList;
                     });
