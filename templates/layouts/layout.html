@@ -9,16 +9,18 @@
     <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
     <script type="text/javascript" src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
     <script src="//unpkg.com/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/styles/cleanslate.css">
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
+    
     <base href="/">
 </head>
 
-<body>
-    <div ng-controller="WebsiteController as web">
-        <div style="float:left;">
-            <label style="text-align: left;"><b>Website!</b></label>
+<body style="margin:0px;padding:0px;">
+    <div ng-controller="WebsiteController as web" class="cleanslate">
+        <div style="float:left !important;">
+            <label style="text-align: left !important;"><b>Website!</b></label>
         </div>
-        <div ng-cloak style="float: right;" ng-if="$root.isLoaded"> 
+        <div ng-cloak style="float: right !important;" ng-if="$root.isLoaded"> 
             <div ng-if="!$root.isLoggedIn">
                 <a ui-sref="home">Home</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
@@ -37,15 +39,13 @@
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <a ui-sref="account">Edit</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="logout"> Log Out</a>
+                <a ui-sref="logout">Log Out</a>
             </div>
         </div>
         <br>
         <hr>
     </div>
-    <div ui-view>
-        
-    </div>
+    <div ui-view></div>
     <script type="text/javascript" src="/scripts/app.js"></script>
     <script type="text/javascript" src="/scripts/authentication-service.js"></script>
     <script type="text/javascript" src="/scripts/tokenservice.js"></script>

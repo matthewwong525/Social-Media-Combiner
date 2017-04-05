@@ -52,7 +52,8 @@
             {
                 params:{
                     "sendUser": TokenService.getCurrentUser(),
-                    "receiveUser":username}
+                    "receiveUser":username
+                }
             })
                 .then(function(response){
                     console.log(response);

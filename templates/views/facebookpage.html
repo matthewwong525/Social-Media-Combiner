@@ -6,7 +6,7 @@
             <div class = "body">
                 <label class="message">{/post[1].body.message/}</label>
                 <div id="{/attachment.target.id/}" class="attachments" ng-repeat="attachment in post[5].body.data">
-                    <img ng-hide="true" src="{/attachment.media.image.src/}" id="{/attachment.target.url/}">
+                    <img ng-hide="true" ng-src="attachment.media.image.src" id="{/attachment.target.url/}">
                     <label>{/attachment.description/}</label>
                 </div>
             </div>

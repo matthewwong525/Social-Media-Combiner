@@ -28,14 +28,11 @@ var messaging = firebase.messaging();
     }]);
 
 
-    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider','$httpProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider,$httpProvider) {
-      $httpProvider.defaults.withCredentials = true;
+    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider) {
       $interpolateProvider.startSymbol('{/');
       $interpolateProvider.endSymbol('/}');
       $locationProvider.html5Mode(true);
       $urlRouterProvider.otherwise('/');
-
-      
 
       $stateProvider.state('home',{
         url: '/',
@@ -135,16 +132,25 @@ var messaging = firebase.messaging();
     }]);
     app.controller("SocialPageController",['$stateParams','$http','$scope','$sce',function($stateParams,$http,$scope,$sce){
         var socialpage = $stateParams.socialpage;
-        console.log(socialpage);
+        theScope = this;
+        this.pagehtml = "";
         if(socialpage == "facebook"){
-            document.write("<base href='http://www.facebook.com/" + "' />");
-
-            $http.jsonp("https://www.facebook.com/").then(function(response){
+            //document.write("<base href='http://www.facebook.com/" + "' />");
+            var parameters = {
+                params:{
+                    "p":socialpage
+                }
+            };
+            $http.get("/page",parameters).then(function(response){
                 console.log(response);
+                theScope.pagehtml = $sce.trustAsHtml(response.data);
             });
-            return $sce.trustAsResourceUrl("https://www.facebook.com/");
         }
-        
+        window.onbeforeunload = function(e) {
+            // check condition
+            console.log(e);
+            return 'Dialog text here.';
+        };
     }]);
     app.controller("MainFeedController",['FBService','$scope','$state',function(FBService,$scope,$state){
         theScope = this;

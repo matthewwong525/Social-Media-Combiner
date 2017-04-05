@@ -26,6 +26,8 @@ import cgi
 import urllib
 import Messages
 from google.appengine.api import urlfetch
+from bs4 import BeautifulSoup
+
 
 template_dir = os.path.join(os.path.dirname(__file__),'templates/layouts')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True) 
@@ -178,6 +180,23 @@ class MessageHandler(Handler):
             self.write("User does not exist")
             #TODO: SEND BACK TO SERVER THAT THE USERNAME DOES NOT EXIST
 
+class PageHandler(Handler):
+    def get(self):
+        SOCIALPAGE_RE = re.compile(r"^(facebook)$")
+        socialpage_url = self.request.get("p")
+        logging.info(socialpage_url)
+        if(SOCIALPAGE_RE.match(socialpage_url)):
+            try:
+                headers = {'Content-Type': 'text/html'}
+                result = urlfetch.fetch(
+                    url='https://'+socialpage_url+'.com/login.php',
+                    method=urlfetch.GET,
+                    headers=headers)
+                self.write(result.content)
+            except urlfetch.Error:
+                self.write('Caught exception fetching url')
+        else:
+            self.write("invalid URL")
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -185,7 +204,8 @@ app = webapp2.WSGIApplication([
     (r'/signup/?',SignUpHandler),
     (r'/logout/?',LogOutHandler),
     (r'/sendTokenToServer/?',TokenHandler),
-    (r'/sendMessageToUser/?',MessageHandler)
+    (r'/sendMessageToUser/?',MessageHandler),
+    (r'/page/?',PageHandler)
 
     
 ], debug=True)
