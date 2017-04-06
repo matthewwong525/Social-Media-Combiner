@@ -45,6 +45,7 @@ class MainHandler(Handler):
     def get(self):
         #FIREBASE AUTHENTICATION NO NEED FOR COOKIES
         cookie = self.request.cookies.get("user_id")
+        #self.response.headers.add_header("Set-Cookie","")
         if cookie:
             self.render("layout.html",loggedIn=utils.verify_secret_hash(cookie),username=cookie.split("|")[0],userList={})
         else:
@@ -169,7 +170,6 @@ class MessageHandler(Handler):
                         payload=payloadData,
                         method=urlfetch.POST,
                         headers=headers)
-                    
                     self.write("sent:"+result.content)
                 except urlfetch.Error:
                     self.write('Caught exception fetching url')
@@ -181,9 +181,30 @@ class MessageHandler(Handler):
             #TODO: SEND BACK TO SERVER THAT THE USERNAME DOES NOT EXIST
 
 class PageHandler(Handler):
+    def post(self):
+        inputForm = json.loads(self.request.body)
+        #http://stackoverflow.com/questions/12884618/how-to-get-all-cookies-with-urlfetch
+        try:
+            form_data = urllib.urlencode(inputForm)
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            result = urlfetch.fetch(
+                    url = "https://www.facebook.com/login.php?login_attempt=1&lwv=110",
+                    method=urlfetch.POST,
+                    payload=form_data,
+                    headers=headers)
+            cookies = result.headers.get('set-cookie').split(";")
+            for cookie in cookies:
+                self.response.headers.add_header("Set-Cookie",cookie+";")
+            
+            self.write(result.content)
+        except urlfetch.Error:
+            self.write('Caught Exception fetching url')
+
+
     def get(self):
         SOCIALPAGE_RE = re.compile(r"^(facebook)$")
         socialpage_url = self.request.get("p")
+        inputDic = {}
         logging.info(socialpage_url)
         if(SOCIALPAGE_RE.match(socialpage_url)):
             try:
@@ -192,7 +213,14 @@ class PageHandler(Handler):
                     url='https://'+socialpage_url+'.com/login.php',
                     method=urlfetch.GET,
                     headers=headers)
-                self.write(result.content)
+                #scrapes the login data info
+                soup = BeautifulSoup(result.content, 'html.parser')
+                login_form = soup.find(id="login_form")
+                for inputTag in login_form.find_all('input'):
+                    inputDic[inputTag.get('name')] = inputTag.get('value')
+                logging.info(inputDic)
+                self.response.headers.add_header("Set-Cookie",result.headers.get('set-cookie'))
+                self.write(json.dumps(inputDic))
             except urlfetch.Error:
                 self.write('Caught exception fetching url')
         else:

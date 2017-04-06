@@ -142,8 +142,14 @@ var messaging = firebase.messaging();
                 }
             };
             $http.get("/page",parameters).then(function(response){
-                console.log(response);
-                theScope.pagehtml = $sce.trustAsHtml(response.data);
+                //gets the parametesr
+                var inputFormData = response.data;
+                inputFormData["email"] = "whatisyouraccount@hotmail.com";
+                inputFormData["pass"] = "$pell4968585max";
+                $http.post("/page",inputFormData).then(function(response){
+                    console.log(response);
+                    theScope.pagehtml = $sce.trustAsHtml(response.data);
+                })
             });
         }
         window.onbeforeunload = function(e) {
@@ -160,6 +166,7 @@ var messaging = firebase.messaging();
         //Successfully logged in
         fbLoggedInPromise.then(function(response){
             console.log(response);
+            //TODO: ALSO CHECK IF the access token is expired
             if(response.status == "connected"){
                 //TODO: abstract to another service
                 FBService.fbApiRequest("/me/feed").then(function(response){
