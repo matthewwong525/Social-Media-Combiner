@@ -25,6 +25,9 @@ import json
 import cgi
 import urllib
 import Messages
+import mechanize
+import cookielib
+import html2text
 from google.appengine.api import urlfetch
 from bs4 import BeautifulSoup
 
@@ -191,17 +194,56 @@ class PageHandler(Handler):
                     url = "https://www.facebook.com/login.php?login_attempt=1&lwv=110",
                     method=urlfetch.POST,
                     payload=form_data,
-                    headers=headers)
+                    headers=headers,
+                    follow_redirects=False)
+            logging.info(result.status_code)
+            logging.info(result.headers)
             cookies = result.headers.get('set-cookie').split(";")
             for cookie in cookies:
                 self.response.headers.add_header("Set-Cookie",cookie+";")
-            
+                logging.info(cookie)
             self.write(result.content)
         except urlfetch.Error:
             self.write('Caught Exception fetching url')
 
 
     def get(self):
+        # Browser
+        br = mechanize.Browser()
+
+        # Cookie Jar
+        cj = cookielib.LWPCookieJar()
+        br.set_cookiejar(cj)
+
+        # Browser options
+        br.set_handle_equiv(True)
+        br.set_handle_gzip(True)
+        br.set_handle_redirect(True)
+        br.set_handle_referer(True)
+        br.set_handle_robots(False)
+
+        # Follows refresh 0 but not hangs on refresh > 0
+        br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+
+        # User-Agent (this is cheating, ok?) https://techblog.willshouse.com/2012/01/03/most-common-user-agents/
+        br.addheaders = [('User-agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36')]
+        # Open some site, let's pick a random one, the first that pops in mind:
+        r = br.open('http://www.facebook.com/login.php')
+        # Select the first (index zero) form
+        br.select_form(nr=0)
+        # User credentials
+        br.form['email'] = 'whatisyouraccount@hotmail.com'
+        br.form['pass'] = '$pell4968585max'
+        # Login
+        br.submit()
+        html = br.response().read()
+
+        # Show the source
+        logging.info(html) 
+        self.write(html)
+
+
+        """
         SOCIALPAGE_RE = re.compile(r"^(facebook)$")
         socialpage_url = self.request.get("p")
         inputDic = {}
@@ -210,21 +252,28 @@ class PageHandler(Handler):
             try:
                 headers = {'Content-Type': 'text/html'}
                 result = urlfetch.fetch(
-                    url='https://'+socialpage_url+'.com/login.php',
+                    url='https://www.'+socialpage_url+'.com/login.php',
                     method=urlfetch.GET,
-                    headers=headers)
+                    headers=headers,
+                    follow_redirects=False)
                 #scrapes the login data info
+                logging.info(result.status_code)
+                logging.info(result.headers)
+                logging.info(result.headers.get('set-cookie'))
                 soup = BeautifulSoup(result.content, 'html.parser')
                 login_form = soup.find(id="login_form")
                 for inputTag in login_form.find_all('input'):
                     inputDic[inputTag.get('name')] = inputTag.get('value')
-                logging.info(inputDic)
-                self.response.headers.add_header("Set-Cookie",result.headers.get('set-cookie'))
+
+                cookies = result.headers.get('set-cookie').split(";")
+                for cookie in cookies:
+                    self.response.headers.add_header("Set-Cookie",cookie+";")
+                    logging.info(cookie)
                 self.write(json.dumps(inputDic))
             except urlfetch.Error:
                 self.write('Caught exception fetching url')
         else:
-            self.write("invalid URL")
+            self.write("invalid URL")"""
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
