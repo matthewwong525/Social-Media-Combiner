@@ -2,6 +2,7 @@
 <html ng-app="website">
 <head>
     <title>Welcome</title>
+    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"
             integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
             crossorigin="anonymous"></script>
@@ -9,42 +10,46 @@
     <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
     <script type="text/javascript" src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
     <script src="//unpkg.com/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular-aria.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.2/angular-messages.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/styles/cleanslate.css">
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
     
     <base href="/">
 </head>
 
 <body style="margin:0px;padding:0px;">
-    <div ng-controller="WebsiteController as web" class="cleanslate">
-        <div style="float:left !important;">
-            <label style="text-align: left !important;"><b>Website!</b></label>
+    <div ng-controller="WebsiteController as web" class="" layout="row">
+        <div style="float:left !important;" flex="50">
+            <label style="text-align: left !important;" class="md-display-1"  >Website!</label>
         </div>
-        <div ng-cloak style="float: right !important;" ng-if="$root.isLoaded"> 
+        <div ng-cloak flex-direction="reverse" flex="50" style="text-align: right !important;" ng-if="$root.isLoaded"> 
             <div ng-if="!$root.isLoggedIn">
-                <a ui-sref="home">Home</a>
+                <md-button ui-sref="home" >Home</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="login">Login</a>
+                <md-button ui-sref="login">Login</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="signup">Sign Up</a>
+                <md-button ui-sref="signup" >Signup</md-button>
             </div>
-            <div ng-show="$root.isLoggedIn">
+            <div ng-if="$root.isLoggedIn">
                 <label>{/$root.username/}</label>
                 <span>&nbsp;&nbsp;-&nbsp;&nbsp;</span>
-                <a ui-sref="home">Home</a>
+                <a ui-sref="home" class="md-button">Home</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="mainfeed">Main Feed</a>
+                <a ui-sref="mainfeed" class="md-button">Main Feed</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="socialpage({socialpage:'facebook'})">Facebook</a>
+                <a ui-sref="socialpage({socialpage:'facebook'})" class="md-button">Facebook(NOT WORKING)</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="account">Edit</a>
+                <a ui-sref="account" class="md-button">Edit</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="logout">Log Out</a>
+                <a ui-sref="logout" class="md-button">Log Out</a>
             </div>
         </div>
-        <br>
-        <hr>
     </div>
+    <hr>
     <div ui-view></div>
     <script type="text/javascript" src="/scripts/app.js"></script>
     <script type="text/javascript" src="/scripts/authentication-service.js"></script>

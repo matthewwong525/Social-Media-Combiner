@@ -13,7 +13,7 @@ var messaging = firebase.messaging();
 
 (function(){
     
-    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service']);
+    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service','ngMaterial']);
 
 
     app.run(["$rootScope", "$state", function($rootScope, $state) {
@@ -37,6 +37,21 @@ var messaging = firebase.messaging();
       $stateProvider.state('home',{
         url: '/',
         templateUrl: './views/index.html',
+        controller: 'HomeController',
+        controllerAs: 'home',
+        resolve: {
+            // controller will not be loaded until $waitForSignIn resolves
+            // Auth refers to our $firebaseAuth wrapper in the factory below
+            "currentAuth": ["Auth", function(Auth) {
+                console.log(Auth.$waitForSignIn());
+              return Auth.$waitForSignIn();
+              
+            }]
+          }
+      });
+      $stateProvider.state('message',{
+        url: '/',
+        templateUrl: './views/messagepage.html',
         controller: 'MessageController',
         controllerAs: 'message',
         resolve: {
@@ -238,8 +253,18 @@ var messaging = firebase.messaging();
         
     }]);
 
+    app.controller("HomeController",['currentAuth','$rootScope','$state',function(currentAuth,$rootScope,$state){
+        $rootScope.isLoaded = true;
+        console.log(currentAuth);
+        if(currentAuth != null){
+            $state.go("message");
+        }else{
+            $rootScope.isLoggedIn = false;
+        }
+    }]);
+
     app.controller("WebsiteController",['TokenService','UpdateService','AuthService','$rootScope', function (TokenService,UpdateService,AuthService,$rootScope) {
-        //TODO: MAKE A HOME SCREEN
+        //initialize all variables here
         $rootScope.username = "";
         $rootScope.isLoaded = false;
     }]);
