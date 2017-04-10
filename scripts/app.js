@@ -316,7 +316,7 @@ var messaging = firebase.messaging();
                 console.log($event.target.id);
                 this.userIDToSend = $event.target.id;
                 $event.preventDefault();
-                this.userToSend = this.friendList[$event.target.id].email;
+                this.userToSend = $event.target.id;
                 UpdateService.setUserToSend($event.target.id);
                 UpdateService.initializeUI();
             };

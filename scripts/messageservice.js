@@ -20,7 +20,7 @@
         var userToSend = "";
         messaging.onMessage(function (payload) {
             console.log("Message recieved: ", JSON.stringify(payload.data.message));
-            //If currentUser is not on the user chat
+            //If currentUser is on the user chat
             if(payload.data.username == $("#userToSend").val()){
                 var message = payload.data.message.replace("\n", "&#xA;");
                 var d = new Date();
