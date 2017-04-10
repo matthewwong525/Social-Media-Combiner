@@ -47,7 +47,7 @@ var messaging = firebase.messaging();
               return Auth.$waitForSignIn();
               
             }]
-          }
+          },
       });
       $stateProvider.state('message',{
         url: '/',
@@ -73,9 +73,8 @@ var messaging = firebase.messaging();
             // controller will not be loaded until $waitForSignIn resolves
             // Auth refers to our $firebaseAuth wrapper in the factory below
             "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$waitForSignIn());
-              return Auth.$waitForSignIn();
-              
+                console.log(Auth.$requireSignIn());
+              return Auth.$requireSignIn();
             }],
             "fbInit": function(FBService){
                 return FBService.fbInit();
@@ -130,14 +129,14 @@ var messaging = firebase.messaging();
         } 
       });
       $stateProvider.state('login',{
-        url: '/login',
+        parent:'home',
         templateUrl: './views/loginpage.html',
         controller: 'AuthController',
         controllerAs: 'auth'
 
       });
       $stateProvider.state('signup',{
-        url: '/signup',
+        parent:'home',
         templateUrl: './views/signuppage.html',
         controller: 'AuthController',
         controllerAs: 'auth'
@@ -259,6 +258,7 @@ var messaging = firebase.messaging();
         if(currentAuth != null){
             $state.go("message");
         }else{
+            $state.go("login");
             $rootScope.isLoggedIn = false;
         }
     }]);

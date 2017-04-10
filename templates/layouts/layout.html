@@ -21,14 +21,14 @@
     <base href="/">
 </head>
 
-<body style="margin:0px;padding:0px;">
-    <div ng-controller="WebsiteController as web" class="" layout="row">
+<body style="margin:0px;padding:0px;" layout="column">
+    <div ng-controller="WebsiteController as web" layout="row" layout-align="start center" style="border-bottom: 2px solid black">
         <div style="float:left !important;" flex="50">
             <label style="text-align: left !important;" class="md-display-1"  >Website!</label>
         </div>
         <div ng-cloak flex-direction="reverse" flex="50" style="text-align: right !important;" ng-if="$root.isLoaded"> 
             <div ng-if="!$root.isLoggedIn">
-                <md-button ui-sref="home" >Home</md-button>
+                <md-button ui-sref="login" >Home</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <md-button ui-sref="login">Login</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
@@ -37,7 +37,7 @@
             <div ng-if="$root.isLoggedIn">
                 <label>{/$root.username/}</label>
                 <span>&nbsp;&nbsp;-&nbsp;&nbsp;</span>
-                <a ui-sref="home" class="md-button">Home</a>
+                <a ui-sref="login" class="md-button">Home</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <a ui-sref="mainfeed" class="md-button">Main Feed</a>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
@@ -49,8 +49,8 @@
             </div>
         </div>
     </div>
-    <hr>
-    <div ui-view></div>
+    
+    <div ui-view class="container" layout="row" flex></div>
     <script type="text/javascript" src="/scripts/app.js"></script>
     <script type="text/javascript" src="/scripts/authentication-service.js"></script>
     <script type="text/javascript" src="/scripts/tokenservice.js"></script>
