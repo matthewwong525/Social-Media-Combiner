@@ -2,13 +2,14 @@
     var app = angular.module('token-service',[]);
     app.service('TokenService', ['$http','$firebaseAuth', function ($http,$firebaseAuth) {
         var currentUser = "";
-        //On the token refresh I want to re asign the token
+        //On the token refresh I want to re assign the token
         messaging.onTokenRefresh(function () {
-            //check if logged in
+            //gets the current token
             messaging.getToken()
                 .then(function (refreshedToken) {
                     console.log("Token refreshed");
                     setTokenSentToServer(false);
+                    //sends the token to server which sets the token on db
                     sendTokenToServer(refreshedToken);
                 })
                 .catch(function (err) {
@@ -19,10 +20,8 @@
         var sendTokenToServer = function (currentToken) {
             //TODO: use setTokenSentToServer
             if (true) {
-                console.log("Sending token to server...");
-                //TODO Send the current token to server
                 var parameters = JSON.stringify({ token: currentToken, username: currentUser  });
-
+                //sends the token to the server
                 $http.post("/sendTokenToServer/", parameters)
                     .then(function (response) {
                         console.log(response);
@@ -37,16 +36,20 @@
                 console.log("Token already sent to server");
             }
         };
+        //enables the chat by removing disabled attribute
         this.enableChat = function () {
             $("textarea").removeAttr("disabled");
         };
+
+        //requests permission from the user
         this.requestPermission = function () {
+            //sends a notification to the user asking if they want to allow notifications
             messaging.requestPermission().then(function () {
                 console.log('Notification permission granted.!!!');
                 //Get Token from the server
                 messaging.getToken().then(function (currentToken) {
                     if (currentToken) {
-                        //Have a send token to server functionality
+                        //Sends the token to the server
                         sendTokenToServer(currentToken);
                         console.log(currentToken);
                     } else {

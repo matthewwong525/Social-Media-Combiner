@@ -13,6 +13,7 @@
 
 
     app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider) {
+      //Changes the symbol in the html for angular to work with jinja 2
       $interpolateProvider.startSymbol('{/');
       $interpolateProvider.endSymbol('/}');
       $locationProvider.html5Mode(true);
@@ -39,11 +40,11 @@
         controller: 'MessageController',
         controllerAs: 'message',
         resolve: {
-            // controller will not be loaded until $waitForSignIn resolves
+            // controller will not be loaded until $requireSignIn resolves
             // Auth refers to our $firebaseAuth wrapper in the factory below
             "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$waitForSignIn());
-              return Auth.$waitForSignIn();
+                console.log(Auth.$requireSignIn());
+              return Auth.$requireSignIn();
               
             }]
           }
@@ -54,7 +55,7 @@
         controller: 'MainFeedController',
         controllerAs: 'mainfeed',
         resolve:{
-            // controller will not be loaded until $waitForSignIn resolves
+            // controller will not be loaded until $requireSignIn resolves
             // Auth refers to our $firebaseAuth wrapper in the factory below
             "currentAuth": ["Auth", function(Auth) {
                 console.log(Auth.$requireSignIn());
@@ -101,6 +102,7 @@
             "signOut" : ["Auth", function(Auth) {
                 Auth.$signOut();
             }],
+            //initializes facebook for logout
             "initFB": function(FBService){
                 return FBService.fbInit();
             }

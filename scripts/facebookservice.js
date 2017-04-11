@@ -3,7 +3,7 @@
     var app = angular.module("facebook-service",["firebase","token-service"]);
 
     app.service("FBService",['$q','$state','$http','TokenService',function($q,$state,$http,TokenService){
-        
+        //Initializes facebook API (copy pasted)
         this.fbInit = function(){
             if(window.FB == undefined || window.FB == null){
                 var deferred = $q.defer();
@@ -30,6 +30,7 @@
                 return deferred.promise;
             }
         }
+        //checks if a person is currently logged in and returns a promise
         this.fbIsLoggedIn = function(){
             var deferred = $q.defer();
             FB.getLoginStatus(function(response){
@@ -40,13 +41,15 @@
             });
             return deferred.promise;
         };
+        //Attempts to login and returns a promise
         this.fbTryLogIn = function($state){
             var deferred = $q.defer();
             FB.login(function(response){
                 deferred.resolve(response);
-            },{scope:'publish_actions,user_posts'});
+            },{scope:'publish_actions,user_posts'}); //scope is for extra permissions
             return deferred.promise;
         };
+        //Makes a request to the API with a specified url
         this.fbApiRequest = function(url){
             var deferred = $q.defer();
             FB.api(
@@ -76,6 +79,7 @@
             }
             return newReturnBody;
         };
+        //a function used to facilitate the batchrequest
         var httpBatchReq = function(batchRequest){
             var httpPromise = $http({
               url: 'https://graph.facebook.com',
@@ -86,23 +90,29 @@
             return httpPromise;
         };
 
-        //Always wrap 
+        //Make a batched request to the facebook API
         this.fbBatchRequest = function(){
+            //gets current user
             var currUser = TokenService.getCurrentUser();
+            //creates deferred promise
             var deferred = $q.defer();
+            //points to database where the access token lies
             var accessTokenRef = firebase.database().ref().child('user_data').child(currUser);
-            var body = [].slice.call(arguments); //takes arguments and converts it to an array
+            //takes arguments and converts it to an array
+            var body = [].slice.call(arguments); 
             accessTokenRef.once('value').then(function(snapshot){
                 //if an access token exists, use the access token and call the API with the arguments
                if(snapshot.val().fbAccessToken){
                     var accessToken = snapshot.val().fbAccessToken;
                     var requestArr = [];
+                    //pushes multiple http requests to the request array
                     for(let i = 0; i < body.length;i++){
                         let batchRequest = {};
                         batchRequest["access_token"] = accessToken;
                         batchRequest["batch"] = JSON.stringify(body[i]);
                         requestArr.push(httpBatchReq(batchRequest));
                     }
+                    //when all the batch requests finish
                     $q.all(requestArr).then(function(response){
                         //TODO: CHECK IF IT IS SUCCESSFUL by checking if the "SUCCESS: TRUE" for all objects returned
                         deferred.resolve(response);
@@ -116,10 +126,12 @@
             });
             return deferred.promise;
         }
+        //stores the access token into the database
         this.storeAccessToken = function(responseObj){
             var currUser = TokenService.getCurrentUser();
             var accessTokenRef = firebase.database().ref().child('user_data').child(currUser);
             accessTokenRef.once('value').then(function(snapshot){
+                //sets the userID, accesstoken, and expirytime to the firebase database
                 accessTokenRef.set({
                     fbAccessToken: responseObj.accessToken,
                     fbUserID: responseObj.userID,
@@ -128,8 +140,5 @@
             });
         }
 
-    }]);
-
-    app.factory("FBFactory",['$q',function($q){
     }]);
 })();

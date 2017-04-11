@@ -1,4 +1,4 @@
-<div id="listOfFriends" flex="40" ng-show="true">
+<div id="listOfFriends" flex="40">
     <span>Hello Friends!</span>
     <div ng-repeat="users in message.friendList">
         <br><a href="" ng-click="message.currUserToSend($event)" id="{/users.userid/}" ng-hide="message.hasDisplayName(users.displayname)">{/users.email/}</a>

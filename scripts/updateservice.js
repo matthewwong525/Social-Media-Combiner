@@ -29,11 +29,14 @@
         };
         //Initializes all the notifications on the friends list
         var initializeNotification = function(){
+            //if the current user exists
             if(TokenService.getCurrentUser() != "" && TokenService.getCurrentUser() != undefined){
-                //TODO: LOOP THROUGH NG REPEAT
+                //loops through the friends in friendlist
                 for(var key in friendList){
                     if(!friendList.hasOwnProperty(key)) continue;
+                    //makes a reference to the notifications in the firebase db
                     var notificationRef = firebase.database().ref("/notifications/" + TokenService.getCurrentUser()+ "/" + key);
+                    //updates the UI with the notifications according to the notification id
                     notificationRef.once('value').then(function(snapshot){
                         if(snapshot.val() != null){
                             $("#notification-"+snapshot.val().sentFrom).text(" (" + snapshot.val().notification+")");
@@ -48,6 +51,7 @@
         //gets the messages from the database based on the username
         //change so it stores the messages everytime you initialize or refresh
         var getMessages = function(username){
+            //makes a get for the messages in the database for the current user
             $http.get("/sendMessageToUser/",
             {
                 params:{
@@ -56,7 +60,7 @@
                 }
             })
                 .then(function(response){
-                    console.log(response);
+                    //sets the text to nothing
                     $("#incomingText").text("");
                     for (i = 0;i<response.data.length;i++){
                         //Updates the UI with message data
@@ -102,6 +106,7 @@
         this.initializeData = function(){
             var data = "";
             var deferred = $q.defer();
+            //makes a post request to the server and gets the intialization data
             $http.post("/")
                 .then(function(response){
                     console.log(response);
