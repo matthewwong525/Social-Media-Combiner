@@ -3,7 +3,7 @@
 
     var app = angular.module("authentication-service",["firebase"]);
 
-    app.service("AuthService",["$firebaseAuth","$http","$state", function($firebaseAuth,$http,$state){
+    app.service("AuthService",["$firebaseAuth","$http","$window", function($firebaseAuth,$http,$window){
         //Gets the authentication from angularfire
         var Auth = $firebaseAuth();
         this.currentFbUser;
@@ -20,7 +20,7 @@
                             console.log("updated db")
                             this.currentFbUser = firebaseUser;
                             console.log("User created with uid: " +firebaseUser.uid);
-                            $state.go("home");
+                            $window.location.href="/";
                         })
                         .catch(function(response){
                             console.log(response);
@@ -43,7 +43,7 @@
                 console.log(response);
                 //TODO: update database displayname
                 //On success redirects to the main page
-                $state.go("home");
+                $window.location.href="/";
             }).catch(function(response){
                 console.log(response);
             });
@@ -56,7 +56,7 @@
                     //logs in and sets the current firebase user
                     console.log("User logged in with uid: " +firebaseUser.uid);
                     this.currentFbUser=firebaseUser;
-                    $state.go("home");
+                    $window.location.href="/";
                 })
                 .catch(function(error){
                     console.log(error);
