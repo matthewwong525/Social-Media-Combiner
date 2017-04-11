@@ -15,135 +15,9 @@ var messaging = firebase.messaging();
     
     var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service','ngMaterial']);
 
-
-    app.run(["$rootScope", "$state", function($rootScope, $state) {
-      $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
-        // We can catch the error thrown when the $requireSignIn promise is rejected
-        // and redirect the user back to the home page
-        console.log(error);
-        if (error === "AUTH_REQUIRED") {
-          $state.go("home");
-        }
-      });
-    }]);
-
-
-    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider) {
-      $interpolateProvider.startSymbol('{/');
-      $interpolateProvider.endSymbol('/}');
-      $locationProvider.html5Mode(true);
-      $urlRouterProvider.otherwise('/');
-
-      $stateProvider.state('home',{
-        url: '/',
-        templateUrl: './views/index.html',
-        controller: 'HomeController',
-        controllerAs: 'home',
-        resolve: {
-            // controller will not be loaded until $waitForSignIn resolves
-            // Auth refers to our $firebaseAuth wrapper in the factory below
-            "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$waitForSignIn());
-              return Auth.$waitForSignIn();
-              
-            }]
-          },
-      });
-      $stateProvider.state('message',{
-        url: '/',
-        templateUrl: './views/messagepage.html',
-        controller: 'MessageController',
-        controllerAs: 'message',
-        resolve: {
-            // controller will not be loaded until $waitForSignIn resolves
-            // Auth refers to our $firebaseAuth wrapper in the factory below
-            "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$waitForSignIn());
-              return Auth.$waitForSignIn();
-              
-            }]
-          }
-      });
-      $stateProvider.state('mainfeed',{
-        url: '/mainfeed',
-        templateUrl: './views/mainfeed.html',
-        controller: 'MainFeedController',
-        controllerAs: 'mainfeed',
-        resolve:{
-            // controller will not be loaded until $waitForSignIn resolves
-            // Auth refers to our $firebaseAuth wrapper in the factory below
-            "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$requireSignIn());
-              return Auth.$requireSignIn();
-            }],
-            "fbInit": function(FBService){
-                return FBService.fbInit();
-            }
-        }
-      });
-
-      $stateProvider.state('socialpage',{
-        url: "/{socialpage:(?:facebook)}",
-        templateUrl: "/views/socialpage.html",
-        controller: "SocialPageController",
-        controllerAs: "sp",
-        resolve: {
-            // controller will not be loaded until $waitForSignIn resolves
-            // Auth refers to our $firebaseAuth wrapper in the factory below
-            "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$requireSignIn());
-              return Auth.$requireSignIn();
-            }]
-        }
-      });
-      $stateProvider.state('account',{
-        url: '/account',
-        templateUrl: './views/accountpage.html',
-        controller: 'AccountController',
-        controllerAs: 'account',
-        resolve: {
-            // controller will not be loaded until $waitForSignIn resolves
-            // Auth refers to our $firebaseAuth wrapper in the factory below
-            "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$requireSignIn());
-              return Auth.$requireSignIn();
-              
-            }]
-          }
-      });
-      $stateProvider.state('logout',{
-        url: '/logout',
-        resolve: {
-            "signOut" : ["Auth", function(Auth) {
-                Auth.$signOut();
-            }],
-            "initFB": function(FBService){
-                return FBService.fbInit();
-            }
-        },
-        onEnter: function(){
-            FB.logout(function(response){
-                console.log(response);
-            });
-            window.location.replace("/");
-        } 
-      });
-      $stateProvider.state('login',{
-        parent:'home',
-        templateUrl: './views/loginpage.html',
-        controller: 'AuthController',
-        controllerAs: 'auth'
-
-      });
-      $stateProvider.state('signup',{
-        parent:'home',
-        templateUrl: './views/signuppage.html',
-        controller: 'AuthController',
-        controllerAs: 'auth'
-
-      });
-      
-    }]);
+    /////////////////////////////////////////////////////////////////
+    //Experimental Controller used for the proxies for fb
+    /////////////////////////////////////////////////////////////////
     app.controller("SocialPageController",['$stateParams','$http','$scope','$sce',function($stateParams,$http,$scope,$sce){
         var socialpage = $stateParams.socialpage;
         theScope = this;
@@ -174,17 +48,21 @@ var messaging = firebase.messaging();
             return 'Dialog text here.';
         };
     }]);
+
+    //Controller used to aggregrate all the feeds fro different social medias and fuse them together into one feed
     app.controller("MainFeedController",['FBService','$scope','$state',function(FBService,$scope,$state){
+        //Initializes some variables
         theScope = this;
         theScope.isLoginButton = false;
         theScope.userFeed = {};  
         var fbLoggedInPromise = FBService.fbIsLoggedIn();
         //Successfully logged in
         fbLoggedInPromise.then(function(response){
-            console.log(response);
             //TODO: ALSO CHECK IF the access token is expired
+            //checks if the person is connected, meaning "logged in"
             if(response.status == "connected"){
-                //TODO: abstract to another service
+                //TODO: abstract to the facebook service
+                //if they are logged in, go access the user feed
                 FBService.fbApiRequest("/me/feed").then(function(response){
                     var userList = [],postList=[],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
                     //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
@@ -197,9 +75,9 @@ var messaging = firebase.messaging();
                         sharedPostList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/sharedposts"});
                         attachmentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/attachments"});
                     }
+                    //sends the request here
                     FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
                         var feedList = FBService.groupByIndex(response);
-                        console.log(feedList);
                         theScope.userFeed = feedList;
                     });
                 });
@@ -212,6 +90,7 @@ var messaging = firebase.messaging();
             }
             
         });
+        //Basically this is the function attached to the login button
         this.loginButton = function(){
             if(this.isLoginButton){
                 FBService.fbTryLogIn($state).then(function(response){});
@@ -222,10 +101,12 @@ var messaging = firebase.messaging();
             console.log(response);
             //store access token in realtime firebase
             FBService.storeAccessToken(response.authResponse);
+            //reloads the page state
             $state.reload();
         });
     }]);
 
+    //Account controller used to handle editing the user profile
     app.controller("AccountController",["AuthService",'currentAuth', function(AuthService,currentAuth){
         this.newDisplayName = "";
         this.editProfile = function(){
@@ -235,6 +116,7 @@ var messaging = firebase.messaging();
         }
     }]);
 
+    //Handler used for logins and sign ups
     app.controller("AuthController",["AuthService", function(AuthService){
         //used to authenticate users on sign in
         this.email = "";
@@ -246,47 +128,64 @@ var messaging = firebase.messaging();
         this.err_verify= "";
         this.invalidCred = "";
 
+        //Called on signup
         this.createUser = function(){AuthService.createUser(this,this.email,this.password,this.verify)};
+        //Called on login
         this.signInUser = function(){AuthService.signInUser(this,this.email,this.password)};
 
         
     }]);
 
+    //Controller for the home page
     app.controller("HomeController",['currentAuth','$rootScope','$state',function(currentAuth,$rootScope,$state){
+        //variable used to tell the UI that the page is loaded
         $rootScope.isLoaded = true;
-        console.log(currentAuth);
+        //Checks if the user is logged in or not
         if(currentAuth != null){
+            //goes to message page if logged in
             $state.go("message");
         }else{
-            $state.go("login");
+            //Goes to login page(nested in home) if user is not logged in.
             $rootScope.isLoggedIn = false;
+            $state.go("login");
         }
     }]);
 
+    //Controller that is called before any controller
     app.controller("WebsiteController",['TokenService','UpdateService','AuthService','$rootScope', function (TokenService,UpdateService,AuthService,$rootScope) {
         //initialize all variables here
         $rootScope.username = "";
         $rootScope.isLoaded = false;
     }]);
 
+    //The controller that handles all the messages
     app.controller("MessageController",['MessageService','UpdateService','AuthService','$scope','currentAuth','TokenService','$rootScope',  function (MessageService,UpdateService,AuthService,$scope,currentAuth,TokenService,$rootScope) {
+        //loaded variable that is sent to UI
         $rootScope.isLoaded = true;
         //if the user is logged in
         if(currentAuth != null){
+            //Logged in variable sent to UI
             $rootScope.isLoggedIn = true;
+            //Checks if user has a display name or not and displays there email if they do not have one
             if(currentAuth.displayName == null || currentAuth.displayName == ""){
                 $rootScope.username = currentAuth.email;
             }else{
                 $rootScope.username = currentAuth.displayName;
             }
             
+            //Sets the current user ID as current user for the service
             TokenService.setCurrentUser(currentAuth.uid);
-            permission = TokenService.requestPermission();
+            //Asks the user if they want notifications enabled
+            TokenService.requestPermission();
+            //Enables the chat on the UI
             TokenService.enableChat();
 
+            //gets initialization data from the server
             var promise = UpdateService.initializeData(this);
             var theScope = this;
             this.friendList = {};
+
+            //uses the initialization data and updates the UI
             promise.then(function(response){
                 $scope.$evalAsync(function(){
                     theScope.friendList = response;
@@ -297,7 +196,8 @@ var messaging = firebase.messaging();
                     UpdateService.initializeUI();
                 });
             });
-            
+
+            //UI components//
             this.messageToSend = "";
             this.userToSend = ""; 
             this.userIDToSend = "";
@@ -320,7 +220,7 @@ var messaging = firebase.messaging();
                 UpdateService.setUserToSend($event.target.id);
                 UpdateService.initializeUI();
             };
-
+            //checks if the user has a displayname
             this.hasDisplayName = function(displayName){
                 if(displayName == "" || displayName == null || displayName == undefined){
                     return false;
@@ -328,6 +228,7 @@ var messaging = firebase.messaging();
                 return true;
             }
         }else{
+            //if the user is not authenticated
             $rootScope.isLoggedIn = false;
         }
         

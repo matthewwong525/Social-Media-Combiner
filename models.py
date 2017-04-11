@@ -5,13 +5,7 @@ import logging
 import json
 import utils
 
-#TODO: MAKE EMAIL .SOMETHING MATCH FOR 2 OR MORE CHARACTERS
-USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
-PASS_RE = re.compile(r"^.{6,20}$")
-EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
-
 #TODO: Make a cache for everything
-
 class Users(ndb.Model):
     username = ndb.StringProperty()
     password = ndb.StringProperty(required = True)
@@ -20,6 +14,7 @@ class Users(ndb.Model):
     token = ndb.StringProperty()
     datecreate = ndb.DateTimeProperty(auto_now_add=True)
 
+#A user cache that stores the contents of the database into the memcache
 def user_cache(update=False,updateContent=None):
     key = "users"
     memGet = memcache.get(key)
@@ -47,23 +42,11 @@ def user_cache(update=False,updateContent=None):
 def create_new_userdata(new_user):
     u_user,u_pass,u_verify,u_email = new_user
     parent_key = ndb.Key('user_parent','parent')
-    #ID = Users.get_or_insert('newUserID',username='0',email="RandomEmail@RandomEmail.RandomEmail",password="RandomPassword")
     user = Users(username=u_user,id=u_email,parent=parent_key,password=utils.make_pw_hash(str(u_pass)),email=u_email)
-    #ID.username = str(int(ID.username)+1)
     user.put()
-    #ID.put()
     user_cache(update=True)
 
-#check the credentials on login
-def check_creds(u_email,u_pass):
-    queryEmail = check_email(u_email)
-    #checks if user is in the cache first
-    if queryEmail and utils.verify_pw_hash(u_pass,str(queryEmail.password)):
-        return True
-    else:
-        return False
-
-
+#Not used, but may be used
 def get_username(email):
     cache = user_cache()
     for users in cache:
@@ -71,6 +54,7 @@ def get_username(email):
             return users.username
     return None
 
+#Not used, but may be used
 def check_email(email):
     if email:
         cache = user_cache()
@@ -83,6 +67,7 @@ def check_email(email):
             return content
     return None
 
+#checks if the token is in the cache, then checks the database
 def check_token(token):
     if token:
         cache = user_cache()
@@ -95,6 +80,7 @@ def check_token(token):
             return content
     return None
 
+#checks if the user is in the cache, then checks the database
 def check_user(username):
     if username:
         cache = user_cache()
@@ -107,6 +93,7 @@ def check_user(username):
             return content
     return None
 
+#filters the user cache to a dictionary with only necessary data (displayname, userid, email)
 def filter_temp_cache(cache):
     sendDic = {}
     for users in cache:

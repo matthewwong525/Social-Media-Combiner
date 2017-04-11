@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="website">
 <head>
-    <title>Welcome</title>
+    <title>Panible</title>
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.1/angular-material.min.css">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"
             integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
@@ -24,11 +24,11 @@
 <body style="margin:0px;padding:0px;" layout="column">
     <div ng-controller="WebsiteController as web" layout="row" layout-align="start center" style="border-bottom: 2px solid black">
         <div style="float:left !important;" flex="50">
-            <label style="text-align: left !important;" class="md-display-1"  >Website!</label>
+            <label style="text-align: left !important;" class="md-display-1"  >Panible</label>
         </div>
         <div ng-cloak flex-direction="reverse" flex="50" style="text-align: right !important;" ng-if="$root.isLoaded"> 
             <div ng-if="!$root.isLoggedIn">
-                <md-button ui-sref="login" >Home</md-button>
+                <md-button ui-sref="login">Home</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
                 <md-button ui-sref="login">Login</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
@@ -52,6 +52,7 @@
     
     <div ui-view class="container" layout="row" flex></div>
     <script type="text/javascript" src="/scripts/app.js"></script>
+    <script type="text/javascript" src="/scripts/config.js"></script>
     <script type="text/javascript" src="/scripts/authentication-service.js"></script>
     <script type="text/javascript" src="/scripts/tokenservice.js"></script>
     <script type="text/javascript" src="/scripts/updateservice.js"></script>

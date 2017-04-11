@@ -13,6 +13,7 @@ class Messages(ndb.Model):
 
 #TODO: implement a cache for the messages to minimize the reads
 
+#stores messages into the database
 def store_message(message,user,conv_id):
     logging.info("about to store")
     parent_key = ndb.Key('message_parent','parent')
@@ -33,16 +34,17 @@ def getMessages(conv_id):
     return messageList
 
 
-
+#rearranges the userids and produces a conv_id
 def rearrangeUsers(user1,user2):
     userList = sorted([user1,user2])
     new_conv_id = userList[0] + "|" +userList[1]
     return new_conv_id
 
+#stores the messages into the database by rearranging the user_id
 def store_user_message(sendUser,receiveUser,message):
     new_conv_id = rearrangeUsers(sendUser,receiveUser)
     store_message(message,sendUser,new_conv_id)
 
-
+#function not used to generate random letters or numbers of size 10
 def id_generator(size=10, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
