@@ -17,6 +17,9 @@ handlers:
   static_files: manifest.json
   upload: manifest\.json
 
+- url: /icons
+  static_dir: icons
+
 - url: /scripts
   static_dir: scripts
 

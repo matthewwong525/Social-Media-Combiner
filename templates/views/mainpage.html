@@ -1,8 +1,29 @@
-<md-sidenav class="md-sidenav-left" md-component-id="left" md-whiteframe="4">
+
+<md-sidenav class="md-sidenav-left" md-component-id="menu" md-disable-backdrop="true" md-whiteframe="4" md-is-open="isSideNavOpen">
     LOL
 </md-sidenav>
-<div style="float:left;" md-whiteframe="3">
-    <md-button class="md-icon-button md-primary" aria-label="Settings">
-        <md-icon >menu</md-icon>
-    </md-button>
+
+<div id="mainframe" style="float:left;" md-whiteframe="3" class=sidenav-push>
+    <div style="text-align:center; background-color:orange;border-bottom:2px solid black;">
+        <md-button class="md-icon-button md-48" ng-click="main.toggleSidebar()">
+            <md-icon md-svg-icon="menu" class="material-icons md-48" aria-label="menu"></md-icon>
+        </md-button>
+    </div>
+    <div style="text-align:center;">
+        <md-button class="md-fab" style="background-color:#3b5998;">
+            <md-icon md-svg-icon="facebook" class="material-icons md-36" aria-label="facebook"></md-icon>
+        </md-button>
+    </div>
+    <div style="text-align:center;">
+        <md-button class="md-fab" style="background-color:#00aced;">
+            <md-icon md-svg-icon="twitter" class="material-icons md-36" aria-label="twitter"></md-icon>
+        </md-button>
+    </div>
+    <div style="text-align:center;">
+        <md-button class="md-fab" style="background-color:#fffc00;">
+            <md-icon md-svg-icon="snapchat" class="material-icons md-36" aria-label="snapchat"></md-icon>
+        </md-button>
+    </div>
 </div>
+
+

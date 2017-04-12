@@ -136,14 +136,44 @@ var messaging = firebase.messaging();
         
     }]);
 
+    //Controller for logged in user navigation
+    app.controller("MainPageController",['$mdSidenav','$scope',function($mdSidenav,$scope){
+        this.isSideNavOpen = false;
+        
+
+        //function to toggle the state of the sidebar
+        this.toggleSidebar = function(){
+            $mdSidenav("menu").toggle();
+        };
+        //watches the side nav and adjust the tool bar according to the width of the sidenav
+        $scope.$watch('isSideNavOpen',function(isSideNavOpen){
+
+            if(isSideNavOpen){
+                $("#mainframe").css('margin-left',$("md-sidenav").width());
+            }else{
+                $("#mainframe").css('margin-left',0);
+            }
+            console.log("ha");
+        });
+
+    }]);
+
     //Controller for the home page
     app.controller("HomeController",['currentAuth','$rootScope','$state',function(currentAuth,$rootScope,$state){
         //variable used to tell the UI that the page is loaded
         $rootScope.isLoaded = true;
         //Checks if the user is logged in or not
         if(currentAuth != null){
+            //Logged in variable sent to UI
+            $rootScope.isLoggedIn = true;
+            //Checks if user has a display name or not and displays there email if they do not have one
+            if(currentAuth.displayName == null || currentAuth.displayName == ""){
+                $rootScope.username = currentAuth.email;
+            }else{
+                $rootScope.username = currentAuth.displayName;
+            }
             //goes to message page if logged in
-            $state.go("message");
+            $state.go("main");
         }else{
             //Goes to login page(nested in home) if user is not logged in.
             $rootScope.isLoggedIn = false;
@@ -164,15 +194,6 @@ var messaging = firebase.messaging();
         $rootScope.isLoaded = true;
         //if the user is logged in
         if(currentAuth != null){
-            //Logged in variable sent to UI
-            $rootScope.isLoggedIn = true;
-            //Checks if user has a display name or not and displays there email if they do not have one
-            if(currentAuth.displayName == null || currentAuth.displayName == ""){
-                $rootScope.username = currentAuth.email;
-            }else{
-                $rootScope.username = currentAuth.displayName;
-            }
-            
             //Sets the current user ID as current user for the service
             TokenService.setCurrentUser(currentAuth.uid);
             //Asks the user if they want notifications enabled

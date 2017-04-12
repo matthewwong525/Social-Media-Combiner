@@ -12,12 +12,14 @@
     }]);
 
 
-    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider) {
+    app.config(['$interpolateProvider','$stateProvider', '$urlRouterProvider','$locationProvider','$mdIconProvider',function($interpolateProvider,$stateProvider,$urlRouterProvider,$locationProvider,$mdIconProvider) {
       //Changes the symbol in the html for angular to work with jinja 2
       $interpolateProvider.startSymbol('{/');
       $interpolateProvider.endSymbol('/}');
       $locationProvider.html5Mode(true);
       $urlRouterProvider.otherwise('/');
+      $mdIconProvider.defaultIconSet('icons/mdi.svg');
+
 
       $stateProvider.state('home',{
         url: '/',
@@ -30,6 +32,21 @@
             "currentAuth": ["Auth", function(Auth) {
                 console.log(Auth.$waitForSignIn());
               return Auth.$waitForSignIn();
+              
+            }]
+          },
+      });
+      $stateProvider.state('main',{
+        url: '/',
+        templateUrl: './views/mainpage.html',
+        controller: 'MainPageController',
+        controllerAs: 'main',
+        resolve: {
+            // controller will not be loaded until $requireSignIn resolves
+            // Auth refers to our $firebaseAuth wrapper in the factory below
+            "currentAuth": ["Auth", function(Auth) {
+                console.log(Auth.$requireSignIn());
+              return Auth.$requireSignIn();
               
             }]
           },

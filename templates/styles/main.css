@@ -6,3 +6,31 @@
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+
+/* side nav push*/
+.sidenav-push {
+    moz-transition: margin-left ease .25s;
+    o-transition: margin-left ease .25s;
+    -webkit-transition: margin-left ease .25s;
+    transition: margin-left ease .25s;
+}
+
+/* Rules for sizing the icon. */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; width:36px; height: 36px; vertical-align: middle; text-align: center;}
+.material-icons.md-48 { font-size: 48px; width:48px; height: 48px; vertical-align: middle; text-align: center;}
+
+/* Rules for sizing the buttons */
+.md-icon-button.md-18 { width:34px; height:34px; vertical-align: middle;}
+.md-icon-button.md-24 { width:40px; height:40px; vertical-align: middle;}
+.md-icon-button.md-36 { width:52px; height:52px; vertical-align: middle;}
+.md-icon-button.md-48 { width:64px; height:64px; vertical-align: middle;}
+
+/* Rules for using icons as black on a light background. */
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+/* Rules for using icons as white on a dark background. */
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
