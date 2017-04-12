@@ -17,6 +17,7 @@
     <link rel="stylesheet" type="text/css" href="/styles/cleanslate.css">
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <base href="/">
 </head>
@@ -37,15 +38,16 @@
             <div ng-if="$root.isLoggedIn">
                 <label>{/$root.username/}</label>
                 <span>&nbsp;&nbsp;-&nbsp;&nbsp;</span>
-                <a ui-sref="login" class="md-button">Home</a>
+                <md-button ui-sref="home" >Home</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="mainfeed" class="md-button">Main Feed</a>
+                <md-button ui-sref="mainfeed">Main Feed</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="socialpage({socialpage:'facebook'})" class="md-button">Facebook(NOT WORKING)</a>
+                <md-button ui-sref="message">Messaging</md-button>
+                <md-button ui-sref="socialpage({socialpage:'facebook'})" ng-hide="true">Facebook(NOT WORKING)</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="account" class="md-button">Edit</a>
+                <md-button ui-sref="account">Edit</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <a ui-sref="logout" class="md-button">Log Out</a>
+                <md-button ui-sref="logout">Log Out</md-button>
             </div>
         </div>
     </div>
