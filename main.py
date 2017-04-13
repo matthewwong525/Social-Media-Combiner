@@ -157,8 +157,7 @@ class MessageHandler(Handler):
                     self.write('Caught exception fetching url')
             else:
                 #TODO: ADD A MESSAGE TABLE THAT STORES ALL MESSAGES AND PLACE IT IN HERE
-                self.error(404)
-                self.write("Token does not exist")
+                self.write("User is not online")
         else:
             self.error(404)
             self.write("User does not exist")

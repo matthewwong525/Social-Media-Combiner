@@ -227,12 +227,13 @@ var messaging = firebase.messaging();
             }
             this.userIDToSend = "";
 
+            //sends message to other user
             this.sendMessage = function ($event) {
                 if ($event.which === 13) {
                     $event.preventDefault();
                     //prevents send if the message is empty or no user is selected
                     if (!(this.messageToSend == "" || this.userIDToSend == "" || this.userIDToSend == undefined)) {
-                        MessageService.sendToServer(this.userIDToSend, this.messageToSend);
+                        MessageService.sendToServer(this.friendList[this.userIDToSend].email,this.userIDToSend, this.messageToSend);
                         this.messageToSend = "";
                     }
                 }
@@ -240,8 +241,10 @@ var messaging = firebase.messaging();
             //when the user clicks on a user to send to
             this.currUserToSend = function(id){
                 console.log(id);
+                //The id of the user
                 this.userIDToSend = id;
-                this.userToSend = id;
+                //attachs the name to the UI
+                this.userToSend = this.friendList[id].email;
                 UpdateService.setUserToSend(id);
                 UpdateService.initializeUI();
             };

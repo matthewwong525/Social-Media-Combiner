@@ -62,9 +62,10 @@
                 .then(function(response){
                     //sets the text to nothing
                     $("#incomingText").text("");
+                    console.log(response);
                     for (i = 0;i<response.data.length;i++){
                         //Updates the UI with message data
-                        $("#incomingText").append(response.data[i].datesent+" *" + response.data[i].usersent + "* :" + "&#xA;" + response.data[i].message + "&#xA;");
+                        $("#incomingText").append(response.data[i].datesent+" *" + friendList[response.data[i].usersent].email + "* :" + "&#xA;" + response.data[i].message + "&#xA;");
                     }
                     //Set notification on UI to nothing and remove the notification from database
                     $("#notification-"+username).text("");
