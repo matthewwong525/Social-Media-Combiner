@@ -173,7 +173,7 @@ var messaging = firebase.messaging();
                 $rootScope.username = currentAuth.displayName;
             }
             //goes to message page if logged in
-            $state.go("main");
+            $state.go("main.features");
         }else{
             //Goes to login page(nested in home) if user is not logged in.
             $rootScope.isLoggedIn = false;
@@ -218,10 +218,15 @@ var messaging = firebase.messaging();
                 });
             });
 
-            //UI components//
+            //resets UI components//
             this.messageToSend = "";
-            this.userToSend = ""; 
+            if(UpdateService.getUserToSend() == ""){
+                this.userToSend = "Send To..."; 
+            }else{
+                this.userToSend = UpdateService.getUserToSend();
+            }
             this.userIDToSend = "";
+
             this.sendMessage = function ($event) {
                 if ($event.which === 13) {
                     $event.preventDefault();
@@ -233,12 +238,11 @@ var messaging = firebase.messaging();
                 }
             };
             //when the user clicks on a user to send to
-            this.currUserToSend = function($event){
-                console.log($event.target.id);
-                this.userIDToSend = $event.target.id;
-                $event.preventDefault();
-                this.userToSend = $event.target.id;
-                UpdateService.setUserToSend($event.target.id);
+            this.currUserToSend = function(id){
+                console.log(id);
+                this.userIDToSend = id;
+                this.userToSend = id;
+                UpdateService.setUserToSend(id);
                 UpdateService.initializeUI();
             };
             //checks if the user has a displayname

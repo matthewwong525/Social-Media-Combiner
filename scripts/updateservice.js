@@ -99,6 +99,9 @@
         this.setUserToSend = function(username){
             userToSend = username;
         };
+        this.getUserToSend = function(){
+            return userToSend;
+        }
         this.setFriendList = function(listOfFriends){
             friendList = listOfFriends;
         }

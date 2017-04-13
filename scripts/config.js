@@ -35,9 +35,11 @@
               
             }]
           },
+        
       });
       $stateProvider.state('main',{
         url: '/',
+        abstract:true,
         templateUrl: './views/mainpage.html',
         controller: 'MainPageController',
         controllerAs: 'main',
@@ -50,37 +52,26 @@
               
             }]
           },
+
       });
-      $stateProvider.state('message',{
-        url: '/',
-        templateUrl: './views/messagepage.html',
-        controller: 'MessageController',
-        controllerAs: 'message',
-        resolve: {
-            // controller will not be loaded until $requireSignIn resolves
-            // Auth refers to our $firebaseAuth wrapper in the factory below
-            "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$requireSignIn());
-              return Auth.$requireSignIn();
-              
-            }]
-          }
-      });
-      $stateProvider.state('mainfeed',{
-        url: '/mainfeed',
-        templateUrl: './views/mainfeed.html',
-        controller: 'MainFeedController',
-        controllerAs: 'mainfeed',
-        resolve:{
-            // controller will not be loaded until $requireSignIn resolves
-            // Auth refers to our $firebaseAuth wrapper in the factory below
-            "currentAuth": ["Auth", function(Auth) {
-                console.log(Auth.$requireSignIn());
-              return Auth.$requireSignIn();
-            }],
-            "fbInit": function(FBService){
+      //A child state of main and provides the parent
+      $stateProvider.state('main.features',{
+        views:{
+          'mainfeed@main': {
+            templateUrl: './views/mainfeed.html',
+            controller: 'MainFeedController',
+            controllerAs: 'mainfeed',
+            resolve:{
+              "fbInit": function(FBService){
                 return FBService.fbInit();
+              }
             }
+          },
+          'messages@main': {
+            templateUrl: './views/messagepage.html',
+            controller: 'MessageController',
+            controllerAs: 'message',
+          },
         }
       });
 

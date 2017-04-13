@@ -7,12 +7,17 @@
   display: none !important;
 }
 
+/* Rules for messaging */
+.log{
+    height:200px;
+    overflow-y:scroll;
+    
+}
+
 /* side nav push*/
 .sidenav-push {
-    moz-transition: margin-left ease .25s;
-    o-transition: margin-left ease .25s;
-    -webkit-transition: margin-left ease .25s;
-    transition: margin-left ease .25s;
+    -webkit-transition: all .4s cubic-bezier(.25, .8, .25, 1);
+    transition: all .4s cubic-bezier(.25, .8, .25, 1)
 }
 
 /* Rules for sizing the icon. */

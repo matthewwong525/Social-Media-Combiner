@@ -22,7 +22,7 @@
         messaging.onMessage(function (payload) {
             console.log("Message recieved: ", JSON.stringify(payload.data.message));
             //If the person receiving the message is on chat
-            if(payload.data.username == $("#userToSend").val()){
+            if(payload.data.username == $("#userToSend").attr("placeholder")){
                 //Updates the UI with the message
                 var message = payload.data.message.replace("\n", "&#xA;");
                 var d = new Date();
