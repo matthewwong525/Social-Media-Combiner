@@ -204,9 +204,16 @@ class PageHandler(Handler):
         logging.info(html) 
         self.write(html)
 
+class LetsEncryptHandler(Handler):
+    def get(self, challenge):
+        self.response.headers['Content-Type'] = "text/plain"
+        logging.info(challenge)
+        self.write(challenge+".Gr9dXZjvfrd-ReOBzl7Ogh5f-OfxSuHA4HGb5t5B9OE")
+
 #The mapping for the URLs
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
+    ('/.well-known/acme-challenge/(.+)',LetsEncryptHandler),
     (r'/signup/?',SignUpHandler),
     (r'/sendTokenToServer/?',TokenHandler),
     (r'/sendMessageToUser/?',MessageHandler),
