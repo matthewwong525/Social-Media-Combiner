@@ -141,7 +141,7 @@ class MessageHandler(Handler):
             Messages.store_user_message(sendUser,receiveUser,message)
             #checks if the user has a token
             if user_data.token:
-                payloadData = self.populateJSON(receiveUser,message,user_data.token)
+                payloadData = self.populateJSON(sendUser,message,user_data.token)
                 logging.info(payloadData)
                 #makes an http request to send data to firebase which then communicates with the client
                 try:
