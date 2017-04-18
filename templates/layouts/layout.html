@@ -28,11 +28,11 @@
         </div>
         <div ng-cloak flex-direction="reverse" flex="50" style="text-align: right !important;" ng-if="$root.isLoaded"> 
             <div ng-if="!$root.isLoggedIn">
-                <md-button ui-sref="login">Home</md-button>
+                <md-button ui-sref="home">Home</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <md-button ui-sref="login">Login</md-button>
+                <md-button ui-sref="home">About</md-button>
                 <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <md-button ui-sref="signup" >Signup</md-button>
+                <md-button ui-sref="home">Contact</md-button>
             </div>
             <div ng-if="$root.isLoggedIn">
                 <label>{/$root.username/}</label>
@@ -47,7 +47,7 @@
         </div>
     </div>
     
-    <div ui-view class="container" layout="row" flex ng-cloak></div>
+    <div ui-view layout="row" flex ng-cloak></div>
     <script type="text/javascript" src="/scripts/app.js"></script>
     <script type="text/javascript" src="/scripts/config.js"></script>
     <script type="text/javascript" src="/scripts/authentication-service.js"></script>

@@ -13,11 +13,19 @@
     overflow-y:scroll;
 }
 
+.btn-large {
+    min-height: 54px;
+    display: flex;
+    justify-content: center; /* align horizontal */
+    align-items: center; /* align vertical */
+}
+
 /* side nav push*/
 .sidenav-push {
     -webkit-transition: all .4s cubic-bezier(.25, .8, .25, 1);
     transition: all .4s cubic-bezier(.25, .8, .25, 1)
 }
+
 
 /* Rules for sizing the icon. */
 .material-icons.md-18 { font-size: 18px; }
