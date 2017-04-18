@@ -28,7 +28,9 @@
                 var d = new Date();
                 var date= d.getMonth()+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
                 //TODO: CHANGE CURRENT USER TO DISPLAYNAME OR EMAIL
-                $("#incomingText").append(date+" *" + escapeHtml($("#userToSend").attr("placeholder")) + "* :" + "&#xA;" + escapeHtml(message)  + "&#xA;");
+                $("#incomingText").append(date+" *" + escapeHtml($("#userToSend").attr("placeholder")) + "* :" + "&#xA;" + escapeHtml(message)  + "&#xA;"+"<hr>");
+                //Scrolls to bottom of the div
+                $("#incomingText").scrollTop($("#incomingText")[0].scrollHeight);
             }else{ //send the notification to the user
                 //TODO: ALSO MAKE NOTIFICATIONS FROM BACKGROUND MESSAGES
                 var notificationRef = UpdateService.setNotification(TokenService.getCurrentUser(),payload.data.username);
@@ -48,7 +50,9 @@
             var date= d.getMonth()+1+"/"+d.getDate()+"/"+d.getFullYear() + " " +d.getHours()+":"+d.getMinutes()+":"+d.getSeconds();
             //TODO: CHANGE CURRENT USER TO DISPLAYNAME OR EMAIL 
             //Updates the UI with the message being sent
-            $("#incomingText").append(date+" *" + currUser + "* :" + "&#xA;" + escapeHtml(message) + "&#xA;");
+            $("#incomingText").append(date+" *" + currUser + "* :" + "&#xA;" + escapeHtml(message) + "&#xA;"+"<hr>");
+            //Scrolls to bottom of the div
+            $("#incomingText").scrollTop($("#incomingText")[0].scrollHeight);
             //makes a post request to the message handler
             $http.post("/sendMessageToUser/",parameters)
                 .then(function(response){

@@ -23,7 +23,6 @@
 
       $stateProvider.state('home',{
         url: '/',
-        templateUrl: './views/index.html',
         controller: 'HomeController',
         controllerAs: 'home',
         resolve: {
@@ -32,9 +31,17 @@
             "currentAuth": ["Auth", function(Auth) {
                 console.log(Auth.$waitForSignIn());
               return Auth.$waitForSignIn();
-              
-            }]
+            }],
+            // loads the template in the resolve to prevent preloading template
+            "loadTemplate": function($templateRequest){
+                return $templateRequest("./views/index.html");
+            },
           },
+        //checks if the user is logged in and loads the appropriate template
+        templateProvider: function(loadTemplate,currentAuth){
+          if(currentAuth == null)
+              return loadTemplate
+        }
         
       });
       $stateProvider.state('main',{
@@ -57,6 +64,11 @@
       //A child state of main and provides the parent
       $stateProvider.state('main.features',{
         views:{
+          'messages@main': {
+            templateUrl: './views/messagepage.html',
+            controller: 'MessageController',
+            controllerAs: 'message',
+          },
           'mainfeed@main': {
             templateUrl: './views/mainfeed.html',
             controller: 'MainFeedController',
@@ -67,11 +79,7 @@
               }
             }
           },
-          'messages@main': {
-            templateUrl: './views/messagepage.html',
-            controller: 'MessageController',
-            controllerAs: 'message',
-          },
+          
         }
       });
 

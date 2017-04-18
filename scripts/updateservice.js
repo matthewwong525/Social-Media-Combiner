@@ -65,8 +65,10 @@
                     console.log(response);
                     for (i = 0;i<response.data.length;i++){
                         //Updates the UI with message data
-                        $("#incomingText").append(response.data[i].datesent+" *" + friendList[response.data[i].usersent].email + "* :" + "&#xA;" + response.data[i].message + "&#xA;");
+                        $("#incomingText").append(response.data[i].datesent+" *" + friendList[response.data[i].usersent].email + "* :" + "&#xA;" + response.data[i].message + "&#xA;" +"<hr>");
                     }
+                    //Scrolls to bottom of the div
+                    $("#incomingText").scrollTop($("#incomingText")[0].scrollHeight);
                     //Set notification on UI to nothing and remove the notification from database
                     $("#notification-"+username).text("");
                      var postListRef = firebase.database().ref().child('notifications').child(TokenService.getCurrentUser()).child(username);
@@ -81,7 +83,6 @@
         var updateUI = function(){
             //Updates notifications and messages on focus when unfocused
             initializeNotification();
-            console.log(userToSend);
             if(!(userToSend == "" || userToSend == undefined)){
                 getMessages(userToSend);
             }

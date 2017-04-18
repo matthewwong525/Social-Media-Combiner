@@ -53,8 +53,11 @@ var messaging = firebase.messaging();
     app.controller("MainFeedController",['FBService','$scope','$state',function(FBService,$scope,$state){
         //Initializes some variables
         theScope = this;
-        theScope.isLoginButton = false;
+        theScope.FBisLoggedIn = false;
         theScope.userFeed = {};  
+        $scope.$on('handleFBLogin',function(){
+            FBService.fbTryLogIn($state).then(function(response){});
+        });
         var fbLoggedInPromise = FBService.fbIsLoggedIn();
         //Successfully logged in
         fbLoggedInPromise.then(function(response){
@@ -82,20 +85,11 @@ var messaging = firebase.messaging();
                     });
                 });
             }else{
-                //TODO: ERROR MESSAGES FOR LOGIN AND UNKNOWN
-                //Activates the login button
-                $scope.$evalAsync(function(){
-                    theScope.isLoginButton = true;
-                });
+                //makes sure that the person is logged into facebook
+                theScope.FBisLoggedIn = true;
             }
             
         });
-        //Basically this is the function attached to the login button
-        this.loginButton = function(){
-            if(this.isLoginButton){
-                FBService.fbTryLogIn($state).then(function(response){});
-            }
-        }
         //EVENT fires every time the authentication status changes
         FB.Event.subscribe('auth.login',function(response){
             console.log(response);
@@ -137,9 +131,13 @@ var messaging = firebase.messaging();
     }]);
 
     //Controller for logged in user navigation
-    app.controller("MainPageController",['$mdSidenav','$scope',function($mdSidenav,$scope){
+    app.controller("MainPageController",['$mdSidenav','$scope','FBService',function($mdSidenav,$scope,FBService){
         this.isSideNavOpen = false;
         
+        //when someone clicks the facebook button
+        this.fbLogin = function(){
+            FBService.broadcastLogin();
+        }
 
         //function to toggle the state of the sidebar
         this.toggleSidebar = function(){
@@ -147,13 +145,11 @@ var messaging = firebase.messaging();
         };
         //watches the side nav and adjust the tool bar according to the width of the sidenav
         $scope.$watch('isSideNavOpen',function(isSideNavOpen){
-
             if(isSideNavOpen){
                 $("#mainframe").css('margin-left',$("md-sidenav").width());
             }else{
                 $("#mainframe").css('margin-left',0);
             }
-            console.log("ha");
         });
 
     }]);
@@ -179,6 +175,7 @@ var messaging = firebase.messaging();
             $rootScope.isLoggedIn = false;
             $state.go("login");
         }
+        
     }]);
 
     //Controller that is called before any controller
@@ -206,26 +203,30 @@ var messaging = firebase.messaging();
             var theScope = this;
             this.friendList = {};
 
+            //resets UI components//
+            this.userToSend = "";
+            this.messageToSend = "";
+            this.userIDToSend = "";
+
             //uses the initialization data and updates the UI
             promise.then(function(response){
+                theScope.friendList = response;
                 $scope.$evalAsync(function(){
-                    theScope.friendList = response;
-                    console.log(theScope.friendList);
-
                     //Sets the userlist and initializes the UI with notifications
                     UpdateService.setFriendList(theScope.friendList);
                     UpdateService.initializeUI();
                 });
-            });
 
-            //resets UI components//
-            this.messageToSend = "";
-            if(UpdateService.getUserToSend() == ""){
-                this.userToSend = "Send To..."; 
-            }else{
-                this.userToSend = UpdateService.getUserToSend();
-            }
-            this.userIDToSend = "";
+                //Saves the data of the current friend you are talking to
+                if(UpdateService.getUserToSend() == ""){
+                    theScope.userToSend = "Send To..."; 
+                }else{
+                    //Sets the 
+                    console.log(theScope.friendList);
+                    theScope.userToSend = theScope.friendList[UpdateService.getUserToSend()].email;
+                    theScope.userIDToSend = UpdateService.getUserToSend();
+                }
+            });
 
             //sends message to other user
             this.sendMessage = function ($event) {

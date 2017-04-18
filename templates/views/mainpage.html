@@ -3,32 +3,34 @@
     LOL
 </md-sidenav>
 
-<div id="mainframe" style="float:left;" md-whiteframe="3" class=sidenav-push>
+<div id="mainframe" style="float:left;" md-whiteframe="3" class=sidenav-push layout="column">
     <div style="text-align:center; background-color:orange;border-bottom:2px solid black;">
         <md-button class="md-icon-button md-48" ng-click="main.toggleSidebar()">
             <md-icon md-svg-icon="menu" class="material-icons md-48" aria-label="menu"></md-icon>
         </md-button>
     </div>
-    <div style="text-align:center;">
-        <md-button class="md-fab" style="background-color:#3b5998;">
-            <md-icon md-svg-icon="facebook" class="material-icons md-36" aria-label="facebook"></md-icon>
-        </md-button>
-    </div>
-    <div style="text-align:center;">
-        <md-button class="md-fab" style="background-color:#00aced;">
-            <md-icon md-svg-icon="twitter" class="material-icons md-36" aria-label="twitter"></md-icon>
-        </md-button>
-    </div>
-    <div style="text-align:center;">
-        <md-button class="md-fab" style="background-color:#fffc00;">
-            <md-icon md-svg-icon="snapchat" class="material-icons md-36" aria-label="snapchat"></md-icon>
-        </md-button>
-    </div>
+    <md-content flex>
+        <div style="text-align:center;">
+            <md-button class="md-fab" style="background-color:#3b5998;" ng-click="main.fbLogin()">
+                <md-icon md-svg-icon="facebook" class="material-icons md-36" aria-label="facebook"></md-icon>
+            </md-button>
+        </div>
+        <div style="text-align:center;">
+            <md-button class="md-fab" style="background-color:#00aced;">
+                <md-icon md-svg-icon="twitter" class="material-icons md-36" aria-label="twitter"></md-icon>
+            </md-button>
+        </div>
+        <div style="text-align:center;">
+            <md-button class="md-fab" style="background-color:#fffc00;">
+                <md-icon md-svg-icon="snapchat" class="material-icons md-36" aria-label="snapchat"></md-icon>
+            </md-button>
+        </div>
+    </md-content>
 </div>
-<div ui-view="mainfeed" flex="80">
+<div ui-view="mainfeed" flex="80" style="min-height: 100%">
     Content
 </div>
-<div ui-view="messages" flex="20" class="md-whiteframe-3dp">
+<div ui-view="messages" flex="20" class="md-whiteframe-3dp" layout="column" style="min-height: 100%">
 
 </div>
 

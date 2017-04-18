@@ -2,7 +2,7 @@
 
     var app = angular.module("facebook-service",["firebase","token-service"]);
 
-    app.service("FBService",['$q','$state','$http','TokenService',function($q,$state,$http,TokenService){
+    app.service("FBService",['$q','$state','$http','TokenService','$rootScope',function($q,$state,$http,TokenService,$rootScope){
         //Initializes facebook API (copy pasted)
         this.fbInit = function(){
             if(window.FB == undefined || window.FB == null){
@@ -138,6 +138,11 @@
                     fbexpireTime: responseObj.expiresIn
                 });
             });
+        };
+        //allows to pass the login trigger from one controller to another
+        this.broadcastLogin = function(){
+            $rootScope.$broadcast('handleFBLogin');
+            console.log("Broadcasting fb login");
         }
 
     }]);

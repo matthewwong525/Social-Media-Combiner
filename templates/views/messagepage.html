@@ -1,19 +1,23 @@
 <md-toolbar class="md-toolbar-tools">My Messages</md-toolbar>
-<md-content>
-    <md-list>
-        <md-subheader>Users</md-subheader>
-        <md-list-item class="md-2-line" ng-click="message.currUserToSend($event.target.parentNode.parentNode.id)" ng-repeat="users in message.friendList" id="{/users.userid/}">
-            <md-icon md-svg-icon="account" class="md-avatar" aria-label="avatar"></md-icon>
-            <div class="md-list-item-text" layout="column">
-                <h3 ng-hide="message.hasDisplayName(users.displayname)">{/users.email/}</h3>
-                <h3 ng-show="message.hasDisplayName(users.displayname)">{/users.displayname/}</h3>
-                <h4 id="notification-{/users.userid/}"></h4>
-            </div>
-        </md-list-item>
+<div flex style="bottom:0" layout="column" layout-fill>
+    <md-content flex>
+        <md-list>
+            <md-subheader>Users</md-subheader>
+            <md-list-item class="md-2-line" ng-click="message.currUserToSend($event.target.parentNode.parentNode.id)" ng-repeat="users in message.friendList" id="{/users.userid/}">
+                <md-icon md-svg-icon="account" class="md-avatar" aria-label="avatar"></md-icon>
+                <div class="md-list-item-text" layout="column">
+                    <h3 ng-hide="message.hasDisplayName(users.displayname)">{/users.email/}</h3>
+                    <h3 ng-show="message.hasDisplayName(users.displayname)">{/users.displayname/}</h3>
+                    <h4 id="notification-{/users.userid/}"></h4>
+                </div>
+            </md-list-item>
+        </md-list>
+    </md-content>
+    <md-content style="max-height: 60%;">
         <md-divider></md-divider>
         <md-subheader>Messages</md-subheader>
         <md-input-container md-no-float class="md-block" >
-          <input send_user_id="{/message.userIDToSend/}" placeholder="{/message.userToSend/}" id="userToSend" disabled></input>
+          <input send_user_id="{/message.userIDToSend/}" placeholder="{/message.userToSend/}" id="userToSend" aria-label="userToSendButton" disabled></input>
         </md-input-container>
         <!--Use md-virtual-repeat-container to do the messages-->
         <div id="incomingText" class="log">
@@ -22,5 +26,5 @@
         <md-input-container md-no-float="" class="md-block">
           <textarea placeholder="Message" style="overflow: auto; max-height: 100px;" id="outgoingText" ng-model="message.messageToSend" ng-keypress="message.sendMessage($event)"></textarea>
         </md-input-container>
-    </md-list>
-</md-content>
+    </md-content>
+</div>
