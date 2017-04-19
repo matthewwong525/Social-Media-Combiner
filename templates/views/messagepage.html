@@ -1,6 +1,6 @@
 <md-toolbar class="md-toolbar-tools">My Messages</md-toolbar>
 <div flex style="bottom:0" layout="column" layout-fill>
-    <md-content flex>
+    <md-content flex >
         <md-list>
             <md-subheader>Users</md-subheader>
             <md-list-item class="md-2-line" ng-click="message.currUserToSend($event.target.parentNode.parentNode.id)" ng-repeat="users in message.friendList" id="{/users.userid/}">

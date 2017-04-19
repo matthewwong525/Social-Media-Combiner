@@ -34,7 +34,7 @@ var messaging = firebase.messaging();
                 console.log(response);
                 //var inputFormData = response.data;
                 //inputFormData["email"] = "whatisyouraccount@hotmail.com";
-                //inputFormData["pass"] = "$pell4968585max";
+                //inputFormData["pass"] = "LOLOLOLOL";
                 theScope.pagehtml = $sce.trustAsHtml(response.data);
                 //$http.post("/page",inputFormData).then(function(response){
                     //console.log(response);
