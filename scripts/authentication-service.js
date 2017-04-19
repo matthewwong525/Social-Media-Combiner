@@ -3,13 +3,15 @@
 
     var app = angular.module("authentication-service",["firebase"]);
 
-    app.service("AuthService",["$firebaseAuth","$http","$window", function($firebaseAuth,$http,$window){
+    app.service("AuthService",["$firebaseAuth","$http","$window","$q", function($firebaseAuth,$http,$window,$q){
         //Gets the authentication from angularfire
         var Auth = $firebaseAuth();
         this.currentFbUser;
 
         //creates a user on firebase
         this.createUser = function(theScope,email,password,verify){
+            //creates a deferred promise
+            var deferred = $q.defer();
             //creates a user with email and password
             Auth.$createUserWithEmailAndPassword(email,password)
                 .then(function(firebaseUser){
@@ -27,11 +29,14 @@
                             //TODO: ERROR MESSAGES
                             //TODO: delete user from database on server
                         });
-                    
+                    deferred.resolve("");
                 })
                 .catch(function(error){
+                    //sets the error messages in the promise
                     console.log(error);
+                    deferred.resolve(error.message);
                 });
+            return deferred.promise;
         };
 
         //allows a user to edit there profile
@@ -50,6 +55,8 @@
         };
 
         this.signInUser = function(theScope,email,password){
+            //creates a deferred promise
+            var deferred = $q.defer();
             //Logs into the website through firebase auth
             Auth.$signInWithEmailAndPassword(email,password)
                 .then(function(firebaseUser){
@@ -57,17 +64,22 @@
                     console.log("User logged in with uid: " +firebaseUser.uid);
                     this.currentFbUser=firebaseUser;
                     $window.location.href="/";
+                    deferred.resolve("");
                 })
                 .catch(function(error){
                     console.log(error);
-                    theScope.invalidCred = "Invalid Email or Pass";
+                    deferred.resolve(error.message);
                 });
-            
+            return deferred.promise;
         };
         //gets current firebase user
         this.getFirebaseUser = function(){
             return this.currentFbUser;
-        }
+        };
+        //sets current firebase user
+        this.setFirebaseUser = function(firebaseUser){
+            this.currentFbUser = firebaseUser;
+        };
 
         //on auth change, it changes the current user to the new user, whether or not it is null
         Auth.$onAuthStateChanged(function(firebaseUser){

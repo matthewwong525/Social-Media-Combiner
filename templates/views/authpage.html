@@ -1,0 +1,82 @@
+
+<div>
+    <md-toolbar layout="row">
+        <div class="md-toolbar-tools">
+            <h2>Log In/Sign Up</h2>
+        </div>
+        <!--
+        <md-button class="md-icon-button md-24" ng-click="auth.close()">
+            <md-icon md-svg-icon="close" aria-label="close" class="material-icons md-24"></md-icon>
+        </md-button>-->
+    </md-toolbar>
+    <md-dialog-content>
+        <md-tabs md-selected="$root.authIndex" md-border-bottom md-dynamic-height style="width:800px;">
+            <md-tab label="Log In" class="md-padding">
+                <form name="loginForm" class="container">
+                    <div layout="column">
+                        <md-input-container class="md-block no-bot-margin">
+                            <label>Email</label>
+                            <md-icon md-svg-src="email"></md-icon>
+                            <input required type="text" name="email" ng-model="auth.email" ng-pattern="auth.EMAIL_REGEXP">
+                            <div ng-messages="loginForm.email.$error">
+                                <div ng-message="required">Required</div>
+                                <div ng-message="pattern">Invalid Email</div>
+                            </div>
+                        </md-input-container> 
+                        <md-input-container class="md-block no-bot-margin">
+                            <label>Password</label>
+                            <md-icon md-svg-src="lock"></md-icon>
+                            <input required type="password" name="password" ng-model="auth.password" minlength="6">
+                            <div ng-messages="loginForm.password.$error">
+                                <div ng-message="required">Required</div>
+                                <div ng-message="minlength">Password must be at least 6 characters in length</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                    <div layout="row">
+                        <span flex style="font-size:12px; color:#dd2c00" layout="row" layout-align="center center">{/auth.loginValidation/}</span>
+                        <md-button type="submit" name="submit" ng-click="auth.signInUser(loginForm.$valid)" class="md-raised md-primary">Submit</md-button>
+                    </div>
+                </form>
+            </md-tab>
+            <md-tab label="Sign Up" class="md-padding">
+                <form name="signUpForm" class="container">
+                    <div layout="column">
+                        <md-input-container class="md-block no-bot-margin">
+                            <label>Email</label>
+                            <md-icon md-svg-src="email"></md-icon>
+                            <input required type="text" name="email" ng-model="auth.email" ng-pattern="auth.EMAIL_REGEXP">
+                            <div ng-messages="signUpForm.email.$error">
+                                <div ng-message="required">Required</div>
+                                <div ng-message="pattern">Invalid Email</div>
+                            </div>
+                        </md-input-container> 
+                        <md-input-container class="md-block no-bot-margin">
+                            <label>Password</label>
+                            <md-icon md-svg-src="lock"></md-icon>
+                            <input required type="password" name="password" ng-model="auth.password" minlength="6">
+                            <div ng-messages="signUpForm.password.$error">
+                                <div ng-message="required">Required</div>
+                                <div ng-message="minlength">Password must be at least 6 characters in length</div>
+                            </div>
+                        </md-input-container>
+                        <md-input-container class="md-block no-bot-margin">
+                            <label>Verify Password</label>
+                            <md-icon md-svg-src="lock"></md-icon>
+                            <input required type="password" name="verify" ng-model="auth.verify" ng-pattern="auth.password">
+                            <div ng-messages="signUpForm.verify.$error">
+                                <div ng-message="required">Required</div>
+                                <div ng-message="pattern">Passwords do not match</div>
+                            </div>
+                        </md-input-container>
+                    </div>
+                    <div layout="row">
+                        <span flex style="font-size:12px; color:#dd2c00" layout="row" layout-align="center center">{/auth.signUpValidation/}</span>
+                        <md-button type="submit" name="submit" ng-click="auth.createUser(signUpForm.$valid)" class="md-raised md-primary">Submit</md-button>
+                    </div>
+                </form>
+            </md-tab>
+            <md-tab disabled></md-tab>
+        </md-tabs>
+    </md-dialog-content>
+</div>

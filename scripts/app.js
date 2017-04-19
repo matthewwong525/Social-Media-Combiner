@@ -13,7 +13,7 @@ var messaging = firebase.messaging();
 
 (function(){
     
-    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service','ngMaterial']);
+    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service','ngMaterial','ngMessages']);
 
     /////////////////////////////////////////////////////////////////
     //Experimental Controller used for the proxies for fb
@@ -111,21 +111,52 @@ var messaging = firebase.messaging();
     }]);
 
     //Handler used for logins and sign ups
-    app.controller("AuthController",["AuthService",'$mdDialog', function(AuthService,$mdDialog){
+    app.controller("AuthController",["AuthService",'$mdDialog','$scope', function(AuthService,$mdDialog,$scope){
         //used to authenticate users on sign in
+        theScope = this;
         this.email = "";
         this.username = "";
         this.password = "";
         this.verify = "";
-        this.err_email ="";
-        this.err_pass = "";
-        this.err_verify= "";
-        this.invalidCred = "";
+
+        this.loginValidation = "";
+        this.signUpValidation = "";
+
+        //REGEXs for frontend form validation
+        this.EMAIL_REGEXP = /(.+)@(.+){2,}\.(.+){2,}/;
+        this.VERIFY_REGEXP = new RegExp("^"+ this.password+"$");
 
         //Called on signup and hides the dialog
-        this.createUser = function(){$mdDialog.hide(); AuthService.createUser(this,this.email,this.password,this.verify)};
+        this.createUser = function(isValid){
+            if(isValid){
+                AuthService.createUser(this,this.email,this.password,this.verify)
+                .then(function(response){
+                    if(response != ""){
+                        $scope.$evalAsync(function(){
+                            theScope.signUpValidation = response;
+                        });
+                    }else{
+                        $mdDialog.hide(); 
+                    } 
+                });
+                
+            }
+        };
         //Called on login and hides the dialog
-        this.signInUser = function(){$mdDialog.hide(); AuthService.signInUser(this,this.email,this.password)};
+        this.signInUser = function(isValid){
+            if(isValid){
+                AuthService.signInUser(this,this.email,this.password)
+                .then(function(response){
+                    if(response != ""){
+                        $scope.$evalAsync(function(){
+                            theScope.loginValidation = response;
+                        });
+                    }else{
+                        $mdDialog.hide(); 
+                    } 
+                });
+            }
+        };
 
         //closes the dialog
         this.cancel = function() {
@@ -176,15 +207,15 @@ var messaging = firebase.messaging();
         }else{
             //Goes to login page(nested in home) if user is not logged in.
             $rootScope.isLoggedIn = false;
-            $state.go("login");
+            $state.go("home");
         }
 
         this.showLoginPrompt = function($event){
-            console.log("meh");
+            $rootScope.authIndex = 0;
             $mdDialog.show({
                 controller: "AuthController",
                 controllerAs: "auth",
-                templateUrl: './views/loginpage.html',
+                templateUrl: './views/authpage.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose:true,
@@ -192,10 +223,11 @@ var messaging = firebase.messaging();
             });
         }
         this.showSignUpPrompt = function($event){
-            console.log("meh");
+            $rootScope.authIndex = 1;
             $mdDialog.show({
                 controller: "AuthController",
-                templateUrl: './views/signuppage.html',
+                controllerAs: "auth",
+                templateUrl: './views/authpage.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose:true,

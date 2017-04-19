@@ -130,20 +130,7 @@
             window.location.replace("/");
         } 
       });
-      $stateProvider.state('login',{
-        parent:'home',
-        templateUrl: './views/loginpage.html',
-        controller: 'AuthController',
-        controllerAs: 'auth'
 
-      });
-      $stateProvider.state('signup',{
-        parent:'home',
-        templateUrl: './views/signuppage.html',
-        controller: 'AuthController',
-        controllerAs: 'auth'
-
-      });
       
     }]);
 })();
