@@ -111,7 +111,7 @@ var messaging = firebase.messaging();
     }]);
 
     //Handler used for logins and sign ups
-    app.controller("AuthController",["AuthService", function(AuthService){
+    app.controller("AuthController",["AuthService",'$mdDialog', function(AuthService,$mdDialog){
         //used to authenticate users on sign in
         this.email = "";
         this.username = "";
@@ -122,12 +122,15 @@ var messaging = firebase.messaging();
         this.err_verify= "";
         this.invalidCred = "";
 
-        //Called on signup
-        this.createUser = function(){AuthService.createUser(this,this.email,this.password,this.verify)};
-        //Called on login
-        this.signInUser = function(){AuthService.signInUser(this,this.email,this.password)};
+        //Called on signup and hides the dialog
+        this.createUser = function(){$mdDialog.hide(); AuthService.createUser(this,this.email,this.password,this.verify)};
+        //Called on login and hides the dialog
+        this.signInUser = function(){$mdDialog.hide(); AuthService.signInUser(this,this.email,this.password)};
 
-        
+        //closes the dialog
+        this.cancel = function() {
+          $mdDialog.cancel();
+        };
     }]);
 
     //Controller for logged in user navigation
@@ -155,7 +158,7 @@ var messaging = firebase.messaging();
     }]);
 
     //Controller for the home page
-    app.controller("HomeController",['currentAuth','$rootScope','$state',function(currentAuth,$rootScope,$state){
+    app.controller("HomeController",['currentAuth','$rootScope','$state','$mdDialog',function(currentAuth,$rootScope,$state,$mdDialog){
         //variable used to tell the UI that the page is loaded
         $rootScope.isLoaded = true;
         //Checks if the user is logged in or not
@@ -175,7 +178,30 @@ var messaging = firebase.messaging();
             $rootScope.isLoggedIn = false;
             $state.go("login");
         }
-        
+
+        this.showLoginPrompt = function($event){
+            console.log("meh");
+            $mdDialog.show({
+                controller: "AuthController",
+                controllerAs: "auth",
+                templateUrl: './views/loginpage.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose:true,
+                fullscreen: true// Only for -xs, -sm breakpoints.
+            });
+        }
+        this.showSignUpPrompt = function($event){
+            console.log("meh");
+            $mdDialog.show({
+                controller: "AuthController",
+                templateUrl: './views/signuppage.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose:true,
+                fullscreen: true// Only for -xs, -sm breakpoints.
+            });
+        }
     }]);
 
     //Controller that is called before any controller
@@ -183,6 +209,8 @@ var messaging = firebase.messaging();
         //initialize all variables here
         $rootScope.username = "";
         $rootScope.isLoaded = false;
+
+
     }]);
 
     //The controller that handles all the messages
