@@ -8,12 +8,66 @@
           </div>
         </md-card-title-media>
         <md-card-title-text>
-          <span class="md-headline">I am a Name</span>
-          <span class="md-subhead description">I am email</span>
+          <span class="md-headline">{/$root.username/}</span>
+          <span class="md-subhead description">I am an email</span>
         </md-card-title-text>
       </md-card-title>
     </md-card>
-    <md-divider></md-divider>
+    <md-card flex style="height:auto">
+        <md-content flex layout = "column">
+            <md-list flex layout="column">
+                <div>
+                    <md-list-item class="md-2-line" ui-sref="home">
+                        <md-icon md-svg-icon="home" class="md-avatar" aria-label="home"></md-icon>
+                        <div class="md-list-item-text" layout="column">
+                            <h3>Home</h3>
+                        </div>
+                    </md-list-item>
+                    <md-list-item class="md-2-line" ng-click="df()">
+                        <md-icon md-svg-icon="account-box" class="md-avatar" aria-label="about"></md-icon>
+                        <div class="md-list-item-text" layout="column">
+                            <h3>About</h3>
+                        </div>
+                    </md-list-item>
+                    <md-list-item class="md-2-line" ng-click="df()">
+                        <md-icon md-svg-icon="camera" class="md-avatar" aria-label="photos"></md-icon>
+                        <div class="md-list-item-text" layout="column">
+                            <h3>Photos</h3>
+                        </div>
+                    </md-list-item>
+                    <md-list-item class="md-2-line" ng-click="df()">
+                        <md-icon md-svg-icon="account-multiple" class="md-avatar" aria-label="friends"></md-icon>
+                        <div class="md-list-item-text" layout="column">
+                            <h3>Friends</h3>
+                        </div>
+                    </md-list-item>
+                    <md-list-item class="md-2-line" ng-click="df()">
+                        <md-icon md-svg-icon="history" class="md-avatar" aria-label="activity"></md-icon>
+                        <div class="md-list-item-text" layout="column">
+                            <h3>Activity</h3>
+                        </div>
+                    </md-list-item>
+                </div>
+                <div flex></div>
+                <div>
+                    <md-divider></md-divider>
+                    <md-list-item class="md-2-line" ui-sref="account">
+                        <md-icon md-svg-icon="settings" class="md-avatar" aria-label="settings"></md-icon>
+                        <div class="md-list-item-text" layout="column">
+                            <h3>Settings</h3>
+                        </div>
+                    </md-list-item>
+                    <md-list-item class="md-2-line" ui-sref="logout">
+                        <md-icon md-svg-icon="logout" class="md-avatar" aria-label="logout"></md-icon>
+                        <div class="md-list-item-text" layout="column">
+                            <h3>Logout</h3>
+                        </div>
+                    </md-list-item>
+                </div>
+            </md-list>
+        </md-content>
+    </md-card>
+    
 </md-sidenav>
 
 <div id="mainframe" style="float:left;" class="sidenav-push md-whiteframe-6dp" layout="column">

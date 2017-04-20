@@ -24,7 +24,7 @@
 <body style="margin:0px;padding:0px;" layout="column">
     <div ng-controller="WebsiteController as web" layout="row" layout-align="start center" style="border-bottom: 2px solid black">
         <div style="float:left !important;" flex="50">
-            <label style="text-align: left !important;" class="md-display-1"  >Panible</label>
+            <label style="text-align: left !important;" class="md-display-1" >Panible</label>
         </div>
         <div ng-cloak flex-direction="reverse" flex="50" style="text-align: right !important;" ng-if="$root.isLoaded"> 
             <div ng-if="!$root.isLoggedIn">
@@ -35,14 +35,9 @@
                 <md-button ui-sref="home">Contact</md-button>
             </div>
             <div ng-if="$root.isLoggedIn">
-                <label>{/$root.username/}</label>
-                <span>&nbsp;&nbsp;-&nbsp;&nbsp;</span>
-                <md-button ui-sref="home" >Home</md-button>
-                <md-button ui-sref="socialpage({socialpage:'facebook'})" ng-hide="true">Facebook(NOT WORKING)</md-button>
-                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <md-button ui-sref="account">Edit</md-button>
-                <span>&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                <md-button ui-sref="logout">Log Out</md-button>
+                <md-button class="md-icon-button" ng-click="">
+                    <md-icon md-svg-icon="plus" aria-label="plus" class="material-icons"></md-icon>
+                </md-button>
             </div>
         </div>
     </div>
