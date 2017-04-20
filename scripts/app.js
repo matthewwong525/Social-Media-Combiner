@@ -50,7 +50,7 @@ var messaging = firebase.messaging();
     }]);
 
     //Controller used to aggregrate all the feeds fro different social medias and fuse them together into one feed
-    app.controller("MainFeedController",['FBService','$scope','$state',function(FBService,$scope,$state){
+    app.controller("MainFeedController",['FBService','$scope','$state','$mdDialog','$rootScope',function(FBService,$scope,$state,$mdDialog,$rootScope){
         //Initializes some variables
         theScope = this;
         theScope.FBisLoggedIn = false;
@@ -64,6 +64,7 @@ var messaging = firebase.messaging();
             //TODO: ALSO CHECK IF the access token is expired
             //checks if the person is connected, meaning "logged in"
             if(response.status == "connected"){
+                theScope.FBisLoggedIn = true;
                 //TODO: abstract to the facebook service
                 //if they are logged in, go access the user feed
                 FBService.fbApiRequest("/me/feed").then(function(response){
@@ -82,22 +83,64 @@ var messaging = firebase.messaging();
                     FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
                         var feedList = FBService.groupByIndex(response);
                         theScope.userFeed = feedList;
+                        console.log(theScope.userFeed);
                     });
                 });
-            }else{
-                //makes sure that the person is logged into facebook
-                theScope.FBisLoggedIn = true;
             }
-            
         });
         //EVENT fires every time the authentication status changes
         FB.Event.subscribe('auth.login',function(response){
             console.log(response);
+            if(response.status == "connected"){
+                theScope.FBisLoggedIn = true;
+            }else{
+                theScope.FBisLoggedIn = false;
+            }
             //store access token in realtime firebase
             FBService.storeAccessToken(response.authResponse);
             //reloads the page state
             $state.reload();
         });
+
+        //On the expand like button click
+        this.openLikeDialog = function($event, likeObj){
+            //stores the likeObj into the rootScope
+            $rootScope.likeObj = likeObj;
+            $mdDialog.show({
+                controller: function LikeDialogController($scope,$mdDialog){
+                    //closes the dialog
+                    this.close = function() {
+                      $mdDialog.cancel();
+                    };
+                },
+                controllerAs: "like",
+                templateUrl: './views/like-dialogpage.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose:true,
+                fullscreen: true// Only for -xs, -sm breakpoints.
+            });
+        };
+
+        //On the expand comment button click
+        this.openCommentDialog = function($event, commentObj){
+            //stores the commentObj into the rootscope
+            $rootScope.commentObj = commentObj;
+            $mdDialog.show({
+                controller: function CommentDialogController($scope,$mdDialog){
+                    //closes the dialog
+                    this.close = function() {
+                      $mdDialog.cancel();
+                    };
+                },
+                controllerAs: "comment",
+                templateUrl: './views/comment-dialogpage.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose:true,
+                fullscreen: true// Only for -xs, -sm breakpoints.
+            });
+        }
     }]);
 
     //Account controller used to handle editing the user profile
@@ -159,7 +202,7 @@ var messaging = firebase.messaging();
         };
 
         //closes the dialog
-        this.cancel = function() {
+        this.close = function() {
           $mdDialog.cancel();
         };
     }]);

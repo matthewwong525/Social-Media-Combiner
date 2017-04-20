@@ -1,0 +1,29 @@
+<div>
+    <md-toolbar layout="row">
+        <div class="md-toolbar-tools">
+            <h2>Comments</h2>
+        </div>
+        <div layout layout-align="center center">
+            <md-button class="md-icon-button" ng-click="comment.close()">
+                <md-icon md-svg-icon="close" aria-label="close"></md-icon>
+            </md-button>
+        </div>
+        
+    </md-toolbar>
+    <md-dialog-content layout="column" style="width:800px; height:600px;">
+        <md-list flex>
+            <div ng-repeat="comment in $root.commentObj">
+                <md-list-item class="md-2-line"  layout="row">
+                   <md-icon md-svg-icon="account" class="md-avatar" aria-label="avatar"></md-icon>
+                    <div class="md-list-item-text" flex="100">
+                        <h3>{/comment.from.name/}</h3>
+                        <p>{/comment.message/}</p>
+                        <!--Also have the time of the comment as well-->
+                    </div>
+                    <h5 class="md-body-1" layout layout-align="end center" style="opacity: 0.5;">{/comment.created_time/}</h5>
+                </md-list-item>
+                <md-divider></md-divider>
+            </div>
+        </md-list>
+    </md-content>
+</div>
