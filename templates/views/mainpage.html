@@ -3,7 +3,7 @@
     LOL
 </md-sidenav>
 
-<div id="mainframe" style="float:left;" class="sidenav-push md-whiteframe-4dp" layout="column">
+<div id="mainframe" style="float:left;" class="sidenav-push md-whiteframe-6dp" layout="column">
     <div style="text-align:center; background-color:orange;border-bottom:2px solid black;">
         <md-button class="md-icon-button md-48" ng-click="main.toggleSidebar()">
             <md-icon md-svg-icon="menu" class="material-icons md-48" aria-label="menu"></md-icon>
@@ -27,11 +27,10 @@
         </div>
     </md-content>
 </div>
-<div ui-view="mainfeed" flex="80" style="min-height: 100%;margin-left:2%;margin-right:2%;" layout="column">
+<div ui-view="mainfeed" flex="70" style="min-height: 100%; padding-right: 2%; padding-left: 2%" layout="column">
     Content
 </div>
-<div ui-view="messages" flex="20" class="md-whiteframe-4dp" layout="column" style="min-height: 100%">
-
+<div ui-view="messages" flex="30" class="md-whiteframe-6dp" layout="column" style="min-height: 100%">
 </div>
 
 

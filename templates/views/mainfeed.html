@@ -1,28 +1,84 @@
-<md-toolbar class="md-menu-toolbar"></md-toolbar>
-
-<md-content id="fb-root" flex>
-    <div ng-if="!mainfeed.isLoginButton" ng-repeat="post in mainfeed.userFeed">
-        <div id="{/post[1].body.id/}" style="border:1px solid black;">
-            <label class="title"><u>{/post[1].body.created_time/} - {/post[0].body.name/}</u><span ng-if="post[1].body.story"> : {/post[1].body.story/}</span></label>
-            <div class = "body">
-                <label class="message">{/post[1].body.message/}</label>
-                <div id="{/attachment.target.id/}" class="attachments" ng-repeat="attachment in post[5].body.data">
-                    <img ng-hide="true" ng-src="{/attachment.media.image.src/}" id="{/attachment.target.url/}">
-                    <label>{/attachment.description/}</label>
+    <br>
+    <md-content flex="100" >
+        <div style="padding: 1% 1% 1% 1%;">
+            <div class="md-whiteframe-4dp">
+                <md-toolbar class="md-menu-toolbar" layout="column" >
+                    <div layout="row" flex>
+                        <md-toolbar-filler layout="column" layout-align="center center" style="background-color: #3b5998;">
+                            <md-icon md-svg-icon="facebook" class="material-icons md-36" flex></md-icon>
+                        </md-toolbar-filler>
+                        <div layout="row" flex class="side-padding">
+                            <h2 class="md-subhead" layout layout-align="center center">Peiyao Rachel Chen</h2>
+                            <div layout="row" style="max-width:60%;">
+                                <div class="side-padding" layout layout-align="center center">
+                                    <md-icon md-svg-icon="arrow-right-bold" ></md-icon>
+                                </div>
+                                <h3 class="md-subhead" layout layout-align="start center" style="opacity: 0.5; font-style: italic; overflow:hidden;">{/"Storyddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd(FIX THIS OVERFLOW HIDDEN THING)" | limitTo: 75/}</h3>
+                            </div>
+                            <span class="md-subhead" layout layout-align="start center" ng-show="true">...</span>
+                            <span flex></span>
+                            <h3 class="md-body-1" layout layout-align="center center" style="opacity: 0.5;">Time</h3>
+                        </div>
+                    </div>
+                </md-toolbar>
+            </div>
+            <div class="md-whiteframe-2dp" layout="row">
+                <div flex=60 style="padding-right:1%;">
+                    <h4 class="md-body-1 side-padding">I AM THE BODY sdfdsfsfddsfsdfsdfdsfsdfsdfsdfsdfsdfsdfsdfsdfasdfaesfsefas(REMEMBER TO SET MAX HEIGHT HERE)</h4>
+                    <md-divider></md-divider>
+                    <div layout="row" flex>
+                        <md-subheader >Reactions</md-subheader>
+                        <span flex></span>
+                        <div layout layout-align="end center">
+                            <md-button class="md-icon-button" ng-click="">
+                                <md-icon md-svg-icon="arrow-expand" aria-label="reactions"></md-icon>
+                            </md-button>
+                        </div>
+                    </div>
+                    
+                    <md-divider></md-divider>
+                    <div layout="row" flex>
+                        <md-subheader>Comments</md-subheader>
+                        <span flex></span>
+                        <div layout layout-align="end center">
+                            <md-button class="md-icon-button" ng-click="" >
+                                <md-icon md-svg-icon="arrow-expand" aria-label="reactions"></md-icon>
+                            </md-button>
+                        </div>
+                    </div>
+                        
+                </div>
+                <div layout="row" flex="40" layout-align="center center" class="md-whiteframe-3dp">
+                    <img ng-hide="false" ng-src="https://scontent.xx.fbcdn.net/v/t15.0-10/15749357_1286925361364671_2194504773862948864_n.jpg?oh=956e98690df720caa55d1c3837a0d272&amp;oe=597C9DC5" id="https://www.facebook.com/sophilip4/videos/1286924884698052/" src="https://scontent.xx.fbcdn.net/v/t15.0-10/15749357_1286925361364671_2194504773862948864_n.jpg?oh=956e98690df720caa55d1c3837a0d272&amp;oe=597C9DC5" aria-hidden="false" class="">
                 </div>
             </div>
-            <br>
-            <label><u>Likes:</u></label>
-            <span id="{/like.id/}" class="likes" ng-repeat="like in post[3].body.data">
-                <label>{/like.type/} : {/like.name/}</label>
-            </span> 
-            <br><br>
-            <label><u>Comments:</u></label>
-            <div id="{/comment.id/}" class="comments" ng-repeat="comment in post[2].body.data">
-                <span>{/comment.from.name/} : {/comment.message/}</span>
-                <!--TODO: Attachments from the comments go here-->
-            </div>
+        </div>
+        
+    </md-content>
 
-        </div> <br>
-    </div>
-</md-content>
+    <md-content id="fb-root" flex style="margin-left:2%;margin-right:2%;">
+        <div ng-if="!mainfeed.isLoginButton" ng-repeat="post in mainfeed.userFeed">
+            <div id="{/post[1].body.id/}" style="border:1px solid black;">
+                <label class="title"><u>{/post[1].body.created_time/} - {/post[0].body.name/}</u><span ng-if="post[1].body.story"> : {/post[1].body.story/}</span></label>
+                <div class = "body">
+                    <label class="message">{/post[1].body.message/}</label>
+                    <div id="{/attachment.target.id/}" class="attachments" ng-repeat="attachment in post[5].body.data">
+                        <img ng-hide="false" ng-src="{/attachment.media.image.src/}" id="{/attachment.target.url/}">
+                        <label>{/attachment.description/}</label>
+                    </div>
+                </div>
+                <br>
+                <label><u>Likes:</u></label>
+                <span id="{/like.id/}" class="likes" ng-repeat="like in post[3].body.data">
+                    <label>{/like.type/} : {/like.name/}</label>
+                </span> 
+                <br><br>
+                <label><u>Comments:</u></label>
+                <div id="{/comment.id/}" class="comments" ng-repeat="comment in post[2].body.data">
+                    <span>{/comment.from.name/} : {/comment.message/}</span>
+                    <!--TODO: Attachments from the comments go here-->
+                </div>
+
+            </div> <br>
+        </div>
+    </md-content>
