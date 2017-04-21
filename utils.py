@@ -16,14 +16,17 @@ def verify_secret_hash(hashedItem):
         return True
     return False
 
-def make_salt():
-    return ''.join(random.choice(string.letters) for x in range(5))
+def make_salt(size=10, chars=string.ascii_uppercase + string.ascii_lowercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def make_pw_hash(password,salt = ""):
     if salt == "":
         salt = make_salt()
     theHash = hmac.new(salt,password,hashlib.sha256).hexdigest()
     return theHash+"|"+salt
+
+def make_oauth_hash(method,baseUrl,params):
+    baseString = method+baseUrl+params
 
 def verify_pw_hash(password,hashedItem):
     salt = hashedItem.split("|")[1]
