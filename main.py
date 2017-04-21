@@ -27,8 +27,9 @@ import urllib
 import Messages
 import mechanize
 import cookielib
-import html2text
 import time
+import requests
+from requests_oauthlib import OAuth1
 from google.appengine.api import urlfetch
 from bs4 import BeautifulSoup
 
@@ -166,24 +167,19 @@ class MessageHandler(Handler):
 
 class TwitterHandler(Handler):
     def get(self):
-        timestamp = str(int(time.time()))
-        hashedSecret,nonce = utils.make_pw_hash("6mptuvQQDigbyPqisyYZQ56Ta7JogGVTBibXNnZExxVfATVS0D"+"mCw6Ut").split("|")
-        logging.info(hashedSecret)
-        logging.info(nonce)
+        client_key = ""
+        client_secret = ""
+        company_key = "ic9xnJgR2vY62zxbTceIP52Hv"
+        company_secret = "6mptuvQQDigbyPqisyYZQ56Ta7JogGVTBibXNnZExxVfATVS0D"
         #http://stackoverflow.com/questions/8338661/implementaion-hmac-sha1-in-python
-        #Note that there are some flows, such as when obtaining a request token, where the token secret is not yet known. In this case, the signing key should consist of the percent encoded consumer secret followed by an ampersand character ‘&’.
         try:
             #TODO: PUT THE CONSUMER KEYS AND SECRETS INTO A CONFIG FILE
             headers = {'Content-Type': 'application/json','Authorization':'OAuth oauth_consumer_key="ic9xnJgR2vY62zxbTceIP52Hv",oauth_signature_method="HMAC-SHA1",oauth_timestamp="1492801818",oauth_nonce="afiCga",oauth_version="1.0",oauth_signature="6mptuvQQDigbyPqisyYZQ56Ta7JogGVTBibXNnZExxVfATVS0D"'}
-            logging.info(headers)
-            headers = {'Content-Type': 'application/json','Authorization':'OAuth oauth_consumer_key="ic9xnJgR2vY62zxbTceIP52Hv",oauth_signature_method="HMAC-SHA1",oauth_timestamp="'+timestamp+'",oauth_nonce="'+nonce+'",oauth_version="1.0",oauth_signature="'+hashedSecret+'"'}
-            logging.info(headers)
-            result = urlfetch.fetch(
-                url='https://api.twitter.com/oauth/request_token',
-                method=urlfetch.POST,
-                headers=headers)
-            logging.info(result.content)
-            self.write(result.content.split("&")[0])
+            oauth = OAuth1(client_key,client_secret,company_key,company_secret)
+            url = 'http://api.twitter.com/oauth/request_token'
+            result = requests.post(url,auth=oauth)
+            logging.info(result)
+            #self.write(result.split("&")[0])
         except urlfetch.Error:
             self.error(404)
             self.write('Caught exception fetching url')
