@@ -42,7 +42,7 @@
             return deferred.promise;
         };
         //Attempts to login and returns a promise
-        this.fbTryLogIn = function($state){
+        this.fbTryLogIn = function(){
             var deferred = $q.defer();
             FB.login(function(response){
                 deferred.resolve(response);
@@ -139,11 +139,6 @@
                 });
             });
         };
-        //allows to pass the login trigger from one controller to another
-        this.broadcastLogin = function(){
-            $rootScope.$broadcast('handleFBLogin');
-            console.log("Broadcasting fb login");
-        }
 
     }]);
 })();

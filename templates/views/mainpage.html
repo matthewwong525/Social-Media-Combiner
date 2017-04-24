@@ -83,7 +83,7 @@
             </md-button>
         </div>
         <div>
-            <md-button class="md-fab" style="background-color:#00aced;">
+            <md-button class="md-fab" style="background-color:#00aced;" ng-click="main.twitterLogin()">
                 <md-icon md-svg-icon="twitter" class="material-icons md-36" aria-label="twitter"></md-icon>
             </md-button>
         </div>
@@ -94,8 +94,8 @@
         </div>
     </md-content>
 </div>
-<div ui-view="mainfeed" flex="70" style="min-height: 100%; padding-right: 2%; padding-left: 2%" layout="column">
-    Content
+<div ui-view="feed" flex="70" style="min-height: 100%; padding-right: 2%; padding-left: 2%" layout="column">
+    Click one icon on the left side
 </div>
 <div ui-view="messages" flex="30" class="md-whiteframe-6dp" layout="column" style="min-height: 100%">
 </div>

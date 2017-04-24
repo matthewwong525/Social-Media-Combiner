@@ -13,7 +13,7 @@ var messaging = firebase.messaging();
 
 (function(){
     
-    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service','ngMaterial','ngMessages']);
+    var app = angular.module("website",['firebase','token-service','update-service','message-service','authentication-service','ui.router','facebook-service','twitter-service','ngMaterial','ngMessages']);
 
     /////////////////////////////////////////////////////////////////
     //Experimental Controller used for the proxies for fb
@@ -49,15 +49,21 @@ var messaging = firebase.messaging();
         };
     }]);
 
-    //Controller used to aggregrate all the feeds fro different social medias and fuse them together into one feed
-    app.controller("MainFeedController",['FBService','$scope','$state','$mdDialog','$rootScope',function(FBService,$scope,$state,$mdDialog,$rootScope){
+    //Controller for twitter services
+    app.controller("TwitterController",['TwitterService','$scope','$rootScope',function(TwitterService,$scope,$rootScope){
+        //Initializes some variables
+        theScope = this;
+        TwitterService.twitterLoginPage();
+        
+    }]);
+
+    //Controller used to get facebook things
+    app.controller("FacebookController",['FBService','TwitterService','$scope','$state','$mdDialog','$rootScope',function(FBService,TwitterService,$scope,$state,$mdDialog,$rootScope){
         //Initializes some variables
         theScope = this;
         theScope.FBisLoggedIn = false;
-        theScope.userFeed = {};  
-        $scope.$on('handleFBLogin',function(){
-            FBService.fbTryLogIn($state).then(function(response){});
-        });
+        theScope.userFeed = {};
+        FBService.fbTryLogIn().then(function(response){});
         var fbLoggedInPromise = FBService.fbIsLoggedIn();
         //Successfully logged in
         fbLoggedInPromise.then(function(response){
@@ -208,12 +214,15 @@ var messaging = firebase.messaging();
     }]);
 
     //Controller for logged in user navigation
-    app.controller("MainPageController",['$mdSidenav','$scope','FBService',function($mdSidenav,$scope,FBService){
+    app.controller("MainPageController",['$mdSidenav','$scope','FBService','TwitterService','$state',function($mdSidenav,$scope,FBService,TwitterService,$state){
         this.isSideNavOpen = false;
         
         //when someone clicks the facebook button
         this.fbLogin = function(){
-            FBService.broadcastLogin();
+            $state.go("main.features.fbfeed");
+        }
+        this.twitterLogin = function(){
+            $state.go("main.features.twitterfeed");
         }
 
         //function to toggle the state of the sidebar
@@ -246,7 +255,7 @@ var messaging = firebase.messaging();
                 $rootScope.username = currentAuth.displayName;
             }
             //goes to message page if logged in
-            $state.go("main.features");
+            $state.go("main.features.twitterfeed");
         }else{
             //Goes to login page(nested in home) if user is not logged in.
             $rootScope.isLoggedIn = false;

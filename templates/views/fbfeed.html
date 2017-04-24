@@ -1,6 +1,6 @@
 <br>
 <md-content flex="100" id="fb-root">
-    <div style="padding: 1% 1% 1% 1%;" ng-if="mainfeed.FBisLoggedIn" ng-repeat="post in mainfeed.userFeed">
+    <div style="padding: 1% 1% 1% 1%;" ng-if="fb.FBisLoggedIn" ng-repeat="post in fb.userFeed">
         <div class="md-whiteframe-4dp" id="{/post[1].body.id/}">
             <md-toolbar class="md-menu-toolbar" layout="column" class="title">
                 <div layout="row" flex>
@@ -31,7 +31,7 @@
                     <md-subheader>{/post[3].body.data.length/} Reactions</md-subheader>
                     <span flex></span>
                     <div layout layout-align="end center">
-                        <md-button class="md-icon-button" ng-if="post[3].body.data.length != 0"  ng-click="mainfeed.openLikeDialog($event,post[3].body.data)">
+                        <md-button class="md-icon-button" ng-if="post[3].body.data.length != 0"  ng-click="fb.openLikeDialog($event,post[3].body.data)">
                             <md-icon md-svg-icon="arrow-expand" aria-label="reactions"></md-icon>
                         </md-button>
                     </div>
@@ -42,7 +42,7 @@
                     <md-subheader>{/post[2].body.data.length/} Comments</md-subheader>
                     <span flex></span>
                     <div layout layout-align="end center">
-                        <md-button class="md-icon-button" ng-if="post[2].body.data.length > 2" ng-click="mainfeed.openCommentDialog($event,post[2].body.data)" >
+                        <md-button class="md-icon-button" ng-if="post[2].body.data.length > 2" ng-click="fb.openCommentDialog($event,post[2].body.data)" >
                             <md-icon md-svg-icon="arrow-expand" aria-label="reactions"></md-icon>
                         </md-button>
                     </div>

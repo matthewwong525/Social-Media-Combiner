@@ -63,24 +63,35 @@
       });
       //A child state of main and provides the parent
       $stateProvider.state('main.features',{
+        abstract:true,
         views:{
           'messages@main': {
             templateUrl: './views/messagepage.html',
             controller: 'MessageController',
             controllerAs: 'message',
           },
-          'mainfeed@main': {
-            templateUrl: './views/mainfeed.html',
-            controller: 'MainFeedController',
-            controllerAs: 'mainfeed',
-            resolve:{
-              "fbInit": function(FBService){
-                return FBService.fbInit();
-              }
-            }
-          },
-          
+          'feed' : {
+            template: "<div ui-view layout='column'></div>"
+          }
         }
+        
+      });
+
+      $stateProvider.state('main.features.fbfeed',{
+        templateUrl: './views/fbfeed.html',
+        controller: 'FacebookController',
+        controllerAs: 'fb',
+        resolve:{
+          "fbInit": function(FBService){
+            return FBService.fbInit();
+          }
+        }
+      });
+
+      $stateProvider.state('main.features.twitterfeed',{
+        templateUrl: './views/twitterfeed.html',
+        controller: 'TwitterController',
+        controllerAs: 'twit',
       });
 
       $stateProvider.state('socialpage',{
