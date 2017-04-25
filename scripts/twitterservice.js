@@ -9,9 +9,9 @@
                 .then(function(response){
                     console.log(response);
                     deferred.resolve(response);
-                    var win = window.open('//api.twitter.com/oauth/authenticate?'+response.data,"mywindow",'width=560,height=315');
+                    var win = window.open('//api.twitter.com/oauth/authenticate?oauth_token='+response.data,"mywindow",'width=560,height=315');
+                    console.log(win.location.href)
                     if (window.focus) {win.focus()}
-                    return false;
                 })
                 .catch(function(response){
                     deferred.resolve(response);

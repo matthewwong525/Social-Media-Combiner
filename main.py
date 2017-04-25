@@ -20,6 +20,7 @@ import jinja2
 import models
 import logging
 import utils
+import Twitteroauth
 import re
 import json
 import cgi
@@ -167,20 +168,41 @@ class TwitterHandler(Handler):
     def get(self):
         oauth_token = self.request.get("oauth_token")
         oauth_verifier = self.request.get("oauth_verifier")
-        self.write(oauth_token+" "+oauth_verifier)
+        token_data = Twitteroauth.get_token(oauth_token)
+        logging.info(token_data)
+        if token_data:
+            try:
+                access_token_url = 'https://api.twitter.com/oauth/access_token'
+                callback_url = "localhost:17080/twitter"
+                headers = Twitteroauth.twitter_headers("POST",access_token_url,callback_url,[],oauth_token,token_data.token_secret)
+                payloadData = urllib.urlencode({"oauth_verifier": oauth_verifier})
+                result_access = urlfetch.fetch(
+                        url=access_token_url,
+                        method=urlfetch.POST,
+                        payload=payloadData,
+                        headers=headers)
+                self.write(result_access.content)
+            except urlfetch.Error:
+                self.error(404)
+                self.write('Caught exception fetching url')
+        else:
+            self.error(404)
     def post(self):
         try:
             #TODO: PUT THE CONSUMER KEYS AND SECRETS INTO A CONFIG FILE
             request_token_url = 'https://api.twitter.com/oauth/request_token'
             #TODO: change this to the actual website
             callback_url = "localhost:17080/twitter"
-            headers = utils.twitter_headers("POST",request_token_url,callback_url)
+            headers = Twitteroauth.twitter_headers("POST",request_token_url,callback_url,[])
             result_req_token = urlfetch.fetch(
                         url=request_token_url,
                         method=urlfetch.POST,
                         headers=headers)
-            logging.info(result_req_token.content.split("&")[0])
-            self.write(result_req_token.content.split("&")[0])
+            token = result_req_token.content.split("&")[0].split("=")[1]
+            token_secret = result_req_token.content.split("&")[1].split("=")[1]
+            Twitteroauth.store_token(token,token_secret)
+            logging.info(token + " " + token_secret)
+            self.write(token)
         except urlfetch.Error:
             self.error(404)
             self.write('Caught exception fetching url')
