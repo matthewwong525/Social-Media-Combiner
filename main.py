@@ -89,7 +89,7 @@ class TokenHandler(Handler):
         
         #checks if user exists in database and if token already exists
         if(user_data and user_data.token != token):
-            logging.info(user_data.username)
+            logging.info(user_data.user_id)
             logging.info("About to put token in database")
             user_data.token = token
             #checks if another user has the same token then deletes it
@@ -164,23 +164,71 @@ class MessageHandler(Handler):
             self.write("User does not exist")
             #TODO: SEND BACK TO SERVER THAT THE USERNAME DOES NOT EXIST
 
-class TwitterHandler(Handler):
+class TwitterReqHandler(Handler):
+    def post(self):
+        #gets the user data from the client
+        data = json.loads(self.request.body)
+        user_id = data['user_id']
+        httpMethod = data['httpMethod']
+        urlExtension = data['urlExtension']
+        params = data['params']
+        reqUrl = "https://api.twitter.com/1.1/" + urlExtension
+        callback_url = "localhost:17080/twitter"
+        urlFetchDic = {"GET":urlfetch.GET,"POST":urlfetch.POST,"PATCH":urlfetch.PATCH,"PUT":urlfetch.PUT}
+        try:
+            user_data = models.get_by_id(user_id)
+            headers = Twitteroauth.twitter_headers(httpMethod,
+                                                reqUrl,callback_url,[],
+                                                user_data.twitter_token,user_data.twitter_secret)
+            result_request = urlfetch.fetch(
+                        url=reqUrl,
+                        method=urlFetchDic[httpMethod],
+                        payload=params,
+                        headers=headers)
+        except urlfetch.Error:
+                self.error(404)
+                self.write('Caught exception fetching url')
+        self.write(result_request.content)
+
+class TwitterLoginHandler(Handler):
     def get(self):
+        #retrieves the data that twitter sends to the server after the post request
         oauth_token = self.request.get("oauth_token")
         oauth_verifier = self.request.get("oauth_verifier")
+        #gets token data stored eariler
         token_data = Twitteroauth.get_token(oauth_token)
-        logging.info(token_data)
         if token_data:
+            #makes an oauth 1.0 request to twitter to upgrade the request token to an access token
             try:
                 access_token_url = 'https://api.twitter.com/oauth/access_token'
                 callback_url = "localhost:17080/twitter"
+                #retrieves the oauth 1.0 headers for twitter
                 headers = Twitteroauth.twitter_headers("POST",access_token_url,callback_url,[],oauth_token,token_data.token_secret)
+                #makes the request here
                 payloadData = urllib.urlencode({"oauth_verifier": oauth_verifier})
                 result_access = urlfetch.fetch(
                         url=access_token_url,
                         method=urlfetch.POST,
                         payload=payloadData,
                         headers=headers)
+
+                #stores the result into the datastore here
+                oauth_token=result_access.content.split("&")[0].split("=")[1]
+                oauth_token_secret=result_access.content.split("&")[1].split("=")[1]
+                twit_id = result_access.content.split("&")[2].split("=")[1]
+                twit_user = result_access.content.split("&")[3].split("=")[1]
+                models.store_twitter_data(oauth_token,oauth_token_secret,token_data.user_id)
+                logging.info(result_access.content+ " store content")
+                #makes a firebase request to notify the client that the log in was successful
+                if result_access.content:
+                    headers = {'Content-Type':'application/json'}
+                    #TODO: put this into the config file
+                    FB_auth_secret = '8U2CpNmMMGKh0oIOxIVHGOPjQlv9sKBzZeIKqhhS'
+                    result_firebase = urlfetch.fetch(
+                            url="https://mywebapp-123.firebaseio.com/user_data/"+token_data.user_id+"/twitter.json?auth="+FB_auth_secret,
+                            method=urlfetch.PUT,
+                            payload=json.dumps({"twitLoggedIn":"true","twitUserId":twit_id,"twitScreenName":twit_user}),
+                            headers=headers)
                 self.write(result_access.content)
             except urlfetch.Error:
                 self.error(404)
@@ -189,19 +237,24 @@ class TwitterHandler(Handler):
             self.error(404)
     def post(self):
         try:
+            #gets the user data from the client
+            data = json.loads(self.request.body)
+            user_id = data['userID']
             #TODO: PUT THE CONSUMER KEYS AND SECRETS INTO A CONFIG FILE
             request_token_url = 'https://api.twitter.com/oauth/request_token'
             #TODO: change this to the actual website
             callback_url = "localhost:17080/twitter"
+            #retrieves the oauth 1.0 headers for twitter
             headers = Twitteroauth.twitter_headers("POST",request_token_url,callback_url,[])
+            #makes the request here
             result_req_token = urlfetch.fetch(
                         url=request_token_url,
                         method=urlfetch.POST,
                         headers=headers)
+            #stores token data and secret for future the redirect when logged in
             token = result_req_token.content.split("&")[0].split("=")[1]
             token_secret = result_req_token.content.split("&")[1].split("=")[1]
-            Twitteroauth.store_token(token,token_secret)
-            logging.info(token + " " + token_secret)
+            Twitteroauth.store_token(user_id,token,token_secret)
             self.write(token)
         except urlfetch.Error:
             self.error(404)
@@ -261,5 +314,6 @@ app = webapp2.WSGIApplication([
     (r'/sendTokenToServer/?',TokenHandler),
     (r'/sendMessageToUser/?',MessageHandler),
     (r'/page/?',PageHandler),
-    (r'/twitter/?',TwitterHandler)
+    (r'/twitter/request/?',TwitterReqHandler),
+    (r'/twitter/?',TwitterLoginHandler)
 ], debug=True)

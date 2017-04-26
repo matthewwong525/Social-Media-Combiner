@@ -97,7 +97,7 @@
             //creates deferred promise
             var deferred = $q.defer();
             //points to database where the access token lies
-            var accessTokenRef = firebase.database().ref().child('user_data').child(currUser);
+            var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('facebook');
             //takes arguments and converts it to an array
             var body = [].slice.call(arguments); 
             accessTokenRef.once('value').then(function(snapshot){
@@ -129,7 +129,7 @@
         //stores the access token into the database
         this.storeAccessToken = function(responseObj){
             var currUser = TokenService.getCurrentUser();
-            var accessTokenRef = firebase.database().ref().child('user_data').child(currUser);
+            var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('facebook');
             accessTokenRef.once('value').then(function(snapshot){
                 //sets the userID, accesstoken, and expirytime to the firebase database
                 accessTokenRef.set({

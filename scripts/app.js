@@ -53,8 +53,13 @@ var messaging = firebase.messaging();
     app.controller("TwitterController",['TwitterService','$scope','$rootScope',function(TwitterService,$scope,$rootScope){
         //Initializes some variables
         theScope = this;
-        TwitterService.twitterLoginPage();
-        
+        //
+        TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
+            console.log(response);
+        }).catch(function(response){
+            console.log(response);
+            TwitterService.twitterLoginPage();
+        });
     }]);
 
     //Controller used to get facebook things
@@ -241,11 +246,13 @@ var messaging = firebase.messaging();
     }]);
 
     //Controller for the home page
-    app.controller("HomeController",['currentAuth','$rootScope','$state','$mdDialog',function(currentAuth,$rootScope,$state,$mdDialog){
+    app.controller("HomeController",['currentAuth','$rootScope','$state','$mdDialog','TokenService',function(currentAuth,$rootScope,$state,$mdDialog,TokenService){
         //variable used to tell the UI that the page is loaded
         $rootScope.isLoaded = true;
         //Checks if the user is logged in or not
         if(currentAuth != null){
+            //Sets current logged in user
+            TokenService.setCurrentUser(currentAuth.uid);
             //Logged in variable sent to UI
             $rootScope.isLoggedIn = true;
             //Checks if user has a display name or not and displays there email if they do not have one
@@ -293,8 +300,6 @@ var messaging = firebase.messaging();
         //initialize all variables here
         $rootScope.username = "";
         $rootScope.isLoaded = false;
-
-
     }]);
 
     //The controller that handles all the messages

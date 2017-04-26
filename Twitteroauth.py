@@ -8,8 +8,10 @@ import hmac
 from urllib import quote_plus
 
 class Tokens(ndb.Model):
+    user_id = ndb.StringProperty(required = True)
     token = ndb.StringProperty(required = True)
     token_secret = ndb.StringProperty(required = True)
+    datecreate = ndb.DateTimeProperty(auto_now_add=True)
 
 #gets token from database
 def get_token(token):
@@ -19,12 +21,11 @@ def get_token(token):
     return None
 
 #stores the token and secret from twitter oauth into the database
-def store_token(token,token_secret):
+def store_token(user_id,token,token_secret):
     logging.info("about to store")
     parent_key = ndb.Key('token_parent','parent')
-    this_token = Tokens(parent=parent_key,id=token,token=token,token_secret=token_secret)
+    this_token = Tokens(parent=parent_key,id=token,token=token,token_secret=token_secret,user_id=user_id)
     this_token.put()
-
 
 #returns the headers for a twitter request
 def twitter_headers(http_method,url,callback_url,param_list,auth_token="",auth_token_secret=""):
@@ -69,7 +70,6 @@ def sign_request(paramList,http_method,url,token_secret):
     #joins the param list into a single string
     paramList = sorted(paramList,key=lambda s: s.lower())
     params = '&'.join(paramList)
-    logging.info(params)
 
     #removes all empty items in the parameter list
     for item in paramList:
@@ -78,6 +78,5 @@ def sign_request(paramList,http_method,url,token_secret):
 
     #joins the base string together, then urlencodes the strings and hashes it
     base_string = quote_plus(http_method)+"&"+quote_plus(url)+"&"+quote_plus(params)
-    logging.info(base_string)
     signature = hmac.new(key,base_string,hashlib.sha1).digest().encode("base64").rstrip('\n')
     return quote_plus(signature)

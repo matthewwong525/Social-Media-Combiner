@@ -7,12 +7,14 @@ import utils
 
 #TODO: Make a cache for everything
 class Users(ndb.Model):
-    username = ndb.StringProperty()
+    user_id = ndb.StringProperty()
     password = ndb.StringProperty(required = True)
     email = ndb.StringProperty(required = True)
     fullname = ndb.StringProperty()
     token = ndb.StringProperty()
     datecreate = ndb.DateTimeProperty(auto_now_add=True)
+    twitter_token = ndb.StringProperty()
+    twitter_secret = ndb.StringProperty()
 
 #A user cache that stores the contents of the database into the memcache
 def user_cache(update=False,updateContent=None):
@@ -42,17 +44,14 @@ def user_cache(update=False,updateContent=None):
 def create_new_userdata(new_user):
     u_user,u_pass,u_verify,u_email = new_user
     parent_key = ndb.Key('user_parent','parent')
-    user = Users(username=u_user,id=u_email,parent=parent_key,password=utils.make_pw_hash(str(u_pass)),email=u_email)
+    user = Users(user_id=u_user,id=u_user,parent=parent_key,password=utils.make_pw_hash(str(u_pass)),email=u_email)
     user.put()
     user_cache(update=True)
 
 #Not used, but may be used
-def get_username(email):
-    cache = user_cache()
-    for users in cache:
-        if email in users.email:
-            return users.username
-    return None
+def get_by_id(user_id):
+    users = Users.get_by_id(user_id,ndb.Key('user_parent','parent'))
+    return users
 
 #Not used, but may be used
 def check_email(email):
@@ -62,7 +61,7 @@ def check_email(email):
             for users in cache:
                 if email in users.email:
                     return users
-        content = Users.get_by_id(email,ndb.Key('user_parent','parent'))
+        content = Users.query(ancestor=ndb.Key('user_parent','parent')).filter(Users.email == email).get()
         if content:
             return content
     return None
@@ -81,14 +80,14 @@ def check_token(token):
     return None
 
 #checks if the user is in the cache, then checks the database
-def check_user(username):
-    if username:
+def check_user(user_id):
+    if user_id:
         cache = user_cache()
         if cache:
             for users in cache:
-                if username in users.username:
+                if user_id in users.user_id:
                     return users
-        content = Users.query(ancestor=ndb.Key('user_parent','parent')).filter(Users.username == username).get()
+        content = Users.query(ancestor=ndb.Key('user_parent','parent')).filter(Users.user_id == user_id).get()
         if content:
             return content
     return None
@@ -102,9 +101,14 @@ def filter_temp_cache(cache):
             tempDic['displayname'] = ""
         else:
             tempDic['displayname'] = users.fullname
-        tempDic['userid'] = users.username
+        tempDic['userid'] = users.user_id
         tempDic['email'] = users.email
-        sendDic[users.username] = tempDic
+        sendDic[users.user_id] = tempDic
     return sendDic 
 
-
+#stores twitter token data into the database
+def store_twitter_data(token,token_secret,twit_id,user_id):
+    user = Users.get_by_id(user_id,ndb.Key('user_parent','parent'))
+    user.twitter_token = token
+    user.twitter_secret = token_secret
+    user.put()
