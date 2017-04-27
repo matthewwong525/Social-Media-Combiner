@@ -107,7 +107,7 @@ def filter_temp_cache(cache):
     return sendDic 
 
 #stores twitter token data into the database
-def store_twitter_data(token,token_secret,twit_id,user_id):
+def store_twitter_data(token,token_secret,user_id):
     user = Users.get_by_id(user_id,ndb.Key('user_parent','parent'))
     user.twitter_token = token
     user.twitter_secret = token_secret

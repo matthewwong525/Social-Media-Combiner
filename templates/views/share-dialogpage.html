@@ -1,0 +1,27 @@
+<div>
+    <md-toolbar layout="row">
+        <div class="md-toolbar-tools">
+            <h2>Shares</h2>
+        </div>
+        <div layout layout-align="center center">
+            <md-button class="md-icon-button" ng-click="like.close()">
+                <md-icon md-svg-icon="close" aria-label="close"></md-icon>
+            </md-button>
+        </div>
+        
+    </md-toolbar>
+    <md-dialog-content layout="column" style="width:600px; height:400px;">
+        <md-list flex>
+            <div ng-repeat="share in $root.shareObj">
+                <md-list-item class="md-2-line"  layout="row">
+                   <md-icon md-svg-icon="account" class="md-avatar" aria-label="avatar"></md-icon>
+                    <div class="md-list-item-text">
+                        <h3>{/share.id/}</h3>
+                    </div>
+                    <span flex></span>
+                </md-list-item>
+                <md-divider></md-divider>
+            </div>
+        </md-list>
+    </md-content>
+</div>

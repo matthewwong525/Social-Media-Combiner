@@ -50,15 +50,28 @@ var messaging = firebase.messaging();
     }]);
 
     //Controller for twitter services
-    app.controller("TwitterController",['TwitterService','$scope','$rootScope',function(TwitterService,$scope,$rootScope){
+    app.controller("TwitterController",['TwitterService','$scope','$rootScope','TokenService','$state',function(TwitterService,$scope,$rootScope,TokenService,$state){
         //Initializes some variables
         theScope = this;
-        //
+        theScope.twitFeed = {};
+        currUser = TokenService.getCurrentUser();
+        //makes a request for the timeline
         TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
             console.log(response);
+            //sets the variable that will be passed into the html
+            theScope.twitFeed = response;
         }).catch(function(response){
+            //if the request fails to authenticate or there is some kind of error, sends to login dialog
             console.log(response);
-            TwitterService.twitterLoginPage();
+            var twitterRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
+            //updates the server with information that the log in is false
+            twitterRef.update({
+                twitLoggedIn: "false"
+            }).then(function(response){
+                //if log in is successful, the state is reloaded
+                TwitterService.twitterLoginPage($state)
+            });
+            
         });
     }]);
 
@@ -79,6 +92,7 @@ var messaging = firebase.messaging();
                 //TODO: abstract to the facebook service
                 //if they are logged in, go access the user feed
                 FBService.fbApiRequest("/me/feed").then(function(response){
+                    console.log(response);
                     var userList = [],postList=[],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
                     //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
                     var posts = response;
@@ -126,6 +140,26 @@ var messaging = firebase.messaging();
                 },
                 controllerAs: "like",
                 templateUrl: './views/like-dialogpage.html',
+                parent: angular.element(document.body),
+                targetEvent: $event,
+                clickOutsideToClose:true,
+                fullscreen: true// Only for -xs, -sm breakpoints.
+            });
+        };
+
+        //On the expand like button click
+        this.openShareDialog = function($event, shareObj){
+            //stores the likeObj into the rootScope
+            $rootScope.shareObj = shareObj;
+            $mdDialog.show({
+                controller: function LikeDialogController($scope,$mdDialog){
+                    //closes the dialog
+                    this.close = function() {
+                      $mdDialog.cancel();
+                    };
+                },
+                controllerAs: "like",
+                templateUrl: './views/share-dialogpage.html',
                 parent: angular.element(document.body),
                 targetEvent: $event,
                 clickOutsideToClose:true,

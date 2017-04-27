@@ -195,46 +195,49 @@ class TwitterLoginHandler(Handler):
         #retrieves the data that twitter sends to the server after the post request
         oauth_token = self.request.get("oauth_token")
         oauth_verifier = self.request.get("oauth_verifier")
-        #gets token data stored eariler
-        token_data = Twitteroauth.get_token(oauth_token)
-        if token_data:
-            #makes an oauth 1.0 request to twitter to upgrade the request token to an access token
-            try:
-                access_token_url = 'https://api.twitter.com/oauth/access_token'
-                callback_url = "localhost:17080/twitter"
-                #retrieves the oauth 1.0 headers for twitter
-                headers = Twitteroauth.twitter_headers("POST",access_token_url,callback_url,[],oauth_token,token_data.token_secret)
-                #makes the request here
-                payloadData = urllib.urlencode({"oauth_verifier": oauth_verifier})
-                result_access = urlfetch.fetch(
-                        url=access_token_url,
-                        method=urlfetch.POST,
-                        payload=payloadData,
-                        headers=headers)
-
-                #stores the result into the datastore here
-                oauth_token=result_access.content.split("&")[0].split("=")[1]
-                oauth_token_secret=result_access.content.split("&")[1].split("=")[1]
-                twit_id = result_access.content.split("&")[2].split("=")[1]
-                twit_user = result_access.content.split("&")[3].split("=")[1]
-                models.store_twitter_data(oauth_token,oauth_token_secret,token_data.user_id)
-                logging.info(result_access.content+ " store content")
-                #makes a firebase request to notify the client that the log in was successful
-                if result_access.content:
-                    headers = {'Content-Type':'application/json'}
-                    #TODO: put this into the config file
-                    FB_auth_secret = '8U2CpNmMMGKh0oIOxIVHGOPjQlv9sKBzZeIKqhhS'
-                    result_firebase = urlfetch.fetch(
-                            url="https://mywebapp-123.firebaseio.com/user_data/"+token_data.user_id+"/twitter.json?auth="+FB_auth_secret,
-                            method=urlfetch.PUT,
-                            payload=json.dumps({"twitLoggedIn":"true","twitUserId":twit_id,"twitScreenName":twit_user}),
+        denied = self.request.get("denied")
+        if not denied:
+            #gets token data stored eariler
+            token_data = Twitteroauth.get_token(oauth_token)
+            if token_data:
+                #makes an oauth 1.0 request to twitter to upgrade the request token to an access token
+                try:
+                    access_token_url = 'https://api.twitter.com/oauth/access_token'
+                    callback_url = "localhost:17080/twitter"
+                    #retrieves the oauth 1.0 headers for twitter
+                    headers = Twitteroauth.twitter_headers("POST",access_token_url,callback_url,[],oauth_token,token_data.token_secret)
+                    #makes the request here
+                    payloadData = urllib.urlencode({"oauth_verifier": oauth_verifier})
+                    result_access = urlfetch.fetch(
+                            url=access_token_url,
+                            method=urlfetch.POST,
+                            payload=payloadData,
                             headers=headers)
-                self.write(result_access.content)
-            except urlfetch.Error:
+
+                    #stores the result into the datastore here
+                    oauth_token=result_access.content.split("&")[0].split("=")[1]
+                    oauth_token_secret=result_access.content.split("&")[1].split("=")[1]
+                    twit_id = result_access.content.split("&")[2].split("=")[1]
+                    twit_user = result_access.content.split("&")[3].split("=")[1]
+                    models.store_twitter_data(oauth_token,oauth_token_secret,token_data.user_id)
+                    logging.info(result_access.content+ " store content")
+                    #makes a firebase request to notify the client that the log in was successful
+                    if result_access.content:
+                        headers = {'Content-Type':'application/json'}
+                        #TODO: put this into the config file
+                        FB_auth_secret = '8U2CpNmMMGKh0oIOxIVHGOPjQlv9sKBzZeIKqhhS'
+                        result_firebase = urlfetch.fetch(
+                                url="https://mywebapp-123.firebaseio.com/user_data/"+token_data.user_id+"/twitter.json?auth="+FB_auth_secret,
+                                method=urlfetch.PUT,
+                                payload=json.dumps({"twitLoggedIn":"true","twitUserId":twit_id,"twitScreenName":twit_user}),
+                                headers=headers)
+                except urlfetch.Error:
+                    self.error(404)
+                    self.write('Caught exception fetching url')
+            else:
                 self.error(404)
-                self.write('Caught exception fetching url')
         else:
-            self.error(404)
+            self.write('denied')
     def post(self):
         try:
             #gets the user data from the client

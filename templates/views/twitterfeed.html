@@ -1,3 +1,67 @@
-<div>
-    Hello I am from twitterfeed.html
-</div>
+<br>
+<md-content flex="100">
+    <div style="padding: 1% 1% 1% 1%;" ng-repeat="post in twit.twitFeed">
+        <div class="md-whiteframe-4dp" id="{/post.id/}">
+            <md-toolbar class="md-menu-toolbar" layout="column" class="title">
+                <div layout="row" flex>
+                    <md-toolbar-filler layout="column" layout-align="center center" style="background-color: #00aced;">
+                        <md-icon md-svg-icon="twitter" class="material-icons md-36" flex></md-icon>
+                    </md-toolbar-filler>
+                    <div layout="row" flex class="side-padding">
+                        <h2 class="md-subhead" layout layout-align="center center" style="max-width:23%; overflow-x:auto;">{/post.user.name/} @{/post.user.screen_name/}</h2>
+                        <div ng-if="post.retweeted" layout="row" flex="60">
+                            <div layout="row" flex>
+                                <div class="side-padding" layout layout-align="center center">
+                                    <md-icon md-svg-icon="arrow-right-bold" ></md-icon>
+                                </div>
+                                <h3 class="md-subhead" layout layout-align="start center" style="opacity: 0.5; font-style: italic; overflow-x:auto;">@{/ post.user.screen_name/} retweeted</h3>
+                            </div>
+                        </div>
+                        <span flex></span>
+                        <h3 class="md-body-1" layout layout-align="end center" style="opacity: 0.5;">{/post.created_at/}</h3>
+                    </div>
+                </div>
+            </md-toolbar>
+        </div>
+        <div class="md-whiteframe-2dp" layout="row">
+            <div flex style="padding-right:1%;">
+                <h4 class="md-body-1 side-padding" class="message">{/post.text/}</h4>
+                <md-divider></md-divider>
+                <div layout="row" flex>
+                    <md-subheader>{/post.favorite_count/} Favourites</md-subheader>
+                </div>
+                <md-divider></md-divider>
+                <div layout="row" flex>
+                    <md-subheader>{/post.retweet_count/} Retweets</md-subheader>
+                </div>
+                <md-divider></md-divider>
+                <div layout="row" flex>
+                    <md-subheader>Replies</md-subheader>
+                </div>
+                <!--<md-list flex ng-if="post[2].body.data.length != 0">
+                    <div ng-repeat="comment in post[2].body.data">
+                        <div ng-if="$index >= (post[2].body.data.length-2)">
+                            <md-list-item class="md-2-line"  layout="row">
+                               <md-icon md-svg-icon="account" class="md-avatar" aria-label="avatar"></md-icon>
+                                <div class="md-list-item-text" flex="100">
+                                    <h3>{/comment.from.name/}</h3>
+                                    <p>{/comment.message/}</p>-->
+                                    <!--Also have the time of the comment as well-->
+                                <!--</div>
+                                <h5 class="md-body-1" layout layout-align="end center" style="opacity: 0.5; white-space: nowrap;">{/comment.created_time/}</h5>
+                            </md-list-item>
+                            <md-divider ng-if="$index != post[2].body.data.length-1"></md-divider>
+                        </div>
+                    </div>
+                </md-list>-->
+            </div>
+            <div class="md-whiteframe-3dp container" flex="40" layout="column" layout-align="center center">
+                <div id="{/attachment.id/}" class="attachments" ng-repeat="attachment in post.entities.media" style="max-height: 500px">
+                <img ng-hide="true" ng-src="{/attachment.media_url/}" id="{/attachment.url/}" height="300" width="300" flex>
+            </div>
+            </div>
+            
+        </div>
+    </div>
+</md-content>
+

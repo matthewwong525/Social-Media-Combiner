@@ -5,7 +5,7 @@
             <md-toolbar class="md-menu-toolbar" layout="column" class="title">
                 <div layout="row" flex>
                     <md-toolbar-filler layout="column" layout-align="center center" style="background-color: #3b5998;">
-                        <md-icon md-svg-icon="facebook" class="material-icons md-36" flex></md-icon>
+                        <md-icon md-svg-icon="facebook" class="material-icons md-36" flex style="color:white;"></md-icon>
                     </md-toolbar-filler>
                     <div layout="row" flex class="side-padding">
                         <h2 class="md-subhead" layout layout-align="center center" style="max-width:23%; overflow-x:auto;">{/post[0].body.name/}</h2>
@@ -32,18 +32,27 @@
                     <span flex></span>
                     <div layout layout-align="end center">
                         <md-button class="md-icon-button" ng-if="post[3].body.data.length != 0"  ng-click="fb.openLikeDialog($event,post[3].body.data)">
-                            <md-icon md-svg-icon="arrow-expand" aria-label="reactions"></md-icon>
+                            <md-icon md-svg-icon="arrow-expand" aria-label="popup-reactions"></md-icon>
                         </md-button>
                     </div>
                 </div>
-                
+                <md-divider></md-divider>
+                <div layout="row" flex>
+                    <md-subheader>{/post[4].body.data.length/} Shares</md-subheader>
+                    <span flex></span>
+                    <div layout layout-align="end center">
+                        <md-button class="md-icon-button" ng-if="post[4].body.data.length != 0"  ng-click="fb.openLikeDialog($event,post[4].body.data)">
+                            <md-icon md-svg-icon="arrow-expand" aria-label="popup-shared"></md-icon>
+                        </md-button>
+                    </div>
+                </div>
                 <md-divider></md-divider>
                 <div layout="row" flex>
                     <md-subheader>{/post[2].body.data.length/} Comments</md-subheader>
                     <span flex></span>
                     <div layout layout-align="end center">
                         <md-button class="md-icon-button" ng-if="post[2].body.data.length > 2" ng-click="fb.openCommentDialog($event,post[2].body.data)" >
-                            <md-icon md-svg-icon="arrow-expand" aria-label="reactions"></md-icon>
+                            <md-icon md-svg-icon="arrow-expand" aria-label="popup-comments"></md-icon>
                         </md-button>
                     </div>
                 </div>
@@ -64,9 +73,9 @@
                     </div>
                 </md-list>
             </div>
-            <div class="md-whiteframe-3dp container" flex="40" layout="column" layout-align="center center">
-                <div id="{/attachment.target.id/}" class="attachments" ng-repeat="attachment in post[5].body.data" style="max-height: 500px">
-                <img ng-hide="true" ng-src="{/attachment.media.image.src/}" id="{/attachment.target.url/}" flex>
+            <div class="md-whiteframe-3dp container" flex="40" layout="column" layout-align="center center" style="max-height: 500px;">
+                <div id="{/attachment.target.id/}" class="attachments" ng-repeat="attachment in post[5].body.data">
+                <img ng-hide="true" ng-src="{/attachment.media.image.src/}" id="{/attachment.target.url/}" height="300" width="300">
                 <label>{/attachment.description/}</label>
             </div>
             </div>
