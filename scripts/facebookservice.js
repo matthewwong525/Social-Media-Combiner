@@ -139,6 +139,51 @@
                 });
             });
         };
+        this.sanitizePosts = function(post){
+            var listOfPosts = [];
+            var mediaList = [];
+            for(let i=0;i<post.length;i++){
+                var sanitizedPost = {};
+                sanitizedPost["media"] = "facebook";
+                sanitizedPost["id"] = post[i][1].body.id;
+                sanitizedPost["post_url"] = "//facebook.com/" + post[i][1].body.id;
+                sanitizedPost["user"] = {
+                    "id": post[i][0].body.id,
+                    "name": post[i][0].body.name,
+                    "screen_name": ""
+                };
+                sanitizedPost["story"] = post[i][1].body.story;
+                sanitizedPost["created_at"] = post[i][1].body.created_time;
+                sanitizedPost["body"] = post[i][0].body.message;
+                sanitizedPost["reactions"] = {
+                    "media_name": "Likes",
+                    "count": post[i][3].body.data.length,
+                    "recent_likes": post[i][3].body.data
+                };
+                sanitizedPost["comments"] = {
+                    "media_name": "Comments",
+                    "count": post[i][2].body.data.length,
+                    "recent_comments": post[i][2].body.data
+                };
+                sanitizedPost["shares"] = {
+                    "media_name": "Shares",
+                    "count":post[i][4].body.data.length,
+                    "recent_shares": post[i][4].body.data
+                };
+                for(let j=0;j<post[i][5].body.data.length;j++){
+                    var mediaDic = {};
+                    mediaDic["media_url"] = post[i][5].body.data[j].media.image.src;
+                    mediaDic["url"] = post[i][5].body.data[j].target.url;
+                    mediaDic["id"] = post[i][5].body.data[j].target.id;
+                    mediaList.push(mediaDic);
+                }
+                sanitizedPost["attachments"] = {
+                    "count": post[i][5].body.data.length,
+                    "media" : mediaList
+                };
+                listOfPosts.push(sanitizedPost);
+            }
+        };
 
     }]);
 })();

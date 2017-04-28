@@ -57,7 +57,7 @@ var messaging = firebase.messaging();
         currUser = TokenService.getCurrentUser();
         //makes a request for the timeline
         TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
-            console.log(response);
+            console.log(TwitterService.sanitizePosts(response));
             //sets the variable that will be passed into the html
             theScope.twitFeed = response;
         }).catch(function(response){
@@ -69,7 +69,7 @@ var messaging = firebase.messaging();
                 twitLoggedIn: "false"
             }).then(function(response){
                 //if log in is successful, the state is reloaded
-                TwitterService.twitterLoginPage($state)
+                TwitterService.twitterLoginPage($state,response.data.errors);
             });
             
         });
