@@ -153,7 +153,7 @@
                 };
                 sanitizedPost["story"] = post[i][1].body.story;
                 sanitizedPost["created_at"] = post[i][1].body.created_time;
-                sanitizedPost["body"] = post[i][0].body.message;
+                sanitizedPost["body"] = post[i][1].body.message;
                 sanitizedPost["reactions"] = {
                     "media_name": "Reactions",
                     "count": post[i][3].body.data.length,

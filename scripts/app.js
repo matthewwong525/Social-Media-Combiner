@@ -59,7 +59,7 @@ var messaging = firebase.messaging();
         TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
             console.log(TwitterService.sanitizePosts(response));
             //sets the variable that will be passed into the html
-            theScope.twitFeed = response;
+            theScope.twitFeed = TwitterService.sanitizePosts(response);
         }).catch(function(response){
             //if the request fails to authenticate or there is some kind of error, sends to login dialog
             console.log(response);
@@ -119,6 +119,7 @@ var messaging = firebase.messaging();
                         var feedList = FBService.groupByIndex(response);
                         theScope.userFeed = FBService.sanitizePosts(feedList);
                         console.log(FBService.sanitizePosts(feedList));
+                        console.log(feedList);
                     });
                 });
             }

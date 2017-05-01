@@ -110,6 +110,7 @@
                     "media" : mediaList
                 };
                 listOfPosts.push(sanitizedPost);
+                mediaList=[];
             }
             return listOfPosts;
         };
