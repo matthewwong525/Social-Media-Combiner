@@ -69,7 +69,13 @@ var messaging = firebase.messaging();
                 twitLoggedIn: "false"
             }).then(function(response){
                 //if log in is successful, the state is reloaded
-                TwitterService.twitterLoginPage($state,response.data.errors);
+
+                if(response == undefined || response.data == undefined){
+                    errors = undefined;
+                }else{
+                    errors = response.data.erros;
+                }
+                TwitterService.twitterLoginPage($state,errors);
             });
             
         });
@@ -87,7 +93,11 @@ var messaging = firebase.messaging();
         fbLoggedInPromise.then(function(response){
             //TODO: ALSO CHECK IF the access token is expired
             //checks if the person is connected, meaning "logged in"
+            console.log(response);
             if(response.status == "connected"){
+                //store access token in realtime firebase
+                //TODO: .then the response so it can store the data first
+                FBService.storeAccessToken(response.authResponse);
                 theScope.FBisLoggedIn = true;
                 //TODO: abstract to the facebook service
                 //if they are logged in, go access the user feed
@@ -107,8 +117,8 @@ var messaging = firebase.messaging();
                     //sends the request here
                     FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
                         var feedList = FBService.groupByIndex(response);
-                        theScope.userFeed = feedList;
-                        console.log(theScope.userFeed);
+                        theScope.userFeed = FBService.sanitizePosts(feedList);
+                        console.log(FBService.sanitizePosts(feedList));
                     });
                 });
             }
@@ -296,7 +306,7 @@ var messaging = firebase.messaging();
                 $rootScope.username = currentAuth.displayName;
             }
             //goes to message page if logged in
-            $state.go("main.features.twitterfeed");
+            $state.go("main.features.fbfeed");
         }else{
             //Goes to login page(nested in home) if user is not logged in.
             $rootScope.isLoggedIn = false;

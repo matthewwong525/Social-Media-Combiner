@@ -14,7 +14,7 @@
                 $http.post("/twitter/",parameters)
                     .then(function(response){
                         //opens a new window
-                        var win = window.open('//api.twitter.com/oauth/authenticate?oauth_token='+response.data,"mywindow",'width=560,height=315');
+                        var win = window.open('https://api.twitter.com/oauth/authenticate?oauth_token='+response.data,"mywindow",'width=560,height=315');
                         if (window.focus) {win.focus()}
 
                         //makes a firebase request and checks if the server has set the login status of the user to true
@@ -44,7 +44,6 @@
             //makes a request to firebase for the twitter token
             twitterRef.once('value').then(function(snapshot){
                 //creates the parameters
-                var twitUserId = snapshot.val().twitUserId
                 var parameters = JSON.stringify({ user_id : currUser, httpMethod : httpMethod, urlExtension : urlExtension, params : params});
                 //makes a post request to the server to make the call to twitters' endpoints
                 $http({
@@ -72,8 +71,8 @@
             for(let i=0;i<post.length;i++){
                 var sanitizedPost = {};
                 sanitizedPost["media"] = "twitter";
-                sanitizedPost["id"] = post[i].id;
-                sanitizedPost["post_url"] = post[i].entities.urls.url;
+                sanitizedPost["id"] = post[i].id_str;
+                sanitizedPost["post_url"] = "https://www.twitter.com/" + post[i].user.screen_name + "/status/" + post[i].id_str;
                 sanitizedPost["user"] = {
                     "id": post[i].user.id_str,
                     "name": post[i].user.name,

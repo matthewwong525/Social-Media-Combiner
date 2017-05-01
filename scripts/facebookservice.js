@@ -102,7 +102,7 @@
             var body = [].slice.call(arguments); 
             accessTokenRef.once('value').then(function(snapshot){
                 //if an access token exists, use the access token and call the API with the arguments
-               if(snapshot.val().fbAccessToken){
+               if(snapshot.val() && snapshot.val().fbAccessToken){
                     var accessToken = snapshot.val().fbAccessToken;
                     var requestArr = [];
                     //pushes multiple http requests to the request array
@@ -122,7 +122,6 @@
                 }
             }).catch(function(response){
                 deferred.reject(response);
-                
             });
             return deferred.promise;
         }
@@ -156,7 +155,7 @@
                 sanitizedPost["created_at"] = post[i][1].body.created_time;
                 sanitizedPost["body"] = post[i][0].body.message;
                 sanitizedPost["reactions"] = {
-                    "media_name": "Likes",
+                    "media_name": "Reactions",
                     "count": post[i][3].body.data.length,
                     "recent_likes": post[i][3].body.data
                 };
@@ -182,7 +181,9 @@
                     "media" : mediaList
                 };
                 listOfPosts.push(sanitizedPost);
+                mediaList = [];
             }
+            return listOfPosts;
         };
 
     }]);

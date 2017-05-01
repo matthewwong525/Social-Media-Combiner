@@ -176,24 +176,29 @@ class TwitterReqHandler(Handler):
         reqUrl = "https://api.twitter.com/1.1/" + urlExtension
         callback_url = "localhost:17080/twitter"
         urlFetchDic = {"GET":urlfetch.GET,"POST":urlfetch.POST,"PATCH":urlfetch.PATCH,"PUT":urlfetch.PUT}
-        #attempts to send the request to twitter api
-        try:
-            #gets the user data for the oauth headers
-            user_data = models.get_by_id(user_id)
-            #gets the oauth headers for twitter
-            headers = Twitteroauth.twitter_headers(httpMethod,
-                                                reqUrl,callback_url,[],
-                                                user_data.twitter_token,user_data.twitter_secret)
-            result_request = urlfetch.fetch(
-                        url=reqUrl,
-                        method=urlFetchDic[httpMethod],
-                        payload=params,
-                        headers=headers)
-        except urlfetch.Error:
-                self.error(404)
-                self.write('Caught exception fetching url')
-        #writes the json output to the client
-        self.write(result_request.content)
+        #gets the user data for the oauth headers
+        user_data = models.get_by_id(user_id)
+
+        if user_data.twitter_token:
+            #attempts to send the request to twitter api
+            try:
+                #gets the oauth headers for twitter
+                headers = Twitteroauth.twitter_headers(httpMethod,
+                                                    reqUrl,callback_url,[],
+                                                    user_data.twitter_token,user_data.twitter_secret)
+                result_request = urlfetch.fetch(
+                            url=reqUrl,
+                            method=urlFetchDic[httpMethod],
+                            payload=params,
+                            headers=headers)
+            except urlfetch.Error:
+                    self.error(404)
+                    self.write('Caught exception fetching url')
+            #writes the json output to the client
+            self.write(result_request.content)
+        else:
+            self.error(404)
+            self.write("Twitter token not found")
 
 class TwitterLoginHandler(Handler):
     def get(self):
