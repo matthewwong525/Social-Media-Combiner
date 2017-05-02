@@ -77,6 +77,17 @@
         
       });
 
+      $stateProvider.state('main.features.mainfeed',{
+        templateUrl: './views/mainfeed.html',
+        controller: 'MainFeedController',
+        controllerAs: 'mf',
+        resolve:{
+          "fbInit": function(FBService){
+            return FBService.fbInit();
+          }
+        }
+      });
+
       $stateProvider.state('main.features.fbfeed',{
         templateUrl: './views/fbfeed.html',
         controller: 'FacebookController',

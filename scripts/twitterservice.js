@@ -80,6 +80,7 @@
                 };
                 sanitizedPost["story"] = "";
                 sanitizedPost["created_at"] = post[i].created_at;
+                sanitizedPost["epoch_time"] = new Date(post[i].created_at).getTime();
                 sanitizedPost["body"] = post[i].text;
                 sanitizedPost["reactions"] = {
                     "media_name": "Favourites",

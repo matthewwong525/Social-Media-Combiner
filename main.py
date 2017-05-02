@@ -30,6 +30,7 @@ import mechanize
 import cookielib
 import time
 from google.appengine.api import urlfetch
+from google.appengine.ext import ndb
 from bs4 import BeautifulSoup
 
 #here is where the jinja templates are loaded
@@ -52,7 +53,8 @@ class MainHandler(Handler):
         self.render("layout.html")
     #a post request that passes in the data to initialize the UI on login
     def post(self):
-        content = models.user_cache()
+        ancestor = ndb.Key('user_parent','parent')
+        content = ndb.gql("SELECT * FROM Users WHERE ANCESTOR IS :1 ",ancestor)
         #sends the "friends list" that consists of every user signed up (only grabs from cache)
         userList = {}
         if content:

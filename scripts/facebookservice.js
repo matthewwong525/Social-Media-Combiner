@@ -153,6 +153,7 @@
                 };
                 sanitizedPost["story"] = post[i][1].body.story;
                 sanitizedPost["created_at"] = post[i][1].body.created_time;
+                sanitizedPost["epoch_time"] = new Date(post[i][1].body.created_time).getTime();
                 sanitizedPost["body"] = post[i][1].body.message;
                 sanitizedPost["reactions"] = {
                     "media_name": "Reactions",

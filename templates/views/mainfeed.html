@@ -1,14 +1,17 @@
 <br>
 <md-content flex="100" id="fb-root">
-    <div style="padding: 1% 1% 1% 1%;" ng-repeat="post in twit.twitFeed">
+    <div style="padding: 1% 1% 1% 1%;" ng-repeat="post in mf.mainFeed">
         <div class="md-whiteframe-4dp" id="{/post.id/}">
             <md-toolbar class="md-menu-toolbar" layout="column" class="title">
                 <div layout="row" flex>
-                    <md-toolbar-filler layout="column" layout-align="center center" style="background-color: #00aced;">
+                    <md-toolbar-filler ng-if="post.media == 'twitter'" layout="column" layout-align="center center" style="background-color: #00aced;">
                         <md-icon md-svg-icon="twitter" class="material-icons md-36" flex style="color:white;"></md-icon>
                     </md-toolbar-filler>
+                    <md-toolbar-filler ng-if="post.media == 'facebook'" layout="column" layout-align="center center" style="background-color: #3b5998;">
+                        <md-icon md-svg-icon="facebook" class="material-icons md-36" flex style="color:white;"></md-icon>
+                    </md-toolbar-filler>
                     <div layout="row" flex class="side-padding">
-                        <h2 class="md-subhead" layout layout-align="center center" style="max-width:23%; overflow-x:auto;">{/post.user.name/} @{/post.user.screen_name/}</h2>
+                        <h2 class="md-subhead" layout layout-align="center center" style="max-width:23%; overflow-x:auto;">{/post.user.name/}</h2>
                         <div ng-if="post.story" layout="row" flex="60">
                             <div layout="row" flex>
                                 <div class="side-padding" layout layout-align="center center">
