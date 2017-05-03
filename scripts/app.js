@@ -50,11 +50,14 @@ var messaging = firebase.messaging();
     }]);
     
     //Controller for the main feed
-    app.controller("MainFeedController",['FBService','TwitterService','$scope','$state','$mdDialog','$rootScope',function(FBService,TwitterService,$scope,$state,$mdDialog,$rootScope){
+    app.controller("MainFeedController",['FBService','TwitterService','$scope','$state','$mdDialog','$rootScope','TokenService',function(FBService,TwitterService,$scope,$state,$mdDialog,$rootScope,TokenService){
         //Initializes some variables
         theScope = this;
         theScope.FBisLoggedIn = false;
         theScope.mainFeed = [];
+        theScope.facebookCb = true;
+        theScope.twitterCb = true;
+
         FBService.fbTryLogIn().then(function(response){});
         var fbLoggedInPromise = FBService.fbIsLoggedIn();
 
@@ -169,6 +172,47 @@ var messaging = firebase.messaging();
                 fullscreen: true// Only for -xs, -sm breakpoints.
             });
         }
+
+        //On the unchecking of the checkbox
+        this.onFbCb = function(){
+            var currUser = TokenService.getCurrentUser();
+            if(theScope.facebookCb == false){
+                //adds the facebook posts back
+                var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('facebook').child('post_data');
+                accessTokenRef.once('value').then(function(snapshot){
+                    $scope.$evalAsync(function(){
+                        theScope.mainFeed = theScope.mainFeed.concat(JSON.parse(snapshot.val()));
+                    });
+                    console.log(theScope.mainFeed);
+                }).catch(function(response){
+                    console.log(response);
+                });
+            }else{
+                //removes the facebook posts based on the media type
+                var fbRemovedArray = []
+                var updatedArray = theScope.mainFeed;
+                for(let i = 0; i < updatedArray.length; i++){
+                    if(updatedArray[i].media == "facebook"){
+                        fbRemovedArray.push(updatedArray[i]);
+                        updatedArray.splice(i,1);
+                        i--;
+                    }
+                }
+                theScope.mainFeed = updatedArray;
+                //TODO: Store removed data onto firebase
+                //Stores the deleted data onto firebase
+                var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('facebook');
+                if(fbRemovedArray != undefined){
+                    accessTokenRef.update({
+                        post_data: JSON.stringify(fbRemovedArray)
+                    }).then(function(response){
+                        console.log(response);
+                    }).catch(function(response){
+                        console.log(response);
+                    });
+                }
+            }
+        };
 
         /////////////////////////
         //Twitter Component

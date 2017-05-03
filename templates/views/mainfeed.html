@@ -1,5 +1,10 @@
+<br><br>
+<div layout layout-align="end center" flex>
+    <md-checkbox aria-label="facebook" ng-model="mf.facebookCb" ng-init="mf.facebookCb = true" ng-click="mf.onFbCb()">Facebook</md-checkbox>
+    <md-checkbox aria-label="twitter" ng-model="mf.twitterCb" ng-init="mf.twitterCb = true" ng-click="mf.onTwitCb()">Twitter</md-checkbox>
+</div>
 <br>
-<md-content flex="100" id="fb-root">
+<md-content flex id="fb-root">
     <div style="padding: 1% 1% 1% 1%;" ng-repeat="post in mf.mainFeed">
         <div class="md-whiteframe-4dp" id="{/post.id/}">
             <md-toolbar class="md-menu-toolbar" layout="column" class="title">
