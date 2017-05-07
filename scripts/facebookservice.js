@@ -46,7 +46,7 @@
             var deferred = $q.defer();
             FB.login(function(response){
                 deferred.resolve(response);
-            },{scope:'publish_actions,user_posts'}); //scope is for extra permissions
+            },{scope:'user_posts'}); //scope is for extra permissions
             return deferred.promise;
         };
         //Makes a request to the API with a specified url

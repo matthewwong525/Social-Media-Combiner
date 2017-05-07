@@ -53,65 +53,72 @@ var messaging = firebase.messaging();
     app.controller("MainFeedController",['FBService','TwitterService','$scope','$state','$mdDialog','$rootScope','TokenService',function(FBService,TwitterService,$scope,$state,$mdDialog,$rootScope,TokenService){
         //Initializes some variables
         theScope = this;
-        theScope.FBisLoggedIn = false;
+        $rootScope.FBisLoggedIn = false;
+        $rootScope.twitIsLoggedIn = false;
         theScope.mainFeed = [];
         theScope.facebookCb = true;
         theScope.twitterCb = true;
 
-        FBService.fbTryLogIn().then(function(response){});
-        var fbLoggedInPromise = FBService.fbIsLoggedIn();
 
         /////////////////////////
         //Facebook Component
         /////////////////////////
+        //Only if they click the login button does
+        if($rootScope.FBTryLoginBtn){
+            FBService.fbTryLogIn().then(function(response){});
+            var fbLoggedInPromise = FBService.fbIsLoggedIn();
 
-        //Successfully logged in
-        fbLoggedInPromise.then(function(response){
-            //TODO: ALSO CHECK IF the access token is expired
-            //checks if the person is connected, meaning "logged in"
-            console.log(response);
-            if(response.status == "connected"){
-                //store access token in realtime firebase
-                //TODO: .then the response so it can store the data first
-                FBService.storeAccessToken(response.authResponse);
-                theScope.FBisLoggedIn = true;
-                //TODO: abstract to the facebook service
-                //if they are logged in, go access the user feed
-                FBService.fbApiRequest("/me/feed").then(function(response){
-                    console.log(response);
-                    var userList = [],postList=[],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
-                    //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
-                    var posts = response;
-                    for(var i = 0; i < response.data.length; i++){
-                        userList.push({ "method":"GET","relative_url": "/"+posts.data[i].id.split("_")[0]});
-                        postList.push({ "method":"GET","relative_url": "/"+posts.data[i].id});
-                        commentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/comments"});
-                        reactionList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/reactions"});
-                        sharedPostList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/sharedposts"});
-                        attachmentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/attachments"});
-                    }
-                    //sends the request here
-                    FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
-                        var feedList = FBService.groupByIndex(response);
-                        theScope.mainFeed = theScope.mainFeed.concat(FBService.sanitizePosts(feedList));
-                        console.log(theScope.mainFeed);
+            //Successfully logged in
+            fbLoggedInPromise.then(function(response){
+                //TODO: ALSO CHECK IF the access token is expired
+                //checks if the person is connected, meaning "logged in"
+                console.log(response);
+                if(response.status == "connected"){
+                    //store access token in realtime firebase
+                    //TODO: .then the response so it can store the data first
+                    FBService.storeAccessToken(response.authResponse);
+                    $rootScope.FBisLoggedIn = true;
+                    //TODO: abstract to the facebook service
+                    //if they are logged in, go access the user feed
+                    FBService.fbApiRequest("/me/feed").then(function(response){
+                        console.log(response);
+                        var userList = [],postList=[],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
+                        //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
+                        var posts = response;
+                        for(var i = 0; i < response.data.length; i++){
+                            userList.push({ "method":"GET","relative_url": "/"+posts.data[i].id.split("_")[0]});
+                            postList.push({ "method":"GET","relative_url": "/"+posts.data[i].id});
+                            commentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/comments"});
+                            reactionList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/reactions"});
+                            sharedPostList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/sharedposts"});
+                            attachmentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/attachments"});
+                        }
+                        //sends the request here
+                        FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
+                            var feedList = FBService.groupByIndex(response);
+                            theScope.mainFeed = theScope.mainFeed.concat(FBService.sanitizePosts(feedList));
+                            console.log(theScope.mainFeed);
+                        });
                     });
-                });
-            }
-        });
-        //EVENT fires every time the authentication status changes
-        FB.Event.subscribe('auth.login',function(response){
-            console.log(response);
-            if(response.status == "connected"){
-                theScope.FBisLoggedIn = true;
-            }else{
-                theScope.FBisLoggedIn = false;
-            }
-            //store access token in realtime firebase
-            FBService.storeAccessToken(response.authResponse);
-            //reloads the page state
-            $state.reload();
-        });
+                }
+            });
+
+            //EVENT fires every time the authentication status changes
+            FB.Event.subscribe('auth.login',function(response){
+                console.log(response);
+                if(response.status == "connected"){
+                    $rootScope.FBisLoggedIn = true;
+                }else{
+                    $rootScope.FBisLoggedIn = false;
+                }
+                //store access token in realtime firebase
+                FBService.storeAccessToken(response.authResponse);
+                //reloads the page state
+                $state.reload();
+            });
+        }
+        
+        
 
         //On the expand like button click
         this.openLikeDialog = function($event, likeObj){
@@ -180,9 +187,11 @@ var messaging = firebase.messaging();
                 //adds the facebook posts back
                 var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('facebook').child('post_data');
                 accessTokenRef.once('value').then(function(snapshot){
-                    $scope.$evalAsync(function(){
-                        theScope.mainFeed = theScope.mainFeed.concat(JSON.parse(snapshot.val()));
-                    });
+                    if(snapshot.val()){
+                        $scope.$evalAsync(function(){
+                            theScope.mainFeed = theScope.mainFeed.concat(JSON.parse(snapshot.val()));
+                        });
+                    }
                     console.log(theScope.mainFeed);
                 }).catch(function(response){
                     console.log(response);
@@ -218,180 +227,89 @@ var messaging = firebase.messaging();
         //Twitter Component
         /////////////////////////
 
-        //makes a request for the timeline
-        TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
-            console.log(TwitterService.sanitizePosts(response));
-            //sets the variable that will be passed into the html
-            theScope.mainFeed = theScope.mainFeed.concat(TwitterService.sanitizePosts(response));
-            console.log(theScope.mainFeed);
-        }).catch(function(response){
-            //if the request fails to authenticate or there is some kind of error, sends to login dialog
-            console.log(response);
-            var twitterRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
-            //updates the server with information that the log in is false
-            twitterRef.update({
-                twitLoggedIn: "false"
-            }).then(function(response){
-                //if log in is successful, the state is reloaded
-                if(response == undefined || response.data == undefined){
-                    errors = undefined;
-                }else{
-                    errors = response.data.erros;
-                }
-                TwitterService.twitterLoginPage($state,errors);
-            });
-            
-        });
-    }]);
-
-    //Controller for twitter services
-    app.controller("TwitterController",['TwitterService','$scope','$rootScope','TokenService','$state',function(TwitterService,$scope,$rootScope,TokenService,$state){
-        //Initializes some variables
-        theScope = this;
-        theScope.twitFeed = {};
-        currUser = TokenService.getCurrentUser();
-        //makes a request for the timeline
-        TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
-            console.log(TwitterService.sanitizePosts(response));
-            //sets the variable that will be passed into the html
-            theScope.twitFeed = TwitterService.sanitizePosts(response);
-        }).catch(function(response){
-            //if the request fails to authenticate or there is some kind of error, sends to login dialog
-            console.log(response);
-            var twitterRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
-            //updates the server with information that the log in is false
-            twitterRef.update({
-                twitLoggedIn: "false"
-            }).then(function(response){
-                //if log in is successful, the state is reloaded
-
-                if(response == undefined || response.data == undefined){
-                    errors = undefined;
-                }else{
-                    errors = response.data.erros;
-                }
-                TwitterService.twitterLoginPage($state,errors);
-            });
-            
-        });
-    }]);
-
-    //Controller used to get facebook things
-    app.controller("FacebookController",['FBService','TwitterService','$scope','$state','$mdDialog','$rootScope',function(FBService,TwitterService,$scope,$state,$mdDialog,$rootScope){
-        //Initializes some variables
-        theScope = this;
-        theScope.FBisLoggedIn = false;
-        theScope.userFeed = {};
-        FBService.fbTryLogIn().then(function(response){});
-        var fbLoggedInPromise = FBService.fbIsLoggedIn();
-        //Successfully logged in
-        fbLoggedInPromise.then(function(response){
-            //TODO: ALSO CHECK IF the access token is expired
-            //checks if the person is connected, meaning "logged in"
-            console.log(response);
-            if(response.status == "connected"){
-                //store access token in realtime firebase
-                //TODO: .then the response so it can store the data first
-                FBService.storeAccessToken(response.authResponse);
-                theScope.FBisLoggedIn = true;
-                //TODO: abstract to the facebook service
-                //if they are logged in, go access the user feed
-                FBService.fbApiRequest("/me/feed").then(function(response){
-                    console.log(response);
-                    var userList = [],postList=[],likeList = [],commentList = [],reactionList = [],sharedPostList = [],attachmentList = [];
-                    //Sending multiple batch requests to the facebook api, MAX request is 25 so splitting up the batch requests
-                    var posts = response;
-                    for(var i = 0; i < response.data.length; i++){
-                        userList.push({ "method":"GET","relative_url": "/"+posts.data[i].id.split("_")[0]});
-                        postList.push({ "method":"GET","relative_url": "/"+posts.data[i].id});
-                        commentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/comments"});
-                        reactionList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/reactions"});
-                        sharedPostList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/sharedposts"});
-                        attachmentList.push({ "method":"GET","relative_url": "/"+posts.data[i].id+"/attachments"});
+        //checks if the user has clicked the login button
+        if($rootScope.twitTryLoginBtn){
+            //makes a request for the timeline
+            TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
+                console.log(TwitterService.sanitizePosts(response));
+                //sets the variable that will be passed into the html
+                theScope.mainFeed = theScope.mainFeed.concat(TwitterService.sanitizePosts(response));
+                console.log(theScope.mainFeed);
+            }).catch(function(response){
+                //if the request fails to authenticate or there is some kind of error, sends to login dialog
+                console.log(response);
+                var twitterRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
+                //updates the server with information that the log in is false
+                twitterRef.update({
+                    twitLoggedIn: "false"
+                }).then(function(response){
+                    //if log in is successful, the state is reloaded
+                    if(response == undefined || response.data == undefined){
+                        errors = undefined;
+                    }else{
+                        errors = response.data.errors;
                     }
-                    //sends the request here
-                    FBService.fbBatchRequest(userList,postList,commentList,reactionList,sharedPostList,attachmentList).then(function(response){
-                        var feedList = FBService.groupByIndex(response);
-                        theScope.userFeed = FBService.sanitizePosts(feedList);
-                        console.log(FBService.sanitizePosts(feedList));
-                        console.log(feedList);
-                    });
+                    TwitterService.twitterLoginPage($state,theScope,errors);
                 });
-            }
-        });
-        //EVENT fires every time the authentication status changes
-        FB.Event.subscribe('auth.login',function(response){
-            console.log(response);
-            if(response.status == "connected"){
-                theScope.FBisLoggedIn = true;
-            }else{
-                theScope.FBisLoggedIn = false;
-            }
-            //store access token in realtime firebase
-            FBService.storeAccessToken(response.authResponse);
-            //reloads the page state
-            $state.reload();
-        });
-
-        //On the expand like button click
-        this.openLikeDialog = function($event, likeObj){
-            //stores the likeObj into the rootScope
-            $rootScope.likeObj = likeObj;
-            $mdDialog.show({
-                controller: function LikeDialogController($scope,$mdDialog){
-                    //closes the dialog
-                    this.close = function() {
-                      $mdDialog.cancel();
-                    };
-                },
-                controllerAs: "like",
-                templateUrl: './views/like-dialogpage.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose:true,
-                fullscreen: true// Only for -xs, -sm breakpoints.
+                
             });
-        };
-
-        //On the expand like button click
-        this.openShareDialog = function($event, shareObj){
-            //stores the likeObj into the rootScope
-            $rootScope.shareObj = shareObj;
-            $mdDialog.show({
-                controller: function LikeDialogController($scope,$mdDialog){
-                    //closes the dialog
-                    this.close = function() {
-                      $mdDialog.cancel();
-                    };
-                },
-                controllerAs: "like",
-                templateUrl: './views/share-dialogpage.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose:true,
-                fullscreen: true// Only for -xs, -sm breakpoints.
-            });
-        };
-
-        //On the expand comment button click
-        this.openCommentDialog = function($event, commentObj){
-            //stores the commentObj into the rootscope
-            $rootScope.commentObj = commentObj;
-            $mdDialog.show({
-                controller: function CommentDialogController($scope,$mdDialog){
-                    //closes the dialog
-                    this.close = function() {
-                      $mdDialog.cancel();
-                    };
-                },
-                controllerAs: "comment",
-                templateUrl: './views/comment-dialogpage.html',
-                parent: angular.element(document.body),
-                targetEvent: $event,
-                clickOutsideToClose:true,
-                fullscreen: true// Only for -xs, -sm breakpoints.
-            });
+            //Check if twitter is logged in and sets variables in the scope
+            (function(){
+                var currUser = TokenService.getCurrentUser();
+                var twitterRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
+                twitterRef.on('value',function(snapshot){
+                    if(snapshot.val().twitLoggedIn == "true"){
+                        $rootScope.twitIsLoggedIn = true;
+                    }else{
+                        $rootScope.twitIsLoggedIn = false;
+                    }
+                });
+            })();
         }
+        
+        
+
+        //On the unchecking of the checkbox
+        this.onTwitCb = function(){
+            var currUser = TokenService.getCurrentUser();
+            if(theScope.twitterCb == false){
+                //adds the twitter posts back
+                var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('twitter').child('post_data');
+                accessTokenRef.once('value').then(function(snapshot){
+                    if(snapshot.val()){
+                        $scope.$evalAsync(function(){
+                            theScope.mainFeed = theScope.mainFeed.concat(JSON.parse(snapshot.val()));
+                        });
+                    }
+                    console.log(theScope.mainFeed);
+                }).catch(function(response){
+                    console.log(response);
+                });
+            }else{
+                //removes the twitter posts based on the media type
+                var twitRemovedArray = []
+                var updatedArray = theScope.mainFeed;
+                for(let i = 0; i < updatedArray.length; i++){
+                    if(updatedArray[i].media == "twitter"){
+                        twitRemovedArray.push(updatedArray[i]);
+                        updatedArray.splice(i,1);
+                        i--;
+                    }
+                }
+                theScope.mainFeed = updatedArray;
+                //Stores the deleted data onto firebase
+                var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
+                if(twitRemovedArray != undefined){
+                    accessTokenRef.update({
+                        post_data: JSON.stringify(twitRemovedArray)
+                    }).then(function(response){
+                        console.log(response);
+                    }).catch(function(response){
+                        console.log(response);
+                    });
+                }
+            }
+        };
     }]);
 
     //Account controller used to handle editing the user profile
@@ -459,15 +377,22 @@ var messaging = firebase.messaging();
     }]);
 
     //Controller for logged in user navigation
-    app.controller("MainPageController",['$mdSidenav','$scope','FBService','TwitterService','$state',function($mdSidenav,$scope,FBService,TwitterService,$state){
+    app.controller("MainPageController",['$mdSidenav','$scope','FBService','TwitterService','$state','$rootScope',function($mdSidenav,$scope,FBService,TwitterService,$state,$rootScope){
         this.isSideNavOpen = false;
+        $rootScope.FBTryLoginBtn = false;
+        $rootScope.twitTryLoginBtn = false;
         
         //when someone clicks the facebook button
         this.fbLogin = function(){
-            $state.go("main.features.fbfeed");
+            //$state.go("main.features.fbfeed");
+            $rootScope.FBTryLoginBtn = true;
+            $state.reload("main.features.mainfeed");
+
         }
         this.twitterLogin = function(){
-            $state.go("main.features.twitterfeed");
+            //$state.go("main.features.twitterfeed");
+            $rootScope.twitTryLoginBtn = true;
+            $state.reload("main.features.mainfeed");
         }
 
         //function to toggle the state of the sidebar

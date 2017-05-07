@@ -8,7 +8,7 @@
           </div>
         </md-card-title-media>
         <md-card-title-text>
-          <span class="md-headline">{/$root.username/}</span>
+          <span class="md-headline">{/$root.username | limitTo: 15/}</span>
           <span class="md-subhead description">I am an email</span>
         </md-card-title-text>
       </md-card-title>
@@ -77,19 +77,14 @@
         </md-button>
     </div>
     <md-content flex>
-        <div>
-            <md-button class="md-fab" style="background-color:#3b5998;" ng-click="main.fbLogin()">
+        <div >
+            <md-button class="md-fab" style="background-color:#3b5998;" ng-click="main.fbLogin()" ng-disabled="$root.FBisLoggedIn">
                 <md-icon md-svg-icon="facebook" class="material-icons md-36" aria-label="facebook"></md-icon>
             </md-button>
         </div>
         <div>
-            <md-button class="md-fab" style="background-color:#00aced;" ng-click="main.twitterLogin()">
+            <md-button class="md-fab" style="background-color:#00aced;" ng-click="main.twitterLogin()" ng-disabled="$root.twitIsLoggedIn">
                 <md-icon md-svg-icon="twitter" class="material-icons md-36" aria-label="twitter"></md-icon>
-            </md-button>
-        </div>
-        <div>
-            <md-button class="md-fab" style="background-color:#fffc00;">
-                <md-icon md-svg-icon="snapchat" class="material-icons md-36" aria-label="snapchat"></md-icon>
             </md-button>
         </div>
     </md-content>

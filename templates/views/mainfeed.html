@@ -1,7 +1,7 @@
 <br><br>
 <div layout layout-align="end center" flex>
-    <md-checkbox aria-label="facebook" ng-model="mf.facebookCb" ng-init="mf.facebookCb = true" ng-click="mf.onFbCb()">Facebook</md-checkbox>
-    <md-checkbox aria-label="twitter" ng-model="mf.twitterCb" ng-init="mf.twitterCb = true" ng-click="mf.onTwitCb()">Twitter</md-checkbox>
+    <md-checkbox aria-label="facebook" ng-model="mf.facebookCb" ng-init="mf.facebookCb = true" ng-click="mf.onFbCb()" ng-show="$root.FBisLoggedIn">Facebook</md-checkbox>
+    <md-checkbox aria-label="twitter" ng-model="mf.twitterCb" ng-init="mf.twitterCb = true" ng-click="mf.onTwitCb()" ng-show="$root.twitIsLoggedIn">Twitter</md-checkbox>
 </div>
 <br>
 <md-content flex id="fb-root">
@@ -33,7 +33,7 @@
         </div>
         <div class="md-whiteframe-2dp" layout="row">
             <div flex style="padding-right:1%;">
-                <h4 class="md-body-1 side-padding" class="message">{/post.body/}</h4>
+                <h4 class="md-body-1 side-padding" class="message" style="word-wrap: break-word;">{/post.body/}</h4>
                 <md-divider></md-divider>
                 <div layout="row" flex>
                     <md-subheader class="md-no-sticky">{/post.reactions.count/} {/post.reactions.media_name/}</md-subheader>
