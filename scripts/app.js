@@ -63,6 +63,7 @@ var messaging = firebase.messaging();
         /////////////////////////
         //Facebook Component
         /////////////////////////
+        //TODO:Add a check have a check that checks if the person is logged in here that bypasses the if statement
         //Only if they click the login button does
         if($rootScope.FBTryLoginBtn){
             FBService.fbTryLogIn().then(function(response){});
@@ -227,8 +228,10 @@ var messaging = firebase.messaging();
         //Twitter Component
         /////////////////////////
 
+        //TODO: add a check here that checks if the person is logged into twitter that bypasses the if statement (PUT IN TWITTER SERVICE)
         //checks if the user has clicked the login button
         if($rootScope.twitTryLoginBtn){
+            console.log("Hi");
             //makes a request for the timeline
             TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
                 console.log(TwitterService.sanitizePosts(response));
@@ -237,7 +240,7 @@ var messaging = firebase.messaging();
                 console.log(theScope.mainFeed);
             }).catch(function(response){
                 //if the request fails to authenticate or there is some kind of error, sends to login dialog
-                console.log(response);
+                var currUser = TokenService.getCurrentUser();
                 var twitterRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
                 //updates the server with information that the log in is false
                 twitterRef.update({
@@ -249,7 +252,7 @@ var messaging = firebase.messaging();
                     }else{
                         errors = response.data.errors;
                     }
-                    TwitterService.twitterLoginPage($state,theScope,errors);
+                    TwitterService.twitterLoginPage($state,errors);
                 });
                 
             });
@@ -379,8 +382,6 @@ var messaging = firebase.messaging();
     //Controller for logged in user navigation
     app.controller("MainPageController",['$mdSidenav','$scope','FBService','TwitterService','$state','$rootScope',function($mdSidenav,$scope,FBService,TwitterService,$state,$rootScope){
         this.isSideNavOpen = false;
-        $rootScope.FBTryLoginBtn = false;
-        $rootScope.twitTryLoginBtn = false;
         
         //when someone clicks the facebook button
         this.fbLogin = function(){
@@ -465,6 +466,8 @@ var messaging = firebase.messaging();
         //initialize all variables here
         $rootScope.username = "";
         $rootScope.isLoaded = false;
+        $rootScope.FBTryLoginBtn = false;
+        $rootScope.twitTryLoginBtn = false;
     }]);
 
     //The controller that handles all the messages
