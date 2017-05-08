@@ -49,7 +49,7 @@
                     <md-subheader class="md-no-sticky">{/post.shares.count/} {/post.shares.media_name/}</md-subheader>
                     <span flex></span>
                     <div layout layout-align="end center">
-                        <md-button class="md-icon-button" ng-if="post.shares.count != 0"  ng-click="fb.openLikeDialog($event,post.shares.recent_shares)">
+                        <md-button class="md-icon-button" ng-if="post.shares.count != 0"  ng-click="fb.openShareDialog($event,post.shares.recent_shares)">
                             <md-icon md-svg-icon="arrow-expand" aria-label="popup-shared"></md-icon>
                         </md-button>
                     </div>

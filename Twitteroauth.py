@@ -30,7 +30,7 @@ def store_token(user_id,token,token_secret):
 #returns the headers for a twitter request
 def twitter_headers(http_method,url,callback_url,param_list,auth_token="",auth_token_secret=""):
     #adds all the oauth parameters to a list
-    oauth_consumer_key='oauth_consumer_key=ic9xnJgR2vY62zxbTceIP52Hv'
+    oauth_consumer_key='oauth_consumer_key=JfBWgICkZxiJijXeNpAb6F6bo'
     oauth_signature_method='oauth_signature_method=HMAC-SHA1'
     oauth_timestamp= 'oauth_timestamp='+str(int(time.time()))
     oauth_token='oauth_token='+quote_plus(auth_token)
@@ -63,7 +63,7 @@ def change_param_list(paramList):
 #signs the request and returns the urlencoded signature
 def sign_request(paramList,http_method,url,token_secret):
     #TODO: put in config file
-    company_secret = quote_plus("6mptuvQQDigbyPqisyYZQ56Ta7JogGVTBibXNnZExxVfATVS0D")
+    company_secret = quote_plus("K5LDPF9AJML4QTEkUZ7irreOcXJUEk9MOIHtswElIrpIaWvsEJ")
     client_secret = quote_plus(token_secret)
     key=company_secret+"&"+client_secret
 

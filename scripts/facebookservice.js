@@ -11,7 +11,7 @@
                 window.fbAsyncInit = function() {
                     deferred.resolve(
                         FB.init({
-                          appId      : '1333544743350684',
+                          appId      : '1646450122046674',
                           xfbml      : true,
                           version    : 'v2.9'
                         })
@@ -131,7 +131,7 @@
             var accessTokenRef = firebase.database().ref().child('user_data').child(currUser).child('facebook');
             accessTokenRef.once('value').then(function(snapshot){
                 //sets the userID, accesstoken, and expirytime to the firebase database
-                accessTokenRef.set({
+                accessTokenRef.update({
                     fbAccessToken: responseObj.accessToken,
                     fbUserID: responseObj.userID,
                     fbexpireTime: responseObj.expiresIn

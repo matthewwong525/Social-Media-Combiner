@@ -1,11 +1,11 @@
-
 // Initialize Firebase
 var config = {
-    apiKey: "AIzaSyDi1uj0-1YBfxpNF6L-NFOaFyfzEQo323w",
-    authDomain: "mywebapp-123.firebaseapp.com",
-    databaseURL: "https://mywebapp-123.firebaseio.com",
-    storageBucket: "mywebapp-123.appspot.com",
-    messagingSenderId: "808569769768"
+    apiKey: "AIzaSyAz4w2O-5NURG9iPXPJ__PphdkoU5IZuNM",
+    authDomain: "mywebapp-dev.firebaseapp.com",
+    databaseURL: "https://mywebapp-dev.firebaseio.com",
+    projectId: "mywebapp-dev",
+    storageBucket: "mywebapp-dev.appspot.com",
+    messagingSenderId: "89031852224"
 };
 firebase.initializeApp(config);
 //Retrieve Firebase Messaging object
@@ -231,12 +231,17 @@ var messaging = firebase.messaging();
         //TODO: add a check here that checks if the person is logged into twitter that bypasses the if statement (PUT IN TWITTER SERVICE)
         //checks if the user has clicked the login button
         if($rootScope.twitTryLoginBtn){
-            console.log("Hi");
             //makes a request for the timeline
             TwitterService.makeRequest("GET","statuses/home_timeline.json").then(function(response){
                 console.log(TwitterService.sanitizePosts(response));
                 //sets the variable that will be passed into the html
                 theScope.mainFeed = theScope.mainFeed.concat(TwitterService.sanitizePosts(response));
+                //sets current logged in status to true
+                var currUser = TokenService.getCurrentUser();
+                var twitterRef = firebase.database().ref().child('user_data').child(currUser).child('twitter');
+                twitterRef.update({
+                    twitLoggedIn: "true"
+                });
                 console.log(theScope.mainFeed);
             }).catch(function(response){
                 //if the request fails to authenticate or there is some kind of error, sends to login dialog

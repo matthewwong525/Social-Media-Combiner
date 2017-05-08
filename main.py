@@ -238,9 +238,9 @@ class TwitterLoginHandler(Handler):
                     if result_access.content:
                         headers = {'Content-Type':'application/json'}
                         #TODO: put this into the config file
-                        FB_auth_secret = '8U2CpNmMMGKh0oIOxIVHGOPjQlv9sKBzZeIKqhhS'
+                        FB_auth_secret = 'bNOkZ3xQHPFZHX0o5hJQyr9BHk2XGJP42M4yvOZL'
                         result_firebase = urlfetch.fetch(
-                                url="https://mywebapp-123.firebaseio.com/user_data/"+token_data.user_id+"/twitter.json?auth="+FB_auth_secret,
+                                url="https://mywebapp-dev.firebaseio.com/user_data/"+token_data.user_id+"/twitter.json?auth="+FB_auth_secret,
                                 method=urlfetch.PUT,
                                 payload=json.dumps({"twitLoggedIn":"true","twitUserId":twit_id,"twitScreenName":twit_user}),
                                 headers=headers)
@@ -259,7 +259,7 @@ class TwitterLoginHandler(Handler):
             #TODO: PUT THE CONSUMER KEYS AND SECRETS INTO A CONFIG FILE
             request_token_url = 'https://api.twitter.com/oauth/request_token'
             #TODO: change this to the actual website
-            callback_url = "localhost:17080/twitter"
+            callback_url = "localhost:8080/twitter"
             #retrieves the oauth 1.0 headers for twitter
             headers = Twitteroauth.twitter_headers("POST",request_token_url,callback_url,[])
             #makes the request here
